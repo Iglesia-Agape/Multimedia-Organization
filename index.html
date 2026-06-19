@@ -7,174 +7,338 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Estilo de scroll personalizado estilo suite de edición */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #1e1e2e; }
-        ::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: #121214; }
+        ::-webkit-scrollbar-thumb { background: #2a2a30; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-[#121214] text-gray-100 font-sans antialiased min-h-screen flex">
+<body class="bg-[#0f0f11] text-gray-100 font-sans antialiased min-h-screen flex">
 
-    <aside class="w-64 bg-[#1a1a1e] border-r border-[#2a2a30] flex flex-col justify-between hidden md:flex">
-        <div class="p-6">
-            <div class="flex items-center gap-3 mb-8">
+    <aside class="w-64 bg-[#161619] border-r border-[#222226] flex flex-col justify-between hidden md:flex shrink-0">
+        <div class="p-4 flex-1 flex flex-col min-h-0">
+            <div class="flex items-center gap-3 mb-6 px-2">
                 <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-600/30">M</div>
-                <span class="font-semibold text-lg tracking-wide text-gray-200">Ministerio Media</span>
+                <span class="font-semibold text-base tracking-wide text-gray-200">Ministerio Media</span>
             </div>
             
-            <nav class="space-y-1">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">Espacios de Trabajo</p>
-                <a href="#" class="flex items-center gap-3 px-3 py-2 bg-[#26262b] text-indigo-400 rounded-lg font-medium text-sm transition">
-                    🎬 Producción Audiovisual
-                </a>
-                <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-400 hover:bg-[#202024] hover:text-gray-200 rounded-lg font-medium text-sm transition">
-                    🎨 Diseño Gráfico
-                </a>
-                <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-400 hover:bg-[#202024] hover:text-gray-200 rounded-lg font-medium text-sm transition">
-                    📢 Marketing Digital
-                </a>
-            </nav>
+            <div class="mb-6 bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-3">
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-xs">📢</span>
+                    <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Tablón de Anuncios</p>
+                </div>
+                <p id="texto-anuncio" class="text-xs text-gray-400 leading-relaxed italic">"Cargando el último comunicado de la producción..."</p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pr-1">
+                <div class="flex justify-between items-center px-2 mb-2">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Espacios de Trabajo</p>
+                    <button onclick="abrirModalEspacio()" class="text-gray-400 hover:text-indigo-400 text-sm transition font-bold">＋</button>
+                </div>
+                <nav id="lista-espacios" class="space-y-1">
+                    </nav>
+            </div>
         </div>
         
-        <div class="p-4 border-t border-[#2a2a30] bg-[#161619] flex items-center gap-3">
+        <div class="p-4 border-t border-[#222226] bg-[#121214] flex items-center gap-3">
             <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
             <div>
                 <p class="text-sm font-medium text-gray-300">René Raudales</p>
-                <p class="text-xs text-gray-500">Multimedia</p>
+                <p class="text-xs text-gray-500">Sistemas & Media</p>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-h-screen">
-        <header class="bg-[#1a1a1e] border-b border-[#2a2a30] p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-                <div class="flex items-center gap-3 mb-1">
-                    <span class="text-2xl">🎬</span>
-                    <h1 class="text-2xl font-bold tracking-tight text-white">Flujo de Producción Audiovisual</h1>
+    <main class="flex-1 flex flex-col min-h-screen min-w-0">
+        
+        <div class="w-full h-44 bg-cover bg-center relative border-b border-[#222226]" 
+             style="background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200');">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/40 to-transparent"></div>
+        </div>
+
+        <header class="-mt-10 px-8 pb-4 relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+            <div class="flex gap-4 items-end">
+                <div class="w-16 h-16 bg-[#161619] border-2 border-[#222226] rounded-2xl flex items-center justify-center text-3xl shadow-xl" id="tablero-icono">🎬</div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white mb-0.5" id="tablero-titulo">Cargando espacio...</h1>
+                    <p class="text-xs text-gray-400" id="tablero-descripcion">Gestión integrada de proyectos audiovisuales y control cruzado.</p>
                 </div>
-                <p class="text-sm text-gray-400">Gestión integrada de proyectos de video, renders y asignaciones cruzadas.</p>
             </div>
             
-            <div class="flex items-center gap-2 bg-[#121214] border border-[#2a2a30] rounded-lg p-1">
-                <button class="px-3 py-1.5 text-xs font-medium rounded-md bg-[#26262b] text-white shadow-sm">Todo</button>
-                <button class="px-3 py-1.5 text-xs font-medium rounded-md text-gray-400 hover:text-white transition">Multimedia</button>
-                <button class="px-3 py-1.5 text-xs font-medium rounded-md text-gray-400 hover:text-white transition">Asignado a mí</button>
+            <div class="flex items-center gap-2 bg-[#161619] border border-[#222226] rounded-lg p-1 text-xs">
+                <button class="px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm">Todo</button>
+                <button class="px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white transition">Asignados</button>
             </div>
         </header>
 
-        <section id="tablero-columnas" class="flex-1 p-6 flex gap-6 overflow-x-auto items-start bg-[#121214]">
-            <div class="text-gray-500 text-sm animate-pulse flex items-center justify-center w-full h-64">
-                Conectando con Multimedia2026 en Supabase...
+        <section id="tablero-columnas" class="flex-1 p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
+            <div class="text-gray-600 text-xs animate-pulse flex items-center justify-center w-full h-48">
+                Leyendo flujos de trabajo en Supabase...
             </div>
         </section>
     </main>
 
+    <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-[#222226] pb-3">
+                <h3 class="font-bold text-gray-200 text-base flex items-center gap-2">📝 Nueva Tarea Audiovisual</h3>
+                <button onclick="cerrarModalTarea()" class="text-gray-500 hover:text-white text-lg">✕</button>
+            </div>
+            <input type="hidden" id="form-segmento-id">
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Título de la asignación</label>
+                <input type="text" id="form-titulo" placeholder="Ej. Renderizar intro animada de la iglesia" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Prioridad (Notion Style)</label>
+                    <select id="form-prioridad" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
+                        <option value="Baja">🟢 Baja</option>
+                        <option value="Media" selected>🟡 Media</option>
+                        <option value="Alta">🟠 Alta</option>
+                        <option value="Urgente">🔴 Urgente</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Fecha límite</label>
+                    <input type="date" id="form-fecha" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">URL de Miniatura / Imagen Preview</label>
+                <input type="url" id="form-miniatura" placeholder="https://enlace-de-imagen.jpg" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
+            </div>
+            <button onclick="guardarTarea()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg shadow-lg shadow-indigo-600/20 transition">
+                🚀 Desplegar Tarea en Tablero
+            </button>
+        </div>
+    </div>
+
+    <div id="modal-espacio" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-[#161619] border border-[#26262b] w-full max-w-sm rounded-xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-[#222226] pb-3">
+                <h3 class="font-bold text-gray-200 text-base">🎨 Crear Espacio de Trabajo</h3>
+                <button onclick="cerrarModalEspacio()" class="text-gray-500 hover:text-white">✕</button>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Nombre del Espacio</label>
+                <input type="text" id="espacio-titulo" placeholder="Ej. Audio, Redes Sociales" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Icono / Emoji</label>
+                <input type="text" id="espacio-icono" placeholder="🎛️, 🎨, 📢" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm text-center focus:outline-hidden focus:border-indigo-500 text-gray-200">
+            </div>
+            <button onclick="guardarEspacio()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition">
+                ✨ Crear Espacio
+            </button>
+        </div>
+    </div>
+
     <script>
-        // Inicializar credenciales
         const SUPABASE_URL = "https://cpyueytgzapjguyoigsg.supabase.co";
         const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
-        
-        // Usamos un nombre único para evitar conflictos con el objeto global de la librería
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function cargarTablero() {
+        let tableroActualId = null;
+
+        // Cargar todo al arrancar la web
+        window.onload = async () => {
+            configurarAnunciosEstaticos();
+            await cargarEspaciosDeTrabajo();
+        };
+
+        // 📢 Función de anuncios estáticos para el equipo entero
+        function configurarAnunciosEstaticos() {
+            const anuncios = [
+                "📢 Recordatorio: El streaming del domingo inicia pruebas a las 7:30 AM. ¡Puntuales!",
+                "📢 Diseño: Ya están listos los vectores para las pantallas led en el drive.",
+                "📢 Audio: Limpieza general de consolas y cables este sábado por la tarde."
+            ];
+            // Alterna un anuncio aleatorio para todo el equipo en la barra lateral
+            document.getElementById('texto-anuncio').innerText = anuncios[Math.floor(Math.random() * anuncios.length)];
+        }
+
+        // 📁 Cargar lista de espacios de trabajo (tableros) en la barra lateral
+        async function cargarEspaciosDeTrabajo() {
+            const lista = document.getElementById('lista-espacios');
+            
+            let { data: tableros } = await supabaseClient
+                .from('tableros')
+                .select('*')
+                .order('created_at', { ascending: true });
+
+            if (!tableros || tableros.length === 0) {
+                // Si está vacío, crea el de producción por defecto
+                const { data: inicial } = await supabaseClient.from('tableros').insert([{ titulo: "Producción Audiovisual", descripcion: "Control general" }]).select();
+                tableros = inicial;
+            }
+
+            lista.innerHTML = '';
+            tableros.forEach((tab, index) => {
+                const icono = index === 1 ? '🎛️' : (index === 2 ? '🎨' : '🎬'); // Iconos estéticos automáticos
+                const esActivo = tableroActualId === null ? index === 0 : tab.id === tableroActualId;
+                
+                if (esActivo) tableroActualId = tab.id;
+
+                lista.innerHTML += `
+                    <button onclick="cambiarTablero('${tab.id}', '${tab.titulo}', '${icono}')" class="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-medium transition ${esActivo ? 'bg-[#222226] text-indigo-400' : 'text-gray-400 hover:bg-[#1a1a1e] hover:text-gray-200'}">
+                        <span>${icono}</span> ${tab.titulo}
+                    </button>
+                `;
+            });
+
+            // Forzar carga de columnas del tablero activo
+            if (tableroActualId) cargarColumnasYTasks();
+        }
+
+        // Cambiar de área de trabajo de forma reactiva
+        function cambiarTablero(id, titulo, icono) {
+            tableroActualId = id;
+            document.getElementById('tablero-titulo').innerText = titulo;
+            document.getElementById('tablero-icono').innerText = icono;
+            
+            // Cambiar imagen de fondo dinámicamente según el área seleccionada
+            const headerBanner = document.querySelector('main > div');
+            if (titulo.toLowerCase().includes('audio')) {
+                headerBanner.style.backgroundImage = "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200')"; // Consola de Audio Pro
+            } else if (titulo.toLowerCase().includes('diseño')) {
+                headerBanner.style.backgroundImage = "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200')"; // Arte Abstracto/Diseño
+            } else {
+                headerBanner.style.backgroundImage = "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200')"; // Estudio Multimedia
+            }
+
+            cargarEspaciosDeTrabajo();
+        }
+
+        // 🗂️ Cargar columnas y tareas pertenecientes al espacio activo
+        async function cargarColumnasYTasks() {
             const contenedor = document.getElementById('tablero-columnas');
             
-            try {
-                // Consultar segmentos usando el cliente corregido
-                let { data: segmentos, error: errSeg } = await supabaseClient
-                    .from('segmentos')
+            let { data: segmentos } = await supabaseClient
+                .from('segmentos')
+                .select('*')
+                .eq('tablero_id', tableroActualId)
+                .order('posicion', { ascending: true });
+
+            // Inicializar las columnas típicas de Notion si el espacio es completamente nuevo
+            if (!segmentos || segmentos.length === 0) {
+                contenedor.innerHTML = `
+                    <div class="text-center py-12 px-4 border-2 border-dashed border-[#222226] rounded-xl max-w-sm mx-auto mt-6">
+                        <p class="text-gray-500 text-xs mb-3">Este espacio no tiene columnas todavía.</p>
+                        <button onclick="inicializarColumnasEspacio()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition shadow-md">
+                            ✨ Inicializar Pipeline de Trabajo
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            contenedor.innerHTML = '';
+
+            for (const col of segmentos) {
+                const { data: tareas } = await supabaseClient
+                    .from('tareas')
                     .select('*')
+                    .eq('segmento_id', col.id)
                     .order('posicion', { ascending: true });
 
-                // Si da error o está vacío, muestra la opción de inicializar columnas por defecto
-                if (errSeg || !segmentos || segmentos.length === 0) {
-                    console.log("Inicializando o recuperando de estado vacío...");
-                    contenedor.innerHTML = `
-                        <div class="text-center py-12 px-4 border-2 border-dashed border-[#2a2a30] rounded-xl max-w-md mx-auto mt-12">
-                            <p class="text-gray-400 text-base mb-4">El entorno está listo para ser desplegado en tu organización.</p>
-                            <button onclick="crearColumnasPorDefecto()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg shadow-md transition">
-                                ✨ Inicializar columnas de Producción
-                            </button>
-                        </div>`;
-                    return;
-                }
+                let htmlTareas = '';
+                if (tareas && tareas.length > 0) {
+                    tareas.forEach(tarea => {
+                        let badgeColor = "bg-gray-800 text-gray-400";
+                        if(tarea.prioridad === 'Alta') badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                        if(tarea.prioridad === 'Urgente') badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
 
-                contenedor.innerHTML = '';
-
-                // Renderizar cada segmento y sus tareas asociadas
-                for (const col of segmentos) {
-                    const { data: tareas } = await supabaseClient
-                        .from('tareas')
-                        .select('*')
-                        .eq('segmento_id', col.id)
-                        .order('posicion', { ascending: true });
-
-                    let htmlTareas = '';
-                    if (tareas && tareas.length > 0) {
-                        tareas.forEach(tarea => {
-                            let badgeColor = "bg-gray-800 text-gray-400";
-                            if(tarea.prioridad === 'Alta') badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-                            if(tarea.prioridad === 'Urgente') badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
-
-                            htmlTareas += `
-                                <div class="bg-[#1a1a1e] border border-[#2a2a30] p-4 rounded-xl shadow-sm hover:border-indigo-500/40 transition-all cursor-pointer group space-y-3">
-                                    ${tarea.miniatura_url ? `<img src="${tarea.miniatura_url}" class="w-full h-32 object-cover rounded-lg border border-[#2a2a30]" />` : ''}
-                                    <h4 class="font-medium text-sm text-gray-200 group-hover:text-white">${tarea.titulo}</h4>
-                                    <div class="flex items-center justify-between pt-1">
-                                        <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold tracking-wide ${badgeColor}">${tarea.prioridad}</span>
-                                        <span class="text-xs text-gray-500 font-medium">${tarea.fecha_entrega ? tarea.fecha_entrega : 'Sin fecha'}</span>
-                                    </div>
-                                </div>`;
-                        });
-                    } else {
-                        htmlTareas = `<div class="text-xs text-gray-600 text-center py-6 border border-dashed border-[#202024] rounded-xl">Arrastra o añade tareas aquí</div>`;
-                    }
-
-                    contenedor.innerHTML += `
-                        <div class="w-80 shrink-0 flex flex-col max-h-[calc(100vh-180px)] bg-[#161619]/60 p-4 rounded-xl border border-[#202024]">
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="font-semibold text-sm tracking-wide text-gray-300">${col.nombre}</h3>
-                                    <span class="bg-[#202024] text-xs text-gray-400 px-2 py-0.5 rounded-full font-bold">${tareas ? tareas.length : 0}</span>
+                        htmlTareas += `
+                            <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3">
+                                ${tarea.miniatura_url ? `<img src="${tarea.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" />` : ''}
+                                <h4 class="font-medium text-xs text-gray-200 group-hover:text-white leading-tight">${tarea.titulo}</h4>
+                                <div class="flex items-center justify-between pt-1">
+                                    <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold ${badgeColor}">${tarea.prioridad}</span>
+                                    <span class="text-[10px] text-gray-500 font-medium">👤 Lider Media</span>
                                 </div>
-                                <button class="text-gray-500 hover:text-white transition text-lg font-bold">＋</button>
-                            </div>
-                            <div class="space-y-3 overflow-y-auto pr-1 flex-1">
-                                ${htmlTareas}
-                            </div>
-                        </div>`;
+                            </div>`;
+                    });
+                } else {
+                    htmlTareas = `<div class="text-[11px] text-gray-600 text-center py-6 border border-dashed border-[#1c1c21] rounded-xl">No hay asignaciones</div>`;
                 }
 
-            } catch (error) {
-                console.error("Error crítico en la interfaz:", error);
+                contenedor.innerHTML += `
+                    <div class="w-72 shrink-0 flex flex-col max-h-[calc(100vh-280px)] bg-[#121214]/60 p-4 rounded-xl border border-[#1c1c21]">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-semibold text-xs tracking-wide text-gray-300">${col.nombre}</h3>
+                                <span class="bg-[#1c1c21] text-[10px] text-gray-400 px-2 py-0.5 rounded-full font-bold">${tareas ? tareas.length : 0}</span>
+                            </div>
+                            <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold">＋</button>
+                        </div>
+                        <div class="space-y-3 overflow-y-auto pr-1 flex-1">
+                            ${htmlTareas}
+                        </div>
+                    </div>`;
             }
         }
 
-        async function crearColumnasPorDefecto() {
-            let tableroId;
-            // Verificar si ya existe un contenedor de tablero general
-            const { data: tableros } = await supabaseClient.from('tableros').select('id').limit(1);
-            
-            if (tableros && tableros.length > 0) {
-                tableroId = tableros[0].id;
-            } else {
-                const { data: nuevoTab } = await supabaseClient.from('tableros').insert([{ titulo: "Producción Audiovisual Principal" }]).select();
-                tableroId = nuevoTab[0].id;
-            }
-
-            // Inyectar los segmentos por defecto para el equipo multimedia
+        // Inicializador automático de columnas para nuevas áreas
+        async function inicializarColumnasEspacio() {
             await supabaseClient.from('segmentos').insert([
-                { tablero_id: tableroId, nombre: "📋 Por Empezar", posicion: 1 },
-                { tablero_id: tableroId, nombre: "🎬 En Edición", posicion: 2 },
-                { tablero_id: tableroId, nombre: "🚀 En Render / Revisión", posicion: 3 }
+                { tablero_id: tableroActualId, nombre: "📋 Por Hacer", posicion: 1 },
+                { tablero_id: tableroActualId, nombre: "🎬 En Proceso", posicion: 2 },
+                { tablero_id: tableroActualId, nombre: "🚀 Finalizado", posicion: 3 }
             ]);
-
-            cargarTablero();
+            cargarColumnasYTasks();
         }
 
-        // Cargar el flujo de trabajo al abrir el documento
-        window.onload = cargarTablero;
+        // Controladores de Ventana de Tareas
+        function abrirModalTarea(segmentoId) {
+            document.getElementById('form-segmento-id').value = segmentoId;
+            document.getElementById('modal-tarea').classList.remove('hidden');
+        }
+         Pelota {
+        function cerrarModalTarea() {
+            document.getElementById('modal-tarea').classList.add('hidden');
+            document.getElementById('form-titulo').value = '';
+            document.getElementById('form-miniatura').value = '';
+        }
+
+        async function guardarTarea() {
+            const segmentoId = document.getElementById('form-segmento-id').value;
+            const titulo = document.getElementById('form-titulo').value;
+            const prioridad = document.getElementById('form-prioridad').value;
+            const miniatura = document.getElementById('form-miniatura').value;
+            const fecha = document.getElementById('form-fecha').value;
+
+            if(!titulo) return alert("Por favor escribe el título de la tarea");
+
+            await supabaseClient.from('tareas').insert([{
+                segmento_id: segmentoId,
+                titulo: titulo,
+                prioridad: prioridad,
+                miniatura_url: miniatura || null,
+                fecha_entrega: fecha || null
+            }]);
+
+            cerrarModalTarea();
+            cargarColumnasYTasks();
+        }
+
+        // Controladores de Ventana de Espacios de Trabajo
+        function abrirModalEspacio() { document.getElementById('modal-espacio').classList.remove('hidden'); }
+        function cerrarModalEspacio() { document.getElementById('modal-espacio').classList.add('hidden'); document.getElementById('espacio-titulo').value = ''; }
+        
+        async function guardarEspacio() {
+            const titulo = document.getElementById('espacio-titulo').value;
+            const icono = document.getElementById('espacio-icono').value || '🎛️';
+
+            if(!titulo) return alert("Escribe el nombre del espacio");
+
+            const { data } = await supabaseClient.from('tableros').insert([{
+                titulo: titulo,
+                descripcion: `Mesa de trabajo para ${titulo}`
+            }]).select();
+
+            cerrarModalEspacio();
+            await cargarEspaciosDeTrabajo();
+            if(data && data[0]) cambiarTablero(data[0].id, data[0].titulo, icono);
+        }
     </script>
 </body>
 </html>
