@@ -18,7 +18,7 @@
 </head>
 <body class="bg-[#0f0f11] text-gray-100 font-sans antialiased min-h-screen flex">
 
-    <!-- BARRA LATERAL (Espacios de trabajo + Anuncios del Ministerio) -->
+    <!-- BARRA LATERAL (Espacios de trabajo + Anuncios + Perfil) -->
     <aside class="w-64 bg-[#161619] border-r border-[#222226] flex flex-col justify-between hidden md:flex shrink-0">
         <div class="p-4 flex-1 flex flex-col min-h-0">
             <!-- Header de la Organización -->
@@ -53,13 +53,18 @@
             </div>
         </div>
         
-        <!-- Perfil Fijo del Operador -->
-        <div class="p-4 border-t border-[#222226] bg-[#121214] flex items-center gap-3">
-            <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
-            <div>
-                <p class="text-sm font-medium text-gray-300">René Raudales</p>
-                <p class="text-xs text-gray-500">Sistemas & Media</p>
+        <!-- Perfil del Operador + Acceso a Configuración General -->
+        <div class="p-4 border-t border-[#222226] bg-[#121214] flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
+                <div>
+                    <p class="text-sm font-medium text-gray-300">René Raudales</p>
+                    <p class="text-xs text-gray-500">Sistemas & Media</p>
+                </div>
             </div>
+            <button onclick="abrirModalConfiguracion()" class="text-gray-400 hover:text-indigo-400 p-1.5 rounded-lg hover:bg-[#1c1c21] transition cursor-pointer" title="Configuración del Equipo">
+                ⚙️
+            </button>
         </div>
     </aside>
 
@@ -89,7 +94,7 @@
         </header>
 
         <!-- CONTENEDOR KANBAN DE COLUMNAS -->
-        <section id="tablero-columnas" class="p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
+        <section id="tablero-columnas" class="flex-1 p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
             <div class="text-gray-600 text-xs animate-pulse flex items-center justify-center w-full h-48">
                 Leyendo flujos de trabajo en Supabase...
             </div>
@@ -134,7 +139,7 @@
         </section>
     </main>
 
-    <!-- MODAL INTERACTIVO PARA CREAR TAREAS -->
+    <!-- MODAL: CREAR TAREAS -->
     <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -161,10 +166,7 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Responsable</label>
                     <select id="form-responsable" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                        <option value="René Raudales">👤 René Raudales</option>
-                        <option value="Equipo Audio">🎛️ Equipo Audio</option>
-                        <option value="Equipo Media">🎬 Equipo Media</option>
-                        <option value="Diseño Gráfico">🎨 Equipo Diseño</option>
+                        <!-- Dinámico desde Supabase -->
                     </select>
                 </div>
             </div>
@@ -185,7 +187,7 @@
         </div>
     </div>
 
-    <!-- MODAL INTERACTIVO PARA CREAR ESPACIOS DE TRABAJO -->
+    <!-- MODAL: CREAR ESPACIOS -->
     <div id="modal-espacio" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-sm rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -197,12 +199,47 @@
                 <input type="text" id="espacio-titulo" placeholder="Ej. Audio, Redes Sociales" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Icono representativo (Emoji)</label>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Icono (Emoji)</label>
                 <input type="text" id="espacio-icono" placeholder="🎛️" value="🎛️" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm text-center focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
             <button onclick="guardarEspacio()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition cursor-pointer">
                 ✨ Crear Nuevo Espacio
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL: CONFIGURACIÓN GENERAL / GESTIÓN DE MIEMBROS -->
+    <div id="modal-configuracion" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-[#161619] border border-[#26262b] w-full max-w-lg rounded-xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center border-b border-[#222226] pb-3 shrink-0">
+                <h3 class="font-bold text-gray-200 text-base flex items-center gap-2">⚙️ Configuración del Ministerio</h3>
+                <button onclick="cerrarModalConfiguracion()" class="text-gray-500 hover:text-white cursor-pointer">✕</button>
+            </div>
+            
+            <!-- Formulario para agregar miembros de inmediato -->
+            <div class="bg-[#1c1c21] p-4 rounded-xl border border-[#2a2a33] mt-4 space-y-3 shrink-0">
+                <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Agregar Integrante al Equipo</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <input type="text" id="config-nombre-miembro" placeholder="Nombre completo" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                    <select id="config-rol-miembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-300">
+                        <option value="Operador">🎛️ Operador / Técnico</option>
+                        <option value="Cámaras">🎥 Equipo de Cámaras</option>
+                        <option value="Diseñador">🎨 Diseñador Gráfico</option>
+                        <option value="Social Media">📱 Gestor de Contenido</option>
+                    </select>
+                </div>
+                <button onclick="agregarMiembroEquipo()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition cursor-pointer">
+                    ＋ Vincular Miembro
+                </button>
+            </div>
+
+            <!-- Listado de miembros vinculados en tiempo real -->
+            <div class="mt-4 flex-1 overflow-y-auto pr-1">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Miembros Activos en el Sistema</p>
+                <div id="lista-config-miembros" class="space-y-1.5">
+                    <!-- Dinámico -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -215,9 +252,11 @@
         let tableroActualId = null;
         let filtroActual = 'todo'; 
         const OPERADOR_ACTUAL = "René Raudales";
+        let cacheMiembros = []; // Respaldar miembros locales
 
         window.addEventListener('DOMContentLoaded', async () => {
             await cargarAnunciosDesdeSupabase();
+            await sincronizarMiembrosYSelects();
             await cargarEspaciosDeTrabajo();
         });
 
@@ -259,6 +298,96 @@
         async function eliminarAnuncio(id) {
             await supabaseClient.from('anuncios').delete().eq('id', id);
             await cargarAnunciosDesdeSupabase();
+        }
+
+        /* ⚙️ MENÚ DE CONFIGURACIÓN GENERAL Y MIEMBROS DINÁMICOS */
+        async function sincronizarMiembrosYSelects() {
+            const selectResponsable = document.getElementById('form-responsable');
+            
+            let { data: miembros, error } = await supabaseClient
+                .from('miembros')
+                .select('*')
+                .order('nombre', { ascending: true });
+
+            // Si la tabla no existe en la base de datos, cargar datos de resguardo básicos
+            if (error) {
+                console.warn("Tabla miembros inactiva. Creando respaldo temporal.");
+                cacheMiembros = [
+                    { id: '1', nombre: "René Raudales", rol: "Operador" },
+                    { id: '2', nombre: "Equipo Audio", rol: "Operador" },
+                    { id: '3', nombre: "Equipo Media", rol: "Cámaras" }
+                ];
+            } else {
+                cacheMiembros = miembros || [];
+                // Asegurar que tú existas siempre en la lista
+                if (!cacheMiembros.some(m => m.nombre.toLowerCase() === OPERADOR_ACTUAL.toLowerCase())) {
+                    await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, rol: 'Operador' }]);
+                    return sincronizarMiembrosYSelects();
+                }
+            }
+
+            // Actualizar select modal de tareas
+            selectResponsable.innerHTML = '';
+            cacheMiembros.forEach(m => {
+                selectResponsable.innerHTML += `<option value="${m.nombre}">👤 ${m.nombre}</option>`;
+            });
+        }
+
+        function abrirModalConfiguracion() {
+            document.getElementById('modal-configuracion').classList.remove('hidden');
+            renderizarListaConfigMiembros();
+        }
+
+        function cerrarModalConfiguracion() {
+            document.getElementById('modal-configuracion').classList.add('hidden');
+        }
+
+        function renderizarListaConfigMiembros() {
+            const listaDOM = document.getElementById('lista-config-miembros');
+            listaDOM.innerHTML = '';
+
+            if (cacheMiembros.length === 0) {
+                listaDOM.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No hay miembros registrados.</p>`;
+                return;
+            }
+
+            cacheMiembros.forEach(m => {
+                listaDOM.innerHTML += `
+                    <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg">
+                        <div>
+                            <p class="text-xs font-semibold text-gray-200">${m.nombre}</p>
+                            <p class="text-[10px] text-gray-500">${m.rol}</p>
+                        </div>
+                        ${m.nombre !== OPERADOR_ACTUAL ? `
+                            <button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>
+                        ` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>'}
+                    </div>`;
+            });
+        }
+
+        async function agregarMiembroEquipo() {
+            const nombre = document.getElementById('config-nombre-miembro').value.trim();
+            const rol = document.getElementById('config-rol-miembro').value;
+
+            if(!nombre) return alert("Por favor escribe el nombre del integrante");
+
+            const { error } = await supabaseClient.from('miembros').insert([{ nombre, rol }]);
+
+            if (error) {
+                alert("La tabla 'miembros' no está construida en Supabase aún. Corre el script SQL que te dejé en el chat para habilitarla.");
+                return;
+            }
+
+            document.getElementById('config-nombre-miembro').value = '';
+            await sincronizarMiembrosYSelects();
+            renderizarListaConfigMiembros();
+        }
+
+        async function removerMiembroEquipo(id) {
+            if(!confirm("¿Deseas desvincular a este miembro del equipo?")) return;
+            await supabaseClient.from('miembros').delete().eq('id', id);
+            await sincronizarMiembrosYSelects();
+            renderizarListaConfigMiembros();
         }
 
         /* 👥 FILTRADO */
@@ -327,17 +456,10 @@
             await cargarEspaciosDeTrabajo();
         }
 
-        /* 🛠️ RENDERING KANBAN + CÁLCULO DE MÉTRICAS COMPLETO */
+        /* 🛠️ RENDERING KANBAN + MÉTRICAS */
         async function cargarColumnasYTasks() {
             const contenedor = document.getElementById('tablero-columnas');
-            
-            // Inicializar acumuladores analíticos globales del Espacio de Trabajo activo
-            let totalPorHacer = 0;
-            let totalEnProceso = 0;
-            let totalFinalizado = 0;
-            let totalVencidasNoTerminadas = 0;
-            let totalGeneralTareas = 0;
-            
+            let totalPorHacer = 0, totalEnProceso = 0, totalFinalizado = 0, totalVencidasNoTerminadas = 0, totalGeneralTareas = 0;
             const hoy = new Date();
 
             let { data: segmentos } = await supabaseClient
@@ -367,7 +489,6 @@
                 }
                 const { data: tareas } = await query.order('posicion', { ascending: true });
 
-                // Mapear contadores por tipo de columna nativa
                 const esColumnaFinalizado = col.nombre.toLowerCase().includes('finalizado') || col.nombre.toLowerCase().includes('listo') || col.nombre.toLowerCase().includes('terminado');
                 const esColumnaProceso = col.nombre.toLowerCase().includes('proceso') || col.nombre.toLowerCase().includes('haciendo');
                 const esColumnaPorHacer = col.nombre.toLowerCase().includes('hacer') || col.nombre.toLowerCase().includes('pendiente');
@@ -380,7 +501,6 @@
                         else if (esColumnaProceso) totalEnProceso++;
                         else if (esColumnaPorHacer) totalPorHacer++;
 
-                        // Control de vencimiento: Tiene fecha límite, ya pasó, y NO está finalizada
                         let esVencida = false;
                         if (tarea.fecha_entrega && !esColumnaFinalizado) {
                             const fechaLimite = new Date(tarea.fecha_entrega + 'T23:59:59');
@@ -393,8 +513,6 @@
                         let badgeColor = "bg-gray-800 text-gray-400";
                         if (tarea.prioridad === 'Alta') badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
                         if (tarea.prioridad === 'Urgente') badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
-
-                        const responsable = tarea.responsable || "Lider Media";
 
                         htmlTareas += `
                             <div id="tarea-${tarea.id}" 
@@ -412,7 +530,7 @@
 
                                 <div class="flex items-center justify-between pt-1">
                                     <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold ${badgeColor}">${tarea.prioridad}</span>
-                                    <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${responsable}</span>
+                                    <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${tarea.responsable}</span>
                                 </div>
                             </div>`;
                     });
@@ -439,7 +557,6 @@
                     </div>`;
             }
 
-            // Desplegar métricas exactas calculadas
             calcularYMostrarMetricas(totalPorHacer, totalEnProceso, totalFinalizado, totalVencidasNoTerminadas, totalGeneralTareas);
         }
 
@@ -449,14 +566,8 @@
             document.getElementById('meta-finalizado').innerText = finalizado;
             document.getElementById('meta-vencidas').innerText = vencidas;
             document.getElementById('meta-total').innerText = total;
-
-            // Fórmula de Eficiencia Pro
-            if (total === 0) {
-                document.getElementById('meta-eficiencia').innerText = "100%";
-            } else {
-                const porcentaje = Math.round((finalizado / total) * 100);
-                document.getElementById('meta-eficiencia').innerText = `${porcentaje}%`;
-            }
+            if (total === 0) document.getElementById('meta-eficiencia').innerText = "100%";
+            else document.getElementById('meta-eficiencia').innerText = `${Math.round((finalizado / total) * 100)}%`;
         }
 
         /* 🎛️ DRAG AND DROP */
@@ -465,24 +576,18 @@
             event.dropEffect = "move";
             document.getElementById(`tarea-${tareaId}`).classList.add('dragging');
         }
-
-        function handleDragEnd(event) {
-            event.currentTarget.classList.remove('dragging');
-        }
-
+        function handleDragEnd(event) { event.currentTarget.classList.remove('dragging'); }
         function handleDragOver(event) {
             event.preventDefault();
             const colContenedor = event.currentTarget;
             if (!colContenedor.classList.contains('drag-over')) colContenedor.classList.add('drag-over');
         }
-
         function handleDragLeave(event) { event.currentTarget.classList.remove('drag-over'); }
 
         async function handleDrop(event, destinoColumnaId) {
             event.preventDefault();
             const colContenedor = event.currentTarget;
             colContenedor.classList.remove('drag-over');
-            
             const tareaId = event.dataTransfer.getData("text/plain");
             if (!tareaId) return;
 
@@ -494,12 +599,7 @@
             if (msgVacio) msgVacio.remove();
 
             contenedorDestino.appendChild(tarjetaDOM);
-
-            const { error } = await supabaseClient
-                .from('tareas')
-                .update({ segmento_id: destinoColumnaId })
-                .eq('id', tareaId);
-
+            await supabaseClient.from('tareas').update({ segmento_id: destinoColumnaId }).eq('id', tareaId);
             await cargarColumnasYTasks();
         }
 
@@ -524,7 +624,6 @@
             document.getElementById('form-segmento-id').value = segmentoId;
             document.getElementById('modal-tarea').classList.remove('hidden');
         }
-
         function cerrarModalTarea() {
             document.getElementById('modal-tarea').classList.add('hidden');
             document.getElementById('form-titulo').value = '';
@@ -560,14 +659,7 @@
         async function guardarEspacio() {
             const titulo = document.getElementById('espacio-titulo').value;
             if(!titulo) return alert("Escribe el nombre del espacio");
-
-            const { data, error } = await supabaseClient.from('tableros').insert([{
-                titulo: titulo,
-                descripcion: `Mesa de trabajo para ${titulo}`
-            }]).select();
-
-            if (error) return alert("Error al guardar espacio.");
-
+            const { data } = await supabaseClient.from('tableros').insert([{ titulo, descripcion: `Mesa de trabajo para ${titulo}` }]).select();
             cerrarModalEspacio();
             if(data && data[0]) tableroActualId = data[0].id;
             await cargarEspaciosDeTrabajo();
