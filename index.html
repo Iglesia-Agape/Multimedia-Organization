@@ -68,31 +68,27 @@
             </div>
         </section>
     </main>
-
-    <script>
-        // 1. Inicializar Supabase usando tus credenciales proveídas
+<script>
         const SUPABASE_URL = "https://cpyueytgzapjguyoigsg.supabase.co";
         const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 2. Función para renderizar el tablero dinámicamente
         async function cargarTablero() {
             const contenedor = document.getElementById('tablero-columnas');
             
             try {
-                // Consultamos las columnas (segmentos) de la base de datos
-                const { data: segmentos, error: errSeg } = await supabase
+                // Consultar segmentos
+                let { data: segmentos, error: errSeg } = await supabase
                     .from('segmentos')
                     .select('*')
                     .order('posicion', { ascending: true });
 
-                if (errSeg) throw errSeg;
-
-                // Si no hay segmentos todavía, mostraremos un estado inicial limpio tipo Notion
-                if (!segmentos || segmentos.length === 0) {
+                // Forzar inicialización si da error de RLS o si está vacío
+                if (errSeg || !segmentos || segmentos.length === 0) {
+                    console.log("Inicializando o recuperando de estado vacío...");
                     contenedor.innerHTML = `
                         <div class="text-center py-12 px-4 border-2 border-dashed border-[#2a2a30] rounded-xl max-w-md mx-auto mt-12">
-                            <p class="text-gray-400 text-base mb-4">El tablero está listo, pero no hay columnas creadas.</p>
+                            <p class="text-gray-400 text-base mb-4">El entorno está listo para ser desplegado en tu organización.</p>
                             <button onclick="crearColumnasPorDefecto()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg shadow-md transition">
                                 ✨ Inicializar columnas de Producción
                             </button>
@@ -100,22 +96,18 @@
                     return;
                 }
 
-                // Limpiar cargando
                 contenedor.innerHTML = '';
 
-                // Dibujar cada segmento en pantalla
                 for (const col of segmentos) {
-                    // Consultar las tareas específicas de esta columna
-                    const { data: tareas, error: errTar } = await supabase
+                    const { data: tareas } = await supabase
                         .from('tareas')
-                        .select('*, profiles(nombre, avatar_url)')
+                        .select('*')
                         .eq('segmento_id', col.id)
                         .order('posicion', { ascending: true });
 
                     let htmlTareas = '';
                     if (tareas && tareas.length > 0) {
                         tareas.forEach(tarea => {
-                            // Definir color de prioridad
                             let badgeColor = "bg-gray-800 text-gray-400";
                             if(tarea.prioridad === 'Alta') badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
                             if(tarea.prioridad === 'Urgente') badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
@@ -134,7 +126,6 @@
                         htmlTareas = `<div class="text-xs text-gray-600 text-center py-6 border border-dashed border-[#202024] rounded-xl">Arrastra o añade tareas aquí</div>`;
                     }
 
-                    // Agregar columna completa al contenedor
                     contenedor.innerHTML += `
                         <div class="w-80 shrink-0 flex flex-col max-h-[calc(100vh-180px)] bg-[#161619]/60 p-4 rounded-xl border border-[#202024]">
                             <div class="flex justify-between items-center mb-4">
@@ -151,14 +142,11 @@
                 }
 
             } catch (error) {
-                console.error("Error al procesar los datos de Supabase:", error);
-                contenedor.innerHTML = `<div class="text-rose-400 text-sm">Error cargando el entorno de trabajo: ${error.message}</div>`;
+                console.error("Error crítico:", error);
             }
         }
 
-        // 3. Script rápido por si el tablero está vacío para poblarlo con datos multimedia iniciales
         async function crearColumnasPorDefecto() {
-            // Buscamos o creamos un tablero de prueba
             let tableroId;
             const { data: tableros } = await supabase.from('tableros').select('id').limit(1);
             
@@ -169,7 +157,6 @@
                 tableroId = nuevoTab[0].id;
             }
 
-            // Insertamos 3 columnas típicas de un entorno de video profesional
             await supabase.from('segmentos').insert([
                 { tablero_id: tableroId, nombre: "📋 Por Empezar", posicion: 1 },
                 { tablero_id: tableroId, nombre: "🎬 En Edición", posicion: 2 },
@@ -179,8 +166,5 @@
             cargarTablero();
         }
 
-        // Arrancar la carga del tablero de manera automática al abrir la web
         window.onload = cargarTablero;
     </script>
-</body>
-</html>
