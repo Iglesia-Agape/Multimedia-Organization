@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multimedia Workspace</title>
-    <!-- Tailwind CSS v4 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- SDK Oficial de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -18,16 +16,13 @@
 </head>
 <body class="bg-[#0f0f11] text-gray-100 font-sans antialiased min-h-screen flex">
 
-    <!-- BARRA LATERAL (Espacios de trabajo + Anuncios + Perfil) -->
     <aside class="w-64 bg-[#161619] border-r border-[#222226] flex flex-col justify-between hidden md:flex shrink-0">
         <div class="p-4 flex-1 flex flex-col min-h-0">
-            <!-- Header de la Organización -->
             <div class="flex items-center gap-3 mb-6 px-2">
                 <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-600/30">M</div>
                 <span class="font-semibold text-base tracking-wide text-gray-200">Ministerio Media</span>
             </div>
             
-            <!-- Tablón de Anuncios Dinámico -->
             <div class="mb-6 bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-3 relative group">
                 <div class="flex items-center justify-between mb-1.5">
                     <div class="flex items-center gap-2">
@@ -41,19 +36,16 @@
                 </div>
             </div>
 
-            <!-- Navegación Dinámica de Espacios de Trabajo -->
             <div class="flex-1 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center px-2 mb-2">
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Espacios de Trabajo</p>
                     <button onclick="abrirModalEspacio()" class="text-gray-400 hover:text-indigo-400 text-sm transition font-bold cursor-pointer">＋</button>
                 </div>
                 <nav id="lista-espacios" class="space-y-1">
-                    <!-- Dinámico -->
-                </nav>
+                    </nav>
             </div>
         </div>
         
-        <!-- Perfil del Operador + Acceso a Configuración General -->
         <div class="p-4 border-t border-[#222226] bg-[#121214] flex items-center justify-between gap-2">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
@@ -68,15 +60,12 @@
         </div>
     </aside>
 
-    <!-- ÁREA PRINCIPAL DE TRABAJO -->
     <main class="flex-1 flex flex-col min-h-screen min-w-0">
-        <!-- BANNER DE ENCABEZADO AUTOMÁTICO -->
         <div id="header-banner" class="w-full h-44 bg-cover bg-center relative border-b border-[#222226]" 
              style="background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200');">
             <div class="absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/40 to-transparent"></div>
         </div>
 
-        <!-- Encabezado del Tablero Actual -->
         <header class="-mt-10 px-8 pb-4 relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div class="flex gap-4 items-end">
                 <div class="w-16 h-16 bg-[#161619] border-2 border-[#222226] rounded-2xl flex items-center justify-center text-3xl shadow-xl select-none" id="tablero-icono">🎬</div>
@@ -86,21 +75,18 @@
                 </div>
             </div>
             
-            <!-- Filtro de Asignaciones Funcional -->
             <div class="flex items-center gap-2 bg-[#161619] border border-[#222226] rounded-lg p-1 text-xs">
                 <button id="filtro-todo" onclick="cambiarFiltro('todo')" class="px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition">Todo</button>
                 <button id="filtro-asignados" onclick="cambiarFiltro('asignados')" class="px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition">Asignados</button>
             </div>
         </header>
 
-        <!-- CONTENEDOR KANBAN DE COLUMNAS -->
         <section id="tablero-columnas" class="flex-1 p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
             <div class="text-gray-600 text-xs animate-pulse flex items-center justify-center w-full h-48">
                 Leyendo flujos de trabajo en Supabase...
             </div>
         </section>
 
-        <!-- SECCIÓN DE MÉTRICAS Y PANEL DE EFICIENCIA -->
         <section class="p-8 border-t border-[#1c1c21] bg-[#121214]/40">
             <div class="mb-4">
                 <h2 class="text-sm font-bold tracking-wide uppercase text-gray-400 flex items-center gap-2">
@@ -109,7 +95,6 @@
                 <p class="text-xs text-gray-500">Métricas analíticas calculadas automáticamente según entregas e hitos temporales.</p>
             </div>
 
-            <!-- Grid de Tarjetas de Control -->
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
                     <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Por Hacer</span>
@@ -139,7 +124,6 @@
         </section>
     </main>
 
-    <!-- MODAL: CREAR TAREAS -->
     <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -166,8 +150,7 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Responsable</label>
                     <select id="form-responsable" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                        <!-- Dinámico desde Supabase -->
-                    </select>
+                        </select>
                 </div>
             </div>
 
@@ -187,7 +170,6 @@
         </div>
     </div>
 
-    <!-- MODAL: CREAR ESPACIOS -->
     <div id="modal-espacio" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-sm rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -208,7 +190,6 @@
         </div>
     </div>
 
-    <!-- MODAL: CONFIGURACIÓN GENERAL / GESTIÓN DE MIEMBROS -->
     <div id="modal-configuracion" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-lg rounded-xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3 shrink-0">
@@ -216,49 +197,84 @@
                 <button onclick="cerrarModalConfiguracion()" class="text-gray-500 hover:text-white cursor-pointer">✕</button>
             </div>
             
-            <!-- Formulario para agregar miembros de inmediato -->
             <div class="bg-[#1c1c21] p-4 rounded-xl border border-[#2a2a33] mt-4 space-y-3 shrink-0">
                 <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Agregar Integrante al Equipo</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <input type="text" id="config-nombre-miembro" placeholder="Nombre completo" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
-                    <select id="config-rol-miembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                        <option value="Operador">🎛️ Operador / Técnico</option>
-                        <option value="Cámaras">🎥 Equipo de Cámaras</option>
-                        <option value="Diseñador">🎨 Diseñador Gráfico</option>
-                        <option value="Social Media">📱 Gestor de Contenido</option>
-                    </select>
+                    <input type="email" id="config-correo-miembro" placeholder="correo@ejemplo.com" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                    <div class="sm:col-span-2">
+                        <select id="config-rol-miembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-300">
+                            <option value="Operador">🎛️ Operador / Técnico</option>
+                            <option value="Cámaras">🎥 Equipo de Cámaras</option>
+                            <option value="Diseñador">🎨 Diseñador Gráfico</option>
+                            <option value="Social Media">📱 Gestor de Contenido</option>
+                        </select>
+                    </div>
                 </div>
                 <button onclick="agregarMiembroEquipo()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition cursor-pointer">
-                    ＋ Vincular Miembro
+                    ＋ Vincular Miembro Profesional
                 </button>
             </div>
 
-            <!-- Listado de miembros vinculados en tiempo real -->
             <div class="mt-4 flex-1 overflow-y-auto pr-1">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Miembros Activos en el Sistema</p>
                 <div id="lista-config-miembros" class="space-y-1.5">
-                    <!-- Dinámico -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
-    <!-- LÓGICA CORE Y COMUNICACIÓN CON SUPABASE -->
     <script>
         const SUPABASE_URL = "https://cpyueytgzapjguyoigsg.supabase.co";
         const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // 🛡️ API Key de Resend vinculada con éxito
+        const RESEND_API_KEY = "re_AMiXVe4q_HHhEwbFujLuLFHvskaUUBihC";
+
         let tableroActualId = null;
         let filtroActual = 'todo'; 
         const OPERADOR_ACTUAL = "René Raudales";
-        let cacheMiembros = []; // Respaldar miembros locales
+        let cacheMiembros = []; 
 
         window.addEventListener('DOMContentLoaded', async () => {
             await cargarAnunciosDesdeSupabase();
             await sincronizarMiembrosYSelects();
-            await cargarEspaciosDeTrabajo();
+            await cargarEspacios DeTrabajo();
         });
+
+        /* 📨 SERVICIO AUTOMÁTICO DE NOTIFICACIONES POR CORREO (RESEND API) */
+        async function enviarNotificacionPorCorreo(destinatario, asunto, cuerpoHtml) {
+            if (!RESEND_API_KEY || RESEND_API_KEY.includes("TU_API_KEY")) {
+                console.warn("Resend API Key no configurada. Saltando envío de correo.");
+                return;
+            }
+
+            try {
+                const response = await fetch("https://api.resend.com/emails", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${RESEND_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        from: "Multimedia Workspace <onboarding@resend.dev>",
+                        to: [destinatario],
+                        subject: asunto,
+                        html: cuerpoHtml
+                    })
+                });
+
+                if(!response.ok) {
+                    const errData = await response.json();
+                    console.error("Error en Resend API:", errData);
+                } else {
+                    console.log(`📧 Notificación enviada con éxito a ${destinatario}`);
+                }
+            } catch (err) {
+                console.error("Fallo de red al conectar con Resend:", err);
+            }
+        }
 
         /* 📢 SECCIÓN DE ANUNCIOS DINÁMICOS */
         async function cargarAnunciosDesdeSupabase() {
@@ -309,24 +325,17 @@
                 .select('*')
                 .order('nombre', { ascending: true });
 
-            // Si la tabla no existe en la base de datos, cargar datos de resguardo básicos
             if (error) {
-                console.warn("Tabla miembros inactiva. Creando respaldo temporal.");
-                cacheMiembros = [
-                    { id: '1', nombre: "René Raudales", rol: "Operador" },
-                    { id: '2', nombre: "Equipo Audio", rol: "Operador" },
-                    { id: '3', nombre: "Equipo Media", rol: "Cámaras" }
-                ];
+                console.warn("Tabla miembros inactiva.");
+                cacheMiembros = [{ id: '1', nombre: "René Raudales", correo: "rene@ejemplo.com", rol: "Operador" }];
             } else {
                 cacheMiembros = miembros || [];
-                // Asegurar que tú existas siempre en la lista
                 if (!cacheMiembros.some(m => m.nombre.toLowerCase() === OPERADOR_ACTUAL.toLowerCase())) {
-                    await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, rol: 'Operador' }]);
+                    await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, correo: 'rene@ejemplo.com', rol: 'Operador' }]);
                     return sincronizarMiembrosYSelects();
                 }
             }
 
-            // Actualizar select modal de tareas
             selectResponsable.innerHTML = '';
             cacheMiembros.forEach(m => {
                 selectResponsable.innerHTML += `<option value="${m.nombre}">👤 ${m.nombre}</option>`;
@@ -352,33 +361,53 @@
             }
 
             cacheMiembros.forEach(m => {
+                const correoMostrar = m.correo ? m.correo : 'Sin correo registrado';
                 listaDOM.innerHTML += `
                     <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg">
-                        <div>
-                            <p class="text-xs font-semibold text-gray-200">${m.nombre}</p>
-                            <p class="text-[10px] text-gray-500">${m.rol}</p>
+                        <div class="min-w-0 flex-1 pr-2">
+                            <p class="text-xs font-semibold text-gray-200 truncate">${m.nombre}</p>
+                            <p class="text-[10px] text-gray-400 font-mono truncate">${correoMostrar}</p>
+                            <p class="text-[9px] text-gray-500 mt-0.5">${m.rol}</p>
                         </div>
-                        ${m.nombre !== OPERADOR_ACTUAL ? `
-                            <button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>
-                        ` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>'}
+                        <div class="shrink-0 flex items-center">
+                            ${m.nombre !== OPERADOR_ACTUAL ? `
+                                <button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>
+                            ` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>'}
+                        </div>
                     </div>`;
             });
         }
 
         async function agregarMiembroEquipo() {
             const nombre = document.getElementById('config-nombre-miembro').value.trim();
+            const correo = document.getElementById('config-correo-miembro').value.trim();
             const rol = document.getElementById('config-rol-miembro').value;
 
             if(!nombre) return alert("Por favor escribe el nombre del integrante");
+            if(!correo) return alert("Por favor escribe el correo electrónico");
 
-            const { error } = await supabaseClient.from('miembros').insert([{ nombre, rol }]);
+            const { error } = await supabaseClient.from('miembros').insert([{ nombre, correo, rol }]);
 
             if (error) {
-                alert("La tabla 'miembros' no está construida en Supabase aún. Corre el script SQL que te dejé en el chat para habilitarla.");
+                alert("Hubo un percance al guardar el miembro. Revisa duplicados.");
                 return;
             }
 
+            // 📩 Correo formal de Invitación
+            const cuerpoHtml = `
+                <div style="background-color: #121214; color: #e4e4e7; font-family: sans-serif; padding: 24px; border-radius: 12px; max-width: 500px; border: 1px solid #222226;">
+                    <h2 style="color: #6366f1; margin-bottom: 4px;">¡Bienvenido al Ministerio Media! 🎬</h2>
+                    <p style="font-size: 14px; color: #a1a1aa;">Hola <strong>${nombre}</strong>,</p>
+                    <p style="font-size: 14px; line-height: 1.5;">Has sido vinculado formalmente al espacio de control de producción como <strong>${rol}</strong>.</p>
+                    <p style="font-size: 14px; line-height: 1.5;">A partir de ahora recibirás notificaciones aquí cuando se te asigne una nueva tarea en los flujos de trabajo.</p>
+                    <hr style="border-color: #222226; margin: 20px 0;">
+                    <p style="font-size: 11px; color: #71717a; text-align: center;">Workspace Administrado por René Raudales</p>
+                </div>`;
+            
+            await enviarNotificacionPorCorreo(correo, "Invitación Oficial - Ministerio Media 🎛️", cuerpoHtml);
+
             document.getElementById('config-nombre-miembro').value = '';
+            document.getElementById('config-correo-miembro').value = '';
             await sincronizarMiembrosYSelects();
             renderizarListaConfigMiembros();
         }
@@ -456,7 +485,7 @@
             await cargarEspaciosDeTrabajo();
         }
 
-        /* 🛠️ RENDERING KANBAN + MÉTRICAS */
+        /* 🛠 * KANBAN RENDERING + METRICS */
         async function cargarColumnasYTasks() {
             const contenedor = document.getElementById('tablero-columnas');
             let totalPorHacer = 0, totalEnProceso = 0, totalFinalizado = 0, totalVencidasNoTerminadas = 0, totalGeneralTareas = 0;
@@ -612,6 +641,7 @@
 
         /* 🛠️ AUXILIARES */
         async function inicializarColumnasEspacio() {
+            // Corregido "name" por "nombre" para consistencia con Supabase
             await supabaseClient.from('segmentos').insert([
                 { tablero_id: tableroActualId, nombre: "📋 Por Hacer", posicion: 1 },
                 { tablero_id: tableroActualId, nombre: "🎬 En Proceso", posicion: 2 },
@@ -648,6 +678,24 @@
                 miniatura_url: miniatura || null,
                 fecha_entrega: fecha || null
             }]);
+
+            // 📩 Buscar el correo del responsable asignado para notificarle
+            const miembroAsignado = cacheMiembros.find(m => m.nombre === responsable);
+            if(miembroAsignado && miembroAsignado.correo) {
+                const cuerpoTareaHtml = `
+                    <div style="background-color: #121214; color: #e4e4e7; font-family: sans-serif; padding: 24px; border-radius: 12px; max-width: 500px; border: 1px solid #222226;">
+                        <h3 style="color: #6366f1; margin-top: 0;">📋 Nueva Tarea Asignada</h3>
+                        <p style="font-size: 14px; color: #a1a1aa;">Hola <strong>${responsable}</strong>,</p>
+                        <p style="font-size: 14px; line-height: 1.5;">Se te ha desplegado una nueva asignación operativa en el tablero de control:</p>
+                        <div style="background-color: #1c1c21; padding: 12px; border-radius: 6px; border-left: 4px solid #6366f1; margin: 16px 0;">
+                            <p style="margin: 0; font-size: 14px; font-weight: bold; color: #fff;">${titulo}</p>
+                            <p style="margin: 4px 0 0 0; font-size: 11px; color: #a1a1aa;">Prioridad: ${prioridad} | Límite: ${fecha || 'Sin fecha fija'}</p>
+                        </div>
+                        <p style="font-size: 13px; color: #71717a;">Por favor revisa el pipeline Kanban para actualizar el estado del trabajo.</p>
+                    </div>`;
+
+                await enviarNotificacionPorCorreo(miembroAsignado.correo, `Nueva tarea asignada: ${titulo}`, cuerpoTareaHtml);
+            }
 
             cerrarModalTarea();
             await cargarColumnasYTasks();
