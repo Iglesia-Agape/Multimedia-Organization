@@ -26,13 +26,13 @@
                     <span class="text-xs">📢</span>
                     <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Tablón de Anuncios</p>
                 </div>
-                <p id="texto-anuncio" class="text-xs text-gray-400 leading-relaxed italic">"Cargando el último comunicado de la producción..."</p>
+                <p id="texto-anuncio" class="text-xs text-gray-400 leading-relaxed italic">Cargando anuncios del equipo...</p>
             </div>
 
             <div class="flex-1 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center px-2 mb-2">
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Espacios de Trabajo</p>
-                    <button onclick="abrirModalEspacio()" class="text-gray-400 hover:text-indigo-400 text-sm transition font-bold">＋</button>
+                    <button onclick="abrirModalEspacio()" class="text-gray-400 hover:text-indigo-400 text-sm transition font-bold cursor-pointer">＋</button>
                 </div>
                 <nav id="lista-espacios" class="space-y-1">
                     </nav>
@@ -50,17 +50,17 @@
 
     <main class="flex-1 flex flex-col min-h-screen min-w-0">
         
-        <div class="w-full h-44 bg-cover bg-center relative border-b border-[#222226]" 
+        <div id="header-banner" class="w-full h-44 bg-cover bg-center relative border-b border-[#222226]" 
              style="background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200');">
             <div class="absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/40 to-transparent"></div>
         </div>
 
         <header class="-mt-10 px-8 pb-4 relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div class="flex gap-4 items-end">
-                <div class="w-16 h-16 bg-[#161619] border-2 border-[#222226] rounded-2xl flex items-center justify-center text-3xl shadow-xl" id="tablero-icono">🎬</div>
+                <div class="w-16 h-16 bg-[#161619] border-2 border-[#222226] rounded-2xl flex items-center justify-center text-3xl shadow-xl select-none" id="tablero-icono">🎬</div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-white mb-0.5" id="tablero-titulo">Cargando espacio...</h1>
-                    <p class="text-xs text-gray-400" id="tablero-descripcion">Gestión integrada de proyectos audiovisuales y control cruzado.</p>
+                    <h1 class="text-2xl font-bold tracking-tight text-white mb-0.5" id="tablero-titulo">Producción Audiovisual</h1>
+                    <p class="text-xs text-gray-400" id="tablero-descripcion">Gestión integrada de proyectos y control cruzado.</p>
                 </div>
             </div>
             
@@ -80,17 +80,19 @@
     <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
-                <h3 class="font-bold text-gray-200 text-base flex items-center gap-2">📝 Nueva Tarea Audiovisual</h3>
-                <button onclick="cerrarModalTarea()" class="text-gray-500 hover:text-white text-lg">✕</button>
+                <h3 class="font-bold text-gray-200 text-base flex items-center gap-2">📝 Nueva Asignación</h3>
+                <button onclick="cerrarModalTarea()" class="text-gray-500 hover:text-white text-lg cursor-pointer">✕</button>
             </div>
             <input type="hidden" id="form-segmento-id">
+            
             <div>
                 <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Título de la asignación</label>
-                <input type="text" id="form-titulo" placeholder="Ej. Renderizar intro animada de la iglesia" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                <input type="text" id="form-titulo" placeholder="Ej. Mezclar audio de voces dominicales" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
+
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Prioridad (Notion Style)</label>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Prioridad</label>
                     <select id="form-prioridad" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
                         <option value="Baja">🟢 Baja</option>
                         <option value="Media" selected>🟡 Media</option>
@@ -99,16 +101,30 @@
                     </select>
                 </div>
                 <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Responsable</label>
+                    <select id="form-responsable" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
+                        <option value="René Raudales">👤 René Raudales</option>
+                        <option value="Equipo Audio">🎛️ Equipo Audio</option>
+                        <option value="Equipo Media">🎬 Equipo Media</option>
+                        <option value="Diseño Gráfico">🎨 Equipo Diseño</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3">
+                <div>
                     <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Fecha límite</label>
                     <input type="date" id="form-fecha" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
                 </div>
             </div>
+
             <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">URL de Miniatura / Imagen Preview</label>
-                <input type="url" id="form-miniatura" placeholder="https://enlace-de-imagen.jpg" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">URL de Miniatura / Preview (Opcional)</label>
+                <input type="url" id="form-miniatura" placeholder="https://images.unsplash.com/... o enlace directo" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
-            <button onclick="guardarTarea()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg shadow-lg shadow-indigo-600/20 transition">
-                🚀 Desplegar Tarea en Tablero
+
+            <button onclick="guardarTarea()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg shadow-lg shadow-indigo-600/20 transition cursor-pointer">
+                🚀 Desplegar Tarea
             </button>
         </div>
     </div>
@@ -117,17 +133,17 @@
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-sm rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
                 <h3 class="font-bold text-gray-200 text-base">🎨 Crear Espacio de Trabajo</h3>
-                <button onclick="cerrarModalEspacio()" class="text-gray-500 hover:text-white">✕</button>
+                <button onclick="cerrarModalEspacio()" class="text-gray-500 hover:text-white cursor-pointer">✕</button>
             </div>
             <div>
                 <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Nombre del Espacio</label>
                 <input type="text" id="espacio-titulo" placeholder="Ej. Audio, Redes Sociales" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Icono / Emoji</label>
-                <input type="text" id="espacio-icono" placeholder="🎛️, 🎨, 📢" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm text-center focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Icono (Emoji)</label>
+                <input type="text" id="espacio-icono" placeholder="🎛️" value="🎛️" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm text-center focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
-            <button onclick="guardarEspacio()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition">
+            <button onclick="guardarEspacio()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition cursor-pointer">
                 ✨ Crear Espacio
             </button>
         </div>
@@ -140,76 +156,80 @@
 
         let tableroActualId = null;
 
-        // Cargar todo al arrancar la web
-        window.onload = async () => {
+        // Iniciar de forma controlada una vez cargada la ventana
+        window.addEventListener('DOMContentLoaded', async () => {
             configurarAnunciosEstaticos();
             await cargarEspaciosDeTrabajo();
-        };
+        });
 
-        // 📢 Función de anuncios estáticos para el equipo entero
         function configurarAnunciosEstaticos() {
             const anuncios = [
                 "📢 Recordatorio: El streaming del domingo inicia pruebas a las 7:30 AM. ¡Puntuales!",
-                "📢 Diseño: Ya están listos los vectores para las pantallas led en el drive.",
+                "📢 Diseño: Ya están listos los vectores para las pantallas led en el Drive.",
                 "📢 Audio: Limpieza general de consolas y cables este sábado por la tarde."
             ];
-            // Alterna un anuncio aleatorio para todo el equipo en la barra lateral
             document.getElementById('texto-anuncio').innerText = anuncios[Math.floor(Math.random() * anuncios.length)];
         }
 
-        // 📁 Cargar lista de espacios de trabajo (tableros) en la barra lateral
         async function cargarEspaciosDeTrabajo() {
             const lista = document.getElementById('lista-espacios');
             
-            let { data: tableros } = await supabaseClient
+            let { data: tableros, error } = await supabaseClient
                 .from('tableros')
                 .select('*')
                 .order('created_at', { ascending: true });
 
+            if (error) {
+                console.error("Error cargando tableros:", error);
+                return;
+            }
+
             if (!tableros || tableros.length === 0) {
-                // Si está vacío, crea el de producción por defecto
                 const { data: inicial } = await supabaseClient.from('tableros').insert([{ titulo: "Producción Audiovisual", descripcion: "Control general" }]).select();
                 tableros = inicial;
             }
 
             lista.innerHTML = '';
             tableros.forEach((tab, index) => {
-                const icono = index === 1 ? '🎛️' : (index === 2 ? '🎨' : '🎬'); // Iconos estéticos automáticos
+                let icono = '🎬';
+                if (tab.titulo.toLowerCase().includes('audio')) icono = '🎛️';
+                if (tab.titulo.toLowerCase().includes('diseño') || tab.titulo.toLowerCase().includes('grafic')) icono = '🎨';
+                if (tab.titulo.toLowerCase().includes('marketing') || tab.titulo.toLowerCase().includes('redes')) icono = '📢';
+
                 const esActivo = tableroActualId === null ? index === 0 : tab.id === tableroActualId;
-                
-                if (esActivo) tableroActualId = tab.id;
+                if (esActivo) {
+                    tableroActualId = tab.id;
+                    document.getElementById('tablero-titulo').innerText = tab.titulo;
+                    document.getElementById('tablero-icono').innerText = icono;
+                    establecerBannerFondo(tab.titulo);
+                }
 
                 lista.innerHTML += `
-                    <button onclick="cambiarTablero('${tab.id}', '${tab.titulo}', '${icono}')" class="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-medium transition ${esActivo ? 'bg-[#222226] text-indigo-400' : 'text-gray-400 hover:bg-[#1a1a1e] hover:text-gray-200'}">
+                    <button onclick="cambiarTablero('${tab.id}', '${tab.titulo}', '${icono}')" class="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-medium transition cursor-pointer ${esActivo ? 'bg-[#222226] text-indigo-400' : 'text-gray-400 hover:bg-[#1a1a1e] hover:text-gray-200'}">
                         <span>${icono}</span> ${tab.titulo}
                     </button>
                 `;
             });
 
-            // Forzar carga de columnas del tablero activo
             if (tableroActualId) cargarColumnasYTasks();
         }
 
-        // Cambiar de área de trabajo de forma reactiva
-        function cambiarTablero(id, titulo, icono) {
-            tableroActualId = id;
-            document.getElementById('tablero-titulo').innerText = titulo;
-            document.getElementById('tablero-icono').innerText = icono;
-            
-            // Cambiar imagen de fondo dinámicamente según el área seleccionada
-            const headerBanner = document.querySelector('main > div');
+        function establecerBannerFondo(titulo) {
+            const banner = document.getElementById('header-banner');
             if (titulo.toLowerCase().includes('audio')) {
-                headerBanner.style.backgroundImage = "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200')"; // Consola de Audio Pro
-            } else if (titulo.toLowerCase().includes('diseño')) {
-                headerBanner.style.backgroundImage = "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200')"; // Arte Abstracto/Diseño
+                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200')";
+            } else if (titulo.toLowerCase().includes('diseño') || titulo.toLowerCase().includes('grafic')) {
+                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200')";
             } else {
-                headerBanner.style.backgroundImage = "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200')"; // Estudio Multimedia
+                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200')";
             }
-
-            cargarEspaciosDeTrabajo();
         }
 
-        // 🗂️ Cargar columnas y tareas pertenecientes al espacio activo
+        async function cambiarTablero(id, titulo, icono) {
+            tableroActualId = id;
+            await cargarEspaciosDeTrabajo();
+        }
+
         async function cargarColumnasYTasks() {
             const contenedor = document.getElementById('tablero-columnas');
             
@@ -219,12 +239,11 @@
                 .eq('tablero_id', tableroActualId)
                 .order('posicion', { ascending: true });
 
-            // Inicializar las columnas típicas de Notion si el espacio es completamente nuevo
             if (!segmentos || segmentos.length === 0) {
                 contenedor.innerHTML = `
                     <div class="text-center py-12 px-4 border-2 border-dashed border-[#222226] rounded-xl max-w-sm mx-auto mt-6">
                         <p class="text-gray-500 text-xs mb-3">Este espacio no tiene columnas todavía.</p>
-                        <button onclick="inicializarColumnasEspacio()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition shadow-md">
+                        <button onclick="inicializarColumnasEspacio()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition shadow-md cursor-pointer">
                             ✨ Inicializar Pipeline de Trabajo
                         </button>
                     </div>`;
@@ -247,18 +266,21 @@
                         if(tarea.prioridad === 'Alta') badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
                         if(tarea.prioridad === 'Urgente') badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
 
+                        // Responsable asignado o por defecto
+                        const responsable = tarea.responsable || "Lider Media";
+
                         htmlTareas += `
                             <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3">
                                 ${tarea.miniatura_url ? `<img src="${tarea.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" />` : ''}
                                 <h4 class="font-medium text-xs text-gray-200 group-hover:text-white leading-tight">${tarea.titulo}</h4>
                                 <div class="flex items-center justify-between pt-1">
                                     <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold ${badgeColor}">${tarea.prioridad}</span>
-                                    <span class="text-[10px] text-gray-500 font-medium">👤 Lider Media</span>
+                                    <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${responsable}</span>
                                 </div>
                             </div>`;
                     });
                 } else {
-                    htmlTareas = `<div class="text-[11px] text-gray-600 text-center py-6 border border-dashed border-[#1c1c21] rounded-xl">No hay asignaciones</div>`;
+                    htmlTareas = `<div class="text-[11px] text-gray-600 text-center py-6 border border-dashed border-[#1c1c21] rounded-xl select-none">No hay asignaciones</div>`;
                 }
 
                 contenedor.innerHTML += `
@@ -268,7 +290,7 @@
                                 <h3 class="font-semibold text-xs tracking-wide text-gray-300">${col.nombre}</h3>
                                 <span class="bg-[#1c1c21] text-[10px] text-gray-400 px-2 py-0.5 rounded-full font-bold">${tareas ? tareas.length : 0}</span>
                             </div>
-                            <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold">＋</button>
+                            <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold cursor-pointer">＋</button>
                         </div>
                         <div class="space-y-3 overflow-y-auto pr-1 flex-1">
                             ${htmlTareas}
@@ -277,22 +299,20 @@
             }
         }
 
-        // Inicializador automático de columnas para nuevas áreas
         async function inicializarColumnasEspacio() {
             await supabaseClient.from('segmentos').insert([
                 { tablero_id: tableroActualId, nombre: "📋 Por Hacer", posicion: 1 },
                 { tablero_id: tableroActualId, nombre: "🎬 En Proceso", posicion: 2 },
                 { tablero_id: tableroActualId, nombre: "🚀 Finalizado", posicion: 3 }
             ]);
-            cargarColumnasYTasks();
+            await cargarColumnasYTasks();
         }
 
-        // Controladores de Ventana de Tareas
         function abrirModalTarea(segmentoId) {
             document.getElementById('form-segmento-id').value = segmentoId;
             document.getElementById('modal-tarea').classList.remove('hidden');
         }
-         Pelota {
+
         function cerrarModalTarea() {
             document.getElementById('modal-tarea').classList.add('hidden');
             document.getElementById('form-titulo').value = '';
@@ -303,24 +323,27 @@
             const segmentoId = document.getElementById('form-segmento-id').value;
             const titulo = document.getElementById('form-titulo').value;
             const prioridad = document.getElementById('form-prioridad').value;
+            const responsable = document.getElementById('form-responsable').value;
             const miniatura = document.getElementById('form-miniatura').value;
             const fecha = document.getElementById('form-fecha').value;
 
             if(!titulo) return alert("Por favor escribe el título de la tarea");
 
+            // Nota: Si no tienes la columna 'responsable' creada textualmente en tu Supabase, se guardará igual en el objeto.
+            // Para asegurar compatibilidad total, la renderizamos directo.
             await supabaseClient.from('tareas').insert([{
                 segmento_id: segmentoId,
                 titulo: titulo,
                 prioridad: prioridad,
+                responsable: responsable,
                 miniatura_url: miniatura || null,
                 fecha_entrega: fecha || null
             }]);
 
             cerrarModalTarea();
-            cargarColumnasYTasks();
+            await cargarColumnasYTasks();
         }
 
-        // Controladores de Ventana de Espacios de Trabajo
         function abrirModalEspacio() { document.getElementById('modal-espacio').classList.remove('hidden'); }
         function cerrarModalEspacio() { document.getElementById('modal-espacio').classList.add('hidden'); document.getElementById('espacio-titulo').value = ''; }
         
@@ -330,14 +353,22 @@
 
             if(!titulo) return alert("Escribe el nombre del espacio");
 
-            const { data } = await supabaseClient.from('tableros').insert([{
+            const { data, error } = await supabaseClient.from('tableros').insert([{
                 titulo: titulo,
                 descripcion: `Mesa de trabajo para ${titulo}`
             }]).select();
 
+            if (error) {
+                alert("Error al guardar espacio. Verifica tu base de datos.");
+                return;
+            }
+
             cerrarModalEspacio();
             await cargarEspaciosDeTrabajo();
-            if(data && data[0]) cambiarTablero(data[0].id, data[0].titulo, icono);
+            if(data && data[0]) {
+                tableroActualId = data[0].id;
+                await cargarEspaciosDeTrabajo();
+            }
         }
     </script>
 </body>
