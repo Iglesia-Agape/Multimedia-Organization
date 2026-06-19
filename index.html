@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multimedia Workspace</title>
+    <!-- Tailwind CSS v4 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- SDK Oficial de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -16,13 +18,16 @@
 </head>
 <body class="bg-[#0f0f11] text-gray-100 font-sans antialiased min-h-screen flex">
 
+    <!-- BARRA LATERAL (Espacios de trabajo + Anuncios del Ministerio) -->
     <aside class="w-64 bg-[#161619] border-r border-[#222226] flex flex-col justify-between hidden md:flex shrink-0">
         <div class="p-4 flex-1 flex flex-col min-h-0">
+            <!-- Header de la Organización -->
             <div class="flex items-center gap-3 mb-6 px-2">
                 <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-600/30">M</div>
                 <span class="font-semibold text-base tracking-wide text-gray-200">Ministerio Media</span>
             </div>
             
+            <!-- Tablón de Anuncios Dinámico -->
             <div class="mb-6 bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-3 relative group">
                 <div class="flex items-center justify-between mb-1.5">
                     <div class="flex items-center gap-2">
@@ -36,16 +41,19 @@
                 </div>
             </div>
 
+            <!-- Navegación Dinámica de Espacios de Trabajo -->
             <div class="flex-1 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center px-2 mb-2">
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Espacios de Trabajo</p>
                     <button onclick="abrirModalEspacio()" class="text-gray-400 hover:text-indigo-400 text-sm transition font-bold cursor-pointer">＋</button>
                 </div>
                 <nav id="lista-espacios" class="space-y-1">
-                    </nav>
+                    <!-- Dinámico -->
+                </nav>
             </div>
         </div>
         
+        <!-- Perfil Fijo del Operador -->
         <div class="p-4 border-t border-[#222226] bg-[#121214] flex items-center gap-3">
             <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
             <div>
@@ -55,12 +63,15 @@
         </div>
     </aside>
 
+    <!-- ÁREA PRINCIPAL DE TRABAJO -->
     <main class="flex-1 flex flex-col min-h-screen min-w-0">
+        <!-- BANNER DE ENCABEZADO AUTOMÁTICO -->
         <div id="header-banner" class="w-full h-44 bg-cover bg-center relative border-b border-[#222226]" 
              style="background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200');">
             <div class="absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/40 to-transparent"></div>
         </div>
 
+        <!-- Encabezado del Tablero Actual -->
         <header class="-mt-10 px-8 pb-4 relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div class="flex gap-4 items-end">
                 <div class="w-16 h-16 bg-[#161619] border-2 border-[#222226] rounded-2xl flex items-center justify-center text-3xl shadow-xl select-none" id="tablero-icono">🎬</div>
@@ -70,19 +81,60 @@
                 </div>
             </div>
             
+            <!-- Filtro de Asignaciones Funcional -->
             <div class="flex items-center gap-2 bg-[#161619] border border-[#222226] rounded-lg p-1 text-xs">
                 <button id="filtro-todo" onclick="cambiarFiltro('todo')" class="px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition">Todo</button>
                 <button id="filtro-asignados" onclick="cambiarFiltro('asignados')" class="px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition">Asignados</button>
             </div>
         </header>
 
-        <section id="tablero-columnas" class="flex-1 p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
+        <!-- CONTENEDOR KANBAN DE COLUMNAS -->
+        <section id="tablero-columnas" class="p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
             <div class="text-gray-600 text-xs animate-pulse flex items-center justify-center w-full h-48">
                 Leyendo flujos de trabajo en Supabase...
             </div>
         </section>
+
+        <!-- SECCIÓN DE MÉTRICAS Y PANEL DE EFICIENCIA -->
+        <section class="p-8 border-t border-[#1c1c21] bg-[#121214]/40">
+            <div class="mb-4">
+                <h2 class="text-sm font-bold tracking-wide uppercase text-gray-400 flex items-center gap-2">
+                    📊 Control de Eficiencia y Rendimiento Operativo
+                </h2>
+                <p class="text-xs text-gray-500">Métricas analíticas calculadas automáticamente según entregas e hitos temporales.</p>
+            </div>
+
+            <!-- Grid de Tarjetas de Control -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
+                    <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Por Hacer</span>
+                    <span id="meta-por-hacer" class="text-xl font-bold text-gray-300 mt-2">0</span>
+                </div>
+                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
+                    <span class="text-[10px] uppercase font-bold text-amber-500/80 tracking-wider">En Proceso</span>
+                    <span id="meta-en-proceso" class="text-xl font-bold text-amber-400 mt-2">0</span>
+                </div>
+                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
+                    <span class="text-[10px] uppercase font-bold text-emerald-500/80 tracking-wider">Finalizado</span>
+                    <span id="meta-finalizado" class="text-xl font-bold text-emerald-400 mt-2">0</span>
+                </div>
+                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between border-rose-500/20 bg-rose-500/[0.01]">
+                    <span class="text-[10px] uppercase font-bold text-rose-400 tracking-wider flex items-center gap-1">⚠️ No Terminadas</span>
+                    <span id="meta-vencidas" class="text-xl font-bold text-rose-400 mt-2">0</span>
+                </div>
+                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
+                    <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Total Tareas</span>
+                    <span id="meta-total" class="text-xl font-bold text-white mt-2">0</span>
+                </div>
+                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between border-indigo-500/20 bg-indigo-500/[0.02]">
+                    <span class="text-[10px] uppercase font-bold text-indigo-400 tracking-wider">Eficiencia Equipo</span>
+                    <span id="meta-eficiencia" class="text-xl font-bold text-indigo-400 mt-2">100%</span>
+                </div>
+            </div>
+        </section>
     </main>
 
+    <!-- MODAL INTERACTIVO PARA CREAR TAREAS -->
     <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -133,6 +185,7 @@
         </div>
     </div>
 
+    <!-- MODAL INTERACTIVO PARA CREAR ESPACIOS DE TRABAJO -->
     <div id="modal-espacio" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-sm rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -153,13 +206,14 @@
         </div>
     </div>
 
+    <!-- LÓGICA CORE Y COMUNICACIÓN CON SUPABASE -->
     <script>
         const SUPABASE_URL = "https://cpyueytgzapjguyoigsg.supabase.co";
         const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let tableroActualId = null;
-        let filtroActual = 'todo'; // 'todo' o 'asignados'
+        let filtroActual = 'todo'; 
         const OPERADOR_ACTUAL = "René Raudales";
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -170,19 +224,13 @@
         /* 📢 SECCIÓN DE ANUNCIOS DINÁMICOS */
         async function cargarAnunciosDesdeSupabase() {
             const contenedor = document.getElementById('contenedor-anuncios');
-            
             const { data: anuncios, error } = await supabaseClient
                 .from('anuncios')
                 .select('*')
                 .order('created_at', { ascending: false });
 
             if (error) {
-                // Si la tabla no existe, dar opción amigable de crearla
-                contenedor.innerHTML = `
-                    <div class="text-center p-1 bg-indigo-950/20 rounded border border-indigo-500/10">
-                        <p class="text-[10px] text-gray-400 mb-1">¿Activar anuncios en la BD?</p>
-                        <button onclick="inicializarTablaAnunciosSQL()" class="text-[9px] bg-indigo-600 text-white px-2 py-0.5 rounded cursor-pointer hover:bg-indigo-500">Activar</button>
-                    </div>`;
+                contenedor.innerHTML = `<div class="text-center p-1"><p class="text-[10px] text-gray-500">Tabla anuncios inactiva</p></div>`;
                 return;
             }
 
@@ -204,7 +252,6 @@
         async function crearAnuncio() {
             const contenido = prompt("Escribe el nuevo anuncio para el equipo:");
             if (!contenido) return;
-
             await supabaseClient.from('anuncios').insert([{ contenido: contenido }]);
             await cargarAnunciosDesdeSupabase();
         }
@@ -214,16 +261,11 @@
             await cargarAnunciosDesdeSupabase();
         }
 
-        function inicializarTablaAnunciosSQL() {
-            alert("Para activar la tabla de anuncios ejecuta el código SQL que te dejaré en el chat dentro del SQL Editor de Supabase.");
-        }
-
-        /* 👥 LÓGICA DE FILTRADO FUNCIONAL */
+        /* 👥 FILTRADO */
         function cambiarFiltro(tipo) {
             filtroActual = tipo;
             const btnTodo = document.getElementById('filtro-todo');
             const btnAsignados = document.getElementById('filtro-asignados');
-
             if (tipo === 'todo') {
                 btnTodo.className = "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition";
                 btnAsignados.className = "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
@@ -234,21 +276,15 @@
             cargarColumnasYTasks();
         }
 
-        /* 🎨 MANEJO DE ESPACIOS DE TRABAJO */
+        /* 🎨 ESPACIOS DE TRABAJO */
         async function cargarEspaciosDeTrabajo() {
             const lista = document.getElementById('lista-espacios');
-            
             let { data: tableros, error } = await supabaseClient
                 .from('tableros')
                 .select('*')
                 .order('created_at', { ascending: true });
 
-            if (error) return console.error("Error cargando tableros:", error);
-
-            if (!tableros || tableros.length === 0) {
-                const { data: inicial } = await supabaseClient.from('tableros').insert([{ titulo: "Producción Audiovisual", descripcion: "Control general" }]).select();
-                tableros = inicial;
-            }
+            if (error) return console.error(error);
 
             lista.innerHTML = '';
             tableros.forEach((tab, index) => {
@@ -291,10 +327,19 @@
             await cargarEspaciosDeTrabajo();
         }
 
-        /* 🛠️ RENDERIZADO DE KANBAN Y FILTROS */
+        /* 🛠️ RENDERING KANBAN + CÁLCULO DE MÉTRICAS COMPLETO */
         async function cargarColumnasYTasks() {
             const contenedor = document.getElementById('tablero-columnas');
             
+            // Inicializar acumuladores analíticos globales del Espacio de Trabajo activo
+            let totalPorHacer = 0;
+            let totalEnProceso = 0;
+            let totalFinalizado = 0;
+            let totalVencidasNoTerminadas = 0;
+            let totalGeneralTareas = 0;
+            
+            const hoy = new Date();
+
             let { data: segmentos } = await supabaseClient
                 .from('segmentos')
                 .select('*')
@@ -309,6 +354,7 @@
                             ✨ Inicializar Pipeline de Trabajo
                         </button>
                     </div>`;
+                calcularYMostrarMetricas(0, 0, 0, 0, 0);
                 return;
             }
 
@@ -316,20 +362,37 @@
 
             for (const col of segmentos) {
                 let query = supabaseClient.from('tareas').select('*').eq('segmento_id', col.id);
-                
-                // Aplicar filtro de asignados si está activo
                 if (filtroActual === 'asignados') {
                     query = query.eq('responsable', OPERADOR_ACTUAL);
                 }
-
                 const { data: tareas } = await query.order('posicion', { ascending: true });
+
+                // Mapear contadores por tipo de columna nativa
+                const esColumnaFinalizado = col.nombre.toLowerCase().includes('finalizado') || col.nombre.toLowerCase().includes('listo') || col.nombre.toLowerCase().includes('terminado');
+                const esColumnaProceso = col.nombre.toLowerCase().includes('proceso') || col.nombre.toLowerCase().includes('haciendo');
+                const esColumnaPorHacer = col.nombre.toLowerCase().includes('hacer') || col.nombre.toLowerCase().includes('pendiente');
 
                 let htmlTareas = '';
                 if (tareas && tareas.length > 0) {
                     tareas.forEach(tarea => {
+                        totalGeneralTareas++;
+                        if (esColumnaFinalizado) totalFinalizado++;
+                        else if (esColumnaProceso) totalEnProceso++;
+                        else if (esColumnaPorHacer) totalPorHacer++;
+
+                        // Control de vencimiento: Tiene fecha límite, ya pasó, y NO está finalizada
+                        let esVencida = false;
+                        if (tarea.fecha_entrega && !esColumnaFinalizado) {
+                            const fechaLimite = new Date(tarea.fecha_entrega + 'T23:59:59');
+                            if (fechaLimite < hoy) {
+                                esVencida = true;
+                                totalVencidasNoTerminadas++;
+                            }
+                        }
+
                         let badgeColor = "bg-gray-800 text-gray-400";
-                        if(tarea.prioridad === 'Alta') badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-                        if(tarea.prioridad === 'Urgente') badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                        if (tarea.prioridad === 'Alta') badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                        if (tarea.prioridad === 'Urgente') badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
 
                         const responsable = tarea.responsable || "Lider Media";
 
@@ -338,12 +401,15 @@
                                  draggable="true" 
                                  ondragstart="handleDragStart(event, '${tarea.id}')"
                                  ondragend="handleDragEnd(event)"
-                                 class="bg-[#161619] border border-[#222226] p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3 cursor-grab active:cursor-grabbing select-none relative">
+                                 class="bg-[#161619] border ${esVencida ? 'border-rose-500/40 bg-rose-500/[0.02]' : 'border-[#222226]'} p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3 cursor-grab active:cursor-grabbing select-none relative">
                                 
                                 <button onclick="eliminarTarea('${tarea.id}')" class="absolute top-3 right-3 text-gray-500 hover:text-rose-500 transition font-bold text-xs cursor-pointer opacity-0 group-hover:opacity-100 z-20">✕</button>
                                 
                                 ${tarea.miniatura_url ? `<img src="${tarea.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" draggable="false" />` : ''}
                                 <h4 class="font-medium text-xs text-gray-200 group-hover:text-white leading-tight pr-4">${tarea.titulo}</h4>
+                                
+                                ${esVencida ? `<div class="text-[9px] text-rose-400 font-bold bg-rose-500/10 p-1 rounded border border-rose-500/20 text-center animate-pulse">⚠️ No Terminada (Vencida)</div>` : ''}
+
                                 <div class="flex items-center justify-between pt-1">
                                     <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold ${badgeColor}">${tarea.prioridad}</span>
                                     <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${responsable}</span>
@@ -372,9 +438,28 @@
                         </div>
                     </div>`;
             }
+
+            // Desplegar métricas exactas calculadas
+            calcularYMostrarMetricas(totalPorHacer, totalEnProceso, totalFinalizado, totalVencidasNoTerminadas, totalGeneralTareas);
         }
 
-        /* 🎛️ DRAG AND DROP CON CAMBIO DE CURSOR */
+        function calcularYMostrarMetricas(porHacer, enProceso, finalizado, vencidas, total) {
+            document.getElementById('meta-por-hacer').innerText = porHacer;
+            document.getElementById('meta-en-proceso').innerText = enProceso;
+            document.getElementById('meta-finalizado').innerText = finalizado;
+            document.getElementById('meta-vencidas').innerText = vencidas;
+            document.getElementById('meta-total').innerText = total;
+
+            // Fórmula de Eficiencia Pro
+            if (total === 0) {
+                document.getElementById('meta-eficiencia').innerText = "100%";
+            } else {
+                const porcentaje = Math.round((finalizado / total) * 100);
+                document.getElementById('meta-eficiencia').innerText = `${porcentaje}%`;
+            }
+        }
+
+        /* 🎛️ DRAG AND DROP */
         function handleDragStart(event, tareaId) {
             event.dataTransfer.setData("text/plain", tareaId);
             event.dropEffect = "move";
@@ -388,14 +473,10 @@
         function handleDragOver(event) {
             event.preventDefault();
             const colContenedor = event.currentTarget;
-            if (!colContenedor.classList.contains('drag-over')) {
-                colContenedor.classList.add('drag-over');
-            }
+            if (!colContenedor.classList.contains('drag-over')) colContenedor.classList.add('drag-over');
         }
 
-        function handleDragLeave(event) {
-            event.currentTarget.classList.remove('drag-over');
-        }
+        function handleDragLeave(event) { event.currentTarget.classList.remove('drag-over'); }
 
         async function handleDrop(event, destinoColumnaId) {
             event.preventDefault();
@@ -409,7 +490,6 @@
             if (!tarjetaDOM) return;
 
             const contenedorDestino = colContenedor.querySelector('.lista-tareas-contenedor');
-            
             const msgVacio = contenedorDestino.querySelector('.empty-state-msg'); 
             if (msgVacio) msgVacio.remove();
 
@@ -420,12 +500,7 @@
                 .update({ segmento_id: destinoColumnaId })
                 .eq('id', tareaId);
 
-            if (error) {
-                console.error(error);
-                await cargarColumnasYTasks(); 
-            } else {
-                await cargarColumnasYTasks();
-            }
+            await cargarColumnasYTasks();
         }
 
         /* 🗑️ ELIMINAR TAREA */
@@ -435,7 +510,7 @@
             await cargarColumnasYTasks();
         }
 
-        /* 🛠️ FUNCIONES AUXILIARES */
+        /* 🛠️ AUXILIARES */
         async function inicializarColumnasEspacio() {
             await supabaseClient.from('segmentos').insert([
                 { tablero_id: tableroActualId, nombre: "📋 Por Hacer", posicion: 1 },
@@ -494,9 +569,7 @@
             if (error) return alert("Error al guardar espacio.");
 
             cerrarModalEspacio();
-            if(data && data[0]) {
-                tableroActualId = data[0].id;
-            }
+            if(data && data[0]) tableroActualId = data[0].id;
             await cargarEspaciosDeTrabajo();
         }
     </script>
