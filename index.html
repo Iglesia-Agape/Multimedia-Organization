@@ -16,7 +16,6 @@
 </head>
 <body class="bg-[#0f0f11] text-gray-100 font-sans antialiased min-h-screen flex">
 
-    <!-- BARRA LATERAL (ASIDE) -->
     <aside class="w-64 bg-[#161619] border-r border-[#222226] flex flex-col justify-between hidden md:flex shrink-0">
         <div class="p-4 flex-1 flex flex-col min-h-0">
             <div class="flex items-center gap-3 mb-6 px-2">
@@ -24,7 +23,6 @@
                 <span class="font-semibold text-base tracking-wide text-gray-200">Ministerio Media</span>
             </div>
             
-            <!-- Tablón de Anuncios -->
             <div class="mb-6 bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-3 relative group">
                 <div class="flex items-center justify-between mb-1.5">
                     <div class="flex items-center gap-2">
@@ -38,23 +36,22 @@
                 </div>
             </div>
 
-            <!-- Listado de Espacios de Trabajo -->
             <div class="flex-1 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center px-2 mb-2">
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Espacios de Trabajo</p>
                     <button onclick="abrirModalEspacio()" class="text-gray-400 hover:text-indigo-400 text-sm transition font-bold cursor-pointer">＋</button>
                 </div>
-                <nav id="lista-espacios" class="space-y-1"></nav>
+                <nav id="lista-espacios" class="space-y-1">
+                </nav>
             </div>
         </div>
         
-        <!-- Perfil del Operador Logueado -->
         <div class="p-4 border-t border-[#222226] bg-[#121214] flex items-center justify-between gap-2">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
                 <div>
                     <p class="text-sm font-medium text-gray-300">René Raudales</p>
-                    <p class="text-xs text-gray-500">Operador/Audio</p>
+                    <p class="text-xs text-gray-500">Sistemas & Media</p>
                 </div>
             </div>
             <button onclick="abrirModalConfiguracion()" class="text-gray-400 hover:text-indigo-400 p-1.5 rounded-lg hover:bg-[#1c1c21] transition cursor-pointer" title="Configuración del Equipo">
@@ -63,7 +60,6 @@
         </div>
     </aside>
 
-    <!-- PANEL PRINCIPAL (MAIN) -->
     <main class="flex-1 flex flex-col min-h-screen min-w-0">
         <div id="header-banner" class="w-full h-44 bg-cover bg-center relative border-b border-[#222226]" 
              style="background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200');">
@@ -85,14 +81,12 @@
             </div>
         </header>
 
-        <!-- Contenedor del Tablero Kanban -->
         <section id="tablero-columnas" class="flex-1 p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
             <div class="text-gray-600 text-xs animate-pulse flex items-center justify-center w-full h-48">
                 Leyendo flujos de trabajo en Supabase...
             </div>
         </section>
 
-        <!-- Métricas de Rendimiento -->
         <section class="p-8 border-t border-[#1c1c21] bg-[#121214]/40">
             <div class="mb-4">
                 <h2 class="text-sm font-bold tracking-wide uppercase text-gray-400 flex items-center gap-2">
@@ -130,7 +124,6 @@
         </section>
     </main>
 
-    <!-- MODAL: NUEVA TAREA -->
     <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -156,7 +149,8 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Responsable</label>
-                    <select id="form-responsable" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300"></select>
+                    <select id="form-responsable" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
+                    </select>
                 </div>
             </div>
 
@@ -176,7 +170,6 @@
         </div>
     </div>
 
-    <!-- MODAL: CREAR ESPACIO -->
     <div id="modal-espacio" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-sm rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -197,7 +190,6 @@
         </div>
     </div>
 
-    <!-- MODAL: CONFIGURACIÓN DEL MINISTERIO (FORMULARIO CORREGIDO) -->
     <div id="modal-configuracion" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-lg rounded-xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3 shrink-0">
@@ -211,39 +203,36 @@
                     <input type="text" id="config-nombre-miembro" placeholder="Nombre completo" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
                     <input type="email" id="config-correo-miembro" placeholder="correo@ejemplo.com" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
                     <div class="sm:col-span-2">
-                        <!-- Selector modificado con las 8 áreas operativas estándar -->
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Área Oficial Asignada</label>
                         <select id="config-rol-miembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                            <option value="Audio">🔊 Audio / Mezcla en Vivo</option>
-                            <option value="Transmisión">🎛️ Transmisión (ATEM / OBS)</option>
-                            <option value="Camarografía">📹 Camarografía</option>
-                            <option value="Proyección">🖥️ Proyección (ProPresenter)</option>
-                            <option value="Luces">💡 Luces / Iluminación</option>
-                            <option value="Diseño gráfico">🎨 Diseño gráfico</option>
-                            <option value="Redes sociales">📱 Redes sociales</option>
-                            <option value="Fotografía">📸 Fotografía</option>
+                            <option value="Audio">🎛️ Audio / Mezcla en Vivo</option>
+                            <option value="Transmisión">💻 Transmisión y OBS</option>
+                            <option value="Camarografía">🎥 Camarografía / Cobertura</option>
+                            <option value="Proyección">🖥️ Proyección y ProPresenter</option>
+                            <option value="Luces">💡 Luces e Iluminación</option>
+                            <option value="Diseño gráfico">🎨 Diseño Gráfico</option>
+                            <option value="Redes sociales">📱 Redes Sociales</option>
+                            <option value="Fotografía">📷 Fotografía</option>
                         </select>
                     </div>
                 </div>
-                <button id="btnVincular" onclick="agregarMiembroEquipo()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition cursor-pointer">
+                <button onclick="agregarMiembroEquipo()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition cursor-pointer">
                     ＋ Vincular Miembro Profesional
                 </button>
             </div>
 
             <div class="mt-4 flex-1 overflow-y-auto pr-1">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Miembros Activos en el Sistema</p>
-                <div id="lista-config-miembros" class="space-y-1.5"></div>
+                <div id="lista-config-miembros" class="space-y-1.5">
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- CONTROLADORES Y LÓGICA DE JAVASCRIPT -->
     <script>
         const SUPABASE_URL = "https://cpyueytgzapjguyoigsg.supabase.co";
         const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // NOTA: Se eliminó la variable RESEND_API_KEY y la función enviarNotificacionPorCorreo.
-        // El despacho de correos se procesa de forma segura a través de los Triggers nativos de Supabase.
 
         let tableroActualId = null;
         let filtroActual = 'todo'; 
@@ -296,7 +285,7 @@
             await cargarAnunciosDesdeSupabase();
         }
 
-        /* ⚙️ CONFIGURACIÓN DE INTEGRANTES (ÚNICAMENTE CONEXIÓN CON SUPABASE) */
+        /* ⚙️ MENÚ DE CONFIGURACIÓN GENERAL Y MIEMBROS DINÁMICOS */
         async function sincronizarMiembrosYSelects() {
             const selectResponsable = document.getElementById('form-responsable');
             
@@ -307,11 +296,11 @@
 
             if (error) {
                 console.warn("Tabla miembros inactiva.");
-                cacheMiembros = [{ id: '1', nombre: "René Raudales", correo: "reneraudales2@gmail.com", rol: "Operador/Audio" }];
+                cacheMiembros = [{ id: '1', nombre: "René Raudales", correo: "rene@ejemplo.com", rol: "Audio" }];
             } else {
                 cacheMiembros = miembros || [];
                 if (!cacheMiembros.some(m => m.nombre.toLowerCase() === OPERADOR_ACTUAL.toLowerCase())) {
-                    await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, correo: 'reneraudales2@gmail.com', rol: 'Operador/Audio' }]);
+                    await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, correo: 'rene@ejemplo.com', rol: 'Audio' }]);
                     return sincronizarMiembrosYSelects();
                 }
             }
@@ -347,7 +336,7 @@
                         <div class="min-w-0 flex-1 pr-2">
                             <p class="text-xs font-semibold text-gray-200 truncate">${m.nombre}</p>
                             <p class="text-[10px] text-gray-400 font-mono truncate">${correoMostrar}</p>
-                            <p class="text-[9px] text-gray-500 mt-0.5">${m.rol}</p>
+                            <p class="text-[9px] text-indigo-400 mt-0.5 font-medium">📍 Área: ${m.rol}</p>
                         </div>
                         <div class="shrink-0 flex items-center">
                             ${m.nombre !== OPERADOR_ACTUAL ? `
@@ -359,39 +348,25 @@
         }
 
         async function agregarMiembroEquipo() {
-            const nombreInput = document.getElementById('config-nombre-miembro');
-            const correoInput = document.getElementById('config-correo-miembro');
-            const rolSelect = document.getElementById('config-rol-miembro');
-            const btnVincular = document.getElementById('btnVincular');
-
-            const nombre = nombreInput.value.trim();
-            const correo = correoInput.value.trim();
-            const rol = rolSelect.value;
+            const nombre = document.getElementById('config-nombre-miembro').value.trim();
+            const correo = document.getElementById('config-correo-miembro').value.trim();
+            const rol = document.getElementById('config-rol-miembro').value;
 
             if(!nombre) return alert("Por favor escribe el nombre del integrante");
             if(!correo) return alert("Por favor escribe el correo electrónico");
 
-            btnVincular.disabled = true;
-            btnVincular.innerText = 'Insertando de forma segura...';
-
-            // Realizamos la inserción limpia en Supabase (El correo se dispara solo desde el Servidor)
+            // SE INSERTA DIRECTAMENTE EN LA TABLA DE SUPABASE
+            // Nota de Seguridad: Cualquier automatización de correos se delega a Triggers o Edge Functions en Supabase
+            // para evitar problemas de CORS de Resend en el lado del cliente (GitHub Pages).
             const { error } = await supabaseClient.from('miembros').insert([{ nombre, correo, rol }]);
 
             if (error) {
-                console.error("Error al registrar miembro:", error);
-                alert("Hubo un percance al guardar el miembro: " + error.message);
-                btnVincular.disabled = false;
-                btnVincular.innerText = '＋ Vincular Miembro Profesional';
+                alert("Hubo un percance al guardar el miembro. Revisa duplicados.");
                 return;
             }
 
-            alert(`¡Vinculación Exitosa!\n${nombre} ha sido agregado a ${rol}. La invitación automática se está procesando.`);
-
-            nombreInput.value = '';
-            correoInput.value = '';
-            btnVincular.disabled = false;
-            btnVincular.innerText = '＋ Vincular Miembro Profesional';
-            
+            document.getElementById('config-nombre-miembro').value = '';
+            document.getElementById('config-correo-miembro').value = '';
             await sincronizarMiembrosYSelects();
             renderizarListaConfigMiembros();
         }
@@ -403,7 +378,7 @@
             renderizarListaConfigMiembros();
         }
 
-        /* 👥 FILTRADO DE TAREAS */
+        /* 👥 FILTRADO */
         function cambiarFiltro(tipo) {
             filtroActual = tipo;
             const btnTodo = document.getElementById('filtro-todo');
@@ -418,7 +393,7 @@
             cargarColumnasYTasks();
         }
 
-        /* 🎨 GESTIÓN DE ESPACIOS DE TRABAJO */
+        /* 🎨 ESPACIOS DE TRABAJO INDIVIDUALES */
         async function cargarEspaciosDeTrabajo() {
             const lista = document.getElementById('lista-espacios');
             let { data: tableros, error } = await supabaseClient
@@ -431,9 +406,15 @@
             lista.innerHTML = '';
             tableros.forEach((tab, index) => {
                 let icono = '🎬';
-                if (tab.titulo.toLowerCase().includes('audio')) icono = '🎛️';
-                if (tab.titulo.toLowerCase().includes('diseño') || tab.titulo.toLowerCase().includes('grafic')) icono = '🎨';
-                if (tab.titulo.toLowerCase().includes('marketing') || tab.titulo.toLowerCase().includes('redes')) icono = '📢';
+                const lowerTitulo = tab.titulo.toLowerCase();
+                if (lowerTitulo.includes('audio')) icono = '🎛️';
+                else if (lowerTitulo.includes('transmisión') || lowerTitulo.includes('obs')) icono = '💻';
+                else if (lowerTitulo.includes('camarografía') || lowerTitulo.includes('cámara')) icono = '🎥';
+                else if (lowerTitulo.includes('proyección') || lowerTitulo.includes('propresenter')) icono = '🖥️';
+                else if (lowerTitulo.includes('luces') || lowerTitulo.includes('iluminación')) icono = '💡';
+                else if (lowerTitulo.includes('diseño')) icono = '🎨';
+                else if (lowerTitulo.includes('redes') || lowerTitulo.includes('sociales')) icono = '📱';
+                else if (lowerTitulo.includes('fotografía')) icono = '📷';
 
                 const esActivo = tableroActualId === null ? index === 0 : tab.id === tableroActualId;
                 if (esActivo) {
@@ -455,10 +436,13 @@
 
         function establecerBannerFondo(titulo) {
             const banner = document.getElementById('header-banner');
-            if (titulo.toLowerCase().includes('audio')) {
+            const lower = titulo.toLowerCase();
+            if (lower.includes('audio')) {
                 banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200')";
-            } else if (titulo.toLowerCase().includes('diseño') || titulo.toLowerCase().includes('grafic')) {
+            } else if (lower.includes('diseño') || lower.includes('grafic')) {
                 banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200')";
+            } else if (lower.includes('luces') || lower.includes('iluminación')) {
+                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=1200')";
             } else {
                 banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200')";
             }
@@ -469,7 +453,7 @@
             await cargarEspaciosDeTrabajo();
         }
 
-        /* 🛠️ RENDERIZADO KANBAN Y CÁLCULO DE MÉTRICAS */
+        /* 🛠 * KANBAN RENDERING + METRICS */
         async function cargarColumnasYTasks() {
             const contenedor = document.getElementById('tablero-columnas');
             let totalPorHacer = 0, totalEnProceso = 0, totalFinalizado = 0, totalVencidasNoTerminadas = 0, totalGeneralTareas = 0;
@@ -616,14 +600,14 @@
             await cargarColumnasYTasks();
         }
 
-        /* 🗑️ ELIMINAR ASIGNACIÓN */
+        /* 🗑️ ELIMINAR TAREA */
         async function eliminarTarea(id) {
             if(!confirm("¿Seguro que deseas eliminar esta asignación?")) return;
             await supabaseClient.from('tareas').delete().eq('id', id);
             await cargarColumnasYTasks();
         }
 
-        /* 🛠️ PROCESOS AUXILIARES */
+        /* 🛠️ AUXILIARES */
         async function inicializarColumnasEspacio() {
             await supabaseClient.from('segmentos').insert([
                 { tablero_id: tableroActualId, nombre: "📋 Por Hacer", posicion: 1 },
@@ -653,7 +637,6 @@
 
             if(!titulo) return alert("Por favor escribe el título de la tarea");
 
-            // Insertamos la tarea (La base de datos maneja la lógica de emails de notificación por separado si aplica)
             await supabaseClient.from('tareas').insert([{
                 segmento_id: segmentoId,
                 titulo: titulo,
