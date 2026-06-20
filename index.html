@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multimedia Workspace</title>
+    <title>IglesiaPOS — Panel de Control Media</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -16,6 +16,7 @@
 </head>
 <body class="bg-[#0f0f11] text-gray-100 font-sans antialiased min-h-screen flex">
 
+    <!-- SIDEBAR IZQUIERDO -->
     <aside class="w-64 bg-[#161619] border-r border-[#222226] flex flex-col justify-between hidden md:flex shrink-0">
         <div class="p-4 flex-1 flex flex-col min-h-0">
             <div class="flex items-center gap-3 mb-6 px-2">
@@ -23,6 +24,7 @@
                 <span class="font-semibold text-base tracking-wide text-gray-200">Ministerio Media</span>
             </div>
             
+            <!-- TABLÓN DE ANUNCIOS -->
             <div class="mb-6 bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-3 relative group">
                 <div class="flex items-center justify-between mb-1.5">
                     <div class="flex items-center gap-2">
@@ -36,22 +38,25 @@
                 </div>
             </div>
 
+            <!-- ESPACIOS DE TRABAJO (ÁREAS OFICIALES) -->
             <div class="flex-1 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center px-2 mb-2">
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Espacios de Trabajo</p>
                     <button onclick="abrirModalEspacio()" class="text-gray-400 hover:text-indigo-400 text-sm transition font-bold cursor-pointer">＋</button>
                 </div>
                 <nav id="lista-espacios" class="space-y-1">
-                    </nav>
+                    <!-- Inyección dinámica estructurada -->
+                </nav>
             </div>
         </div>
         
+        <!-- OPERADOR LOGUEADO (DINÁMICO DESDE BASE DE DATOS) -->
         <div class="p-4 border-t border-[#222226] bg-[#121214] flex items-center justify-between gap-2">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
+                <div class="w-9 h-9 bg-indigo-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
                 <div>
-                    <p class="text-sm font-medium text-gray-300">René Raudales</p>
-                    <p class="text-xs text-gray-500">Sistemas & Media</p>
+                    <p class="text-sm font-medium text-gray-300" id="operador-nombre">René Raudales</p>
+                    <p class="text-xs text-gray-500" id="operador-rol">Sistemas & Media</p>
                 </div>
             </div>
             <button onclick="abrirModalConfiguracion()" class="text-gray-400 hover:text-indigo-400 p-1.5 rounded-lg hover:bg-[#1c1c21] transition cursor-pointer" title="Configuración del Equipo">
@@ -60,7 +65,8 @@
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-h-screen min-w-0">
+    <!-- ÁREA CENTRAL -->
+    <main class="flex-1 flex flex-col min-w-0">
         <div id="header-banner" class="w-full h-44 bg-cover bg-center relative border-b border-[#222226]">
             <div class="absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/40 to-transparent"></div>
         </div>
@@ -69,8 +75,8 @@
             <div class="flex gap-4 items-end">
                 <div class="w-16 h-16 bg-[#161619] border-2 border-[#222226] rounded-2xl flex items-center justify-center text-3xl shadow-xl select-none" id="tablero-icono">🎬</div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-white mb-0.5" id="tablero-titulo">Cargando...</h1>
-                    <p class="text-xs text-gray-400" id="tablero-descripcion">Gestión integrada de proyectos y control cruzado en tiempo real.</p>
+                    <h1 class="text-2xl font-bold tracking-tight text-white mb-0.5" id="tablero-titulo">Cargando área...</h1>
+                    <p class="text-xs text-gray-400" id="tablero-descripcion">Gestión integrada de flujos de trabajo e hitos operativos en tiempo real.</p>
                 </div>
             </div>
             
@@ -80,12 +86,14 @@
             </div>
         </header>
 
+        <!-- KANBAN CONTAINER -->
         <section id="tablero-columnas" class="flex-1 p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
             <div class="text-gray-600 text-xs animate-pulse flex items-center justify-center w-full h-48">
-                Leyendo flujos de trabajo en Supabase...
+                Sincronizando flujos con Supabase...
             </div>
         </section>
 
+        <!-- METRICAS DE EFICIENCIA -->
         <section class="p-8 border-t border-[#1c1c21] bg-[#121214]/40">
             <div class="mb-4">
                 <h2 class="text-sm font-bold tracking-wide uppercase text-gray-400 flex items-center gap-2">
@@ -123,6 +131,7 @@
         </section>
     </main>
 
+    <!-- MODAL: NUEVA ASIGNACIÓN -->
     <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -133,7 +142,7 @@
             
             <div>
                 <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Título de la asignación</label>
-                <input type="text" id="form-titulo" placeholder="Ej. Mezclar voces del servicio de adoración" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                <input type="text" id="form-titulo" placeholder="Ej. Renderizar cinemática o ajustar ganancia..." class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -147,9 +156,10 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Responsable</label>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Especialista Asignado</label>
                     <select id="form-responsable" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                        </select>
+                        <!-- Carga contextual inteligente -->
+                    </select>
                 </div>
             </div>
 
@@ -159,7 +169,7 @@
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">URL de Miniatura / Imagen Preview (Opcional)</label>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">URL de Miniatura (Opcional)</label>
                 <input type="url" id="form-miniatura" placeholder="https://images.unsplash.com/..." class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
 
@@ -169,26 +179,7 @@
         </div>
     </div>
 
-    <div id="modal-espacio" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-[#161619] border border-[#26262b] w-full max-w-sm rounded-xl p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-[#222226] pb-3">
-                <h3 class="font-bold text-gray-200 text-base">🎨 Crear Espacio de Trabajo</h3>
-                <button onclick="cerrarModalEspacio()" class="text-gray-500 hover:text-white cursor-pointer">✕</button>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Nombre del Espacio</label>
-                <input type="text" id="espacio-titulo" placeholder="Ej. Audio, Redes Sociales" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Icono (Emoji)</label>
-                <input type="text" id="espacio-icono" placeholder="🎛️" value="🎛️" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm text-center focus:outline-hidden focus:border-indigo-500 text-gray-200">
-            </div>
-            <button onclick="guardarEspacio()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition cursor-pointer">
-                ✨ Crear Nuevo Espacio
-            </button>
-        </div>
-    </div>
-
+    <!-- MODAL: CONFIGURACIÓN INTEGRANTES Y ROLES -->
     <div id="modal-configuracion" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-lg rounded-xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3 shrink-0">
@@ -203,10 +194,15 @@
                     <input type="email" id="config-correo-miembro" placeholder="correo@ejemplo.com" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
                     <div class="sm:col-span-2">
                         <select id="config-rol-miembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                            <option value="Operador">🎛️ Operador / Técnico</option>
-                            <option value="Cámaras">🎥 Equipo de Cámaras</option>
-                            <option value="Diseñador">🎨 Diseñador Gráfico</option>
-                            <option value="Social Media">📱 Gestor de Contenido</option>
+                            <option value="Sistemas & Media">💻 Sistemas & Media</option>
+                            <option value="Diseño gráfico">🎨 Diseñador Gráfico</option>
+                            <option value="Redes sociales">📱 Social Media Manager</option>
+                            <option value="Fotografía">📷 Fotógrafo Oficial</option>
+                            <option value="Transmisión">📡 Ingeniero de Streaming / ATEM Op</option>
+                            <option value="Proyección">🖥️ Operador de ProPresenter / Proyección</option>
+                            <option value="Camarografía">🎥 Operador de Cámara Studio</option>
+                            <option value="Luces">💡 Diseñador de Iluminación</option>
+                            <option value="Audio">🎛️ Operador de Audio / Sonido</option>
                         </select>
                     </div>
                 </div>
@@ -217,46 +213,59 @@
 
             <div class="mt-4 flex-1 overflow-y-auto pr-1">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Miembros Activos en el Sistema</p>
-                <div id="lista-config-miembros" class="space-y-1.5">
-                    </div>
+                <div id="lista-config-miembros" class="space-y-1.5"></div>
             </div>
         </div>
     </div>
 
+    <!-- CORE SCRIPTS CON ÁREAS OFICIALES INTEGRADAS -->
     <script>
+        // 🔑 Credenciales vinculadas
         const SUPABASE_URL = "https://cpyueytgzapjguyoigsg.supabase.co";
         const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         const RESEND_API_KEY = "re_AMiXVe4q_HHhEwbFujLuLFHvskaUUBihC";
 
-        let tableroActualId = null;
-        let tableroActualTitulo = ""; // Guardamos el nombre del espacio activo
-        let filtroActual = 'todo'; 
-        const OPERADOR_ACTUAL = "René Raudales";
-        let cacheMiembros = []; 
+        // CONFIGURACIÓN DE LAS 8 ÁREAS OFICIALES CON MAPEO EXCLUSIVO DE IMÁGENES E ICONOS
+        const AREAS_OFICIALES = [
+            { titulo: "Diseño gráfico", icono: "🎨", banner: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200" },
+            { titulo: "Redes sociales", icono: "📱", banner: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1200" },
+            { titulo: "Fotografía", icono: "📷", banner: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1200" },
+            { titulo: "Transmisión", icono: "📡", banner: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200" },
+            { titulo: "Proyección", icono: "🖥️", banner: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1200" },
+            { titulo: "Camarografía", icono: "🎥", banner: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1200" },
+            { titulo: "Luces", icono: "💡", banner: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=1200" },
+            { titulo: "Audio", icono: "🎛️", banner: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200" }
+        ];
 
+        let tableroActualId = null;
+        let tableroActualTitulo = "";
+        let filtroActual = 'todo'; 
+        let cacheMiembros = []; 
+        const EMAIL_OPERADOR_MAESTRO = "rene@ejemplo.com"; 
+
+        // 🚀 CONTROLADOR DE ARRANQUE ASÍNCRONO SIN BUGS
         window.addEventListener('DOMContentLoaded', async () => {
-            await cargarAnunciosDesdeSupabase();
-            await sincronizarMiembrosYSelects();
-            await cargarEspaciosDeTrabajo();
+            try { await cargarAnunciosDesdeSupabase(); } catch (e) { console.error(e); }
+            try {
+                await sincronizarMiembrosYSelects();
+                // Forzar verificación e inserción automática de las 8 áreas en Supabase si no existen
+                await verificarEInicializarTablerosOficiales();
+            } catch (e) {
+                console.error("Fallo crítico en sincronización inicial:", e);
+            }
         });
 
-        /* 📨 RESEND SERVICE */
+        /* 📨 SERVICIO RESEND API */
         async function enviarNotificacionPorCorreo(destinatario, asunto, cuerpoHtml) {
             if (!RESEND_API_KEY || RESEND_API_KEY.includes("TU_API_KEY")) return;
             try {
                 await fetch("https://api.resend.com/emails", {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${RESEND_API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         from: "Multimedia Workspace <onboarding@resend.dev>",
-                        to: [destinatario],
-                        subject: asunto,
-                        html: cuerpoHtml
+                        to: [destinatario], subject: asunto, html: cuerpoHtml
                     })
                 });
             } catch (err) { console.error(err); }
@@ -270,18 +279,15 @@
                 contenedor.innerHTML = `<p class="text-xs text-gray-500 italic">No hay anuncios recientes.</p>`;
                 return;
             }
-            contenedor.innerHTML = '';
-            anuncios.forEach(anuncio => {
-                contenedor.innerHTML += `
-                    <div class="border-b border-[#222226] last:border-0 pb-1.5 last:pb-0 relative group/msg">
-                        <p class="text-xs text-gray-300 leading-relaxed">${anuncio.contenido}</p>
-                        <button onclick="eliminarAnuncio('${anuncio.id}')" class="absolute top-0 right-0 text-gray-600 hover:text-rose-400 text-[9px] opacity-0 group-hover/msg:opacity-100 cursor-pointer transition">✕</button>
-                    </div>`;
-            });
+            contenedor.innerHTML = anuncios.map(a => `
+                <div class="border-b border-[#222226] last:border-0 pb-1.5 last:pb-0 relative group/msg">
+                    <p class="text-xs text-gray-300 leading-relaxed">${a.contenido}</p>
+                    <button onclick="eliminarAnuncio('${a.id}')" class="absolute top-0 right-0 text-gray-600 hover:text-rose-400 text-[9px] opacity-0 group-hover/msg:opacity-100 cursor-pointer transition">✕</button>
+                </div>`).join('');
         }
 
         async function crearAnuncio() {
-            const contenido = prompt("Escribe el nuevo anuncio:");
+            const contenido = prompt("Escribe el nuevo anuncio para el equipo:");
             if (!contenido) return;
             await supabaseClient.from('anuncios').insert([{ contenido }]);
             await cargarAnunciosDesdeSupabase();
@@ -292,142 +298,101 @@
             await cargarAnunciosDesdeSupabase();
         }
 
-        /* ⚙️ MIEMBROS & SELECT DINÁMICO ASOCIADO AL ROL */
+        /* ⚙️ MIEMBROS Y ROLES DINÁMICOS POR ENTORNO */
         async function sincronizarMiembrosYSelects() {
             let { data: miembros } = await supabaseClient.from('miembros').select('*').order('nombre', { ascending: true });
             cacheMiembros = miembros || [];
-            if (!cacheMiembros.some(m => m.nombre.toLowerCase() === OPERADOR_ACTUAL.toLowerCase())) {
-                await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, correo: 'rene@ejemplo.com', rol: 'Operador' }]);
-                return sincronizarMiembrosYSelects();
-            }
-        }
-
-        // Mapeo dinámico e inteligente de roles
-        function actualizarSelectResponsables() {
-            const selectResponsable = document.getElementById('form-responsable');
-            selectResponsable.innerHTML = '';
-
-            let rolBuscado = "Operador";
-            const tituloLower = tableroActualTitulo.toLowerCase();
-
-            if (tituloLower.includes('aud')) rolBuscado = "Operador";
-            else if (tituloLower.includes('camar') || tituloLower.includes('proyec') || tituloLower.includes('audiovisual')) rolBuscado = "Cámaras";
-            else if (tituloLower.includes('diseñ') || tituloLower.includes('grafic')) rolBuscado = "Diseñador";
-            else if (tituloLower.includes('red') || tituloLower.includes('social') || tituloLower.includes('market')) rolBuscado = "Social Media";
-
-            const sugeridos = cacheMiembros.filter(m => m.rol === rolBuscado);
-            const otros = cacheMiembros.filter(m => m.rol !== rolBuscado);
-
-            let htmlOptions = "";
-            if(sugeridos.length > 0) {
-                htmlOptions += `<optgroup label="✨ Especialistas de ${tableroActualTitulo}">`;
-                sugeridos.forEach(m => { htmlOptions += `<option value="${m.nombre}">👤 ${m.nombre}</option>`; });
-                htmlOptions += `</optgroup>`;
-            }
-            if(otros.length > 0) {
-                htmlOptions += `<optgroup label="🌐 Resto del Personal">`;
-                otros.forEach(m => { htmlOptions += `<option value="${m.nombre}">👤 ${m.nombre} (${m.rol})</option>`; });
-                htmlOptions += `</optgroup>`;
-            }
-            selectResponsable.innerHTML = htmlOptions;
-        }
-
-        function abrirModalConfiguracion() {
-            document.getElementById('modal-configuracion').classList.remove('hidden');
-            renderizarListaConfigMiembros();
-        }
-        function cerrarModalConfiguracion() { document.getElementById('modal-configuracion').classList.add('hidden'); }
-
-        function renderizarListaConfigMiembros() {
-            const listaDOM = document.getElementById('lista-config-miembros');
-            listaDOM.innerHTML = '';
-            cacheMiembros.forEach(m => {
-                listaDOM.innerHTML += `
-                    <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg">
-                        <div class="min-w-0 flex-1 pr-2">
-                            <p class="text-xs font-semibold text-gray-200 truncate">${m.nombre}</p>
-                            <p class="text-[10px] text-gray-400 font-mono truncate">${m.correo || 'Sin correo'}</p>
-                            <p class="text-[9px] text-gray-500 mt-0.5">${m.rol}</p>
-                        </div>
-                        <div class="shrink-0 flex items-center">
-                            ${m.nombre !== OPERADOR_ACTUAL ? `<button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 transition cursor-pointer">✕</button>` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>'}
-                        </div>
-                    </div>`;
-            });
-        }
-
-        async function agregarMiembroEquipo() {
-            const nombre = document.getElementById('config-nombre-miembro').value.trim();
-            const correo = document.getElementById('config-correo-miembro').value.trim();
-            const rol = document.getElementById('config-rol-miembro').value;
-            if(!nombre || !correo) return alert("Completa los campos obligatorios.");
-
-            await supabaseClient.from('miembros').insert([{ nombre, correo, rol }]);
             
-            const cuerpoHtml = `<div style="background-color:#121214;color:#e4e4e7;font-family:sans-serif;padding:24px;border-radius:12px;border:1px solid #222226;"><h2 style="color:#6366f1;">¡Bienvenido al Ministerio Media! 🎬</h2><p>Hola <strong>${nombre}</strong>, has sido vinculado como <strong>${rol}</strong>.</p></div>`;
-            await enviarNotificacionPorCorreo(correo, "Invitación Oficial - Ministerio Media 🎛️", cuerpoHtml);
-
-            document.getElementById('config-nombre-miembro').value = '';
-            document.getElementById('config-correo-miembro').value = '';
-            await sincronizarMiembrosYSelects();
-            renderizarListaConfigMiembros();
+            const existeMaestro = cacheMiembros.find(m => m.correo === EMAIL_OPERADOR_MAESTRO);
+            if (!existeMaestro) {
+                const { data: nuevoM } = await supabaseClient.from('miembros').insert([{ 
+                    nombre: "René Raudales", correo: EMAIL_OPERADOR_MAESTRO, rol: 'Sistemas & Media' 
+                }]).select();
+                if(nuevoM) cacheMiembros.push(nuevoM[0]);
+            } else {
+                document.getElementById('operador-nombre').innerText = existeMaestro.nombre;
+                document.getElementById('operador-rol').innerText = existeMaestro.rol;
+            }
         }
 
-        async function removerMiembroEquipo(id) {
-            if(!confirm("¿Desvincular miembro?")) return;
-            await supabaseClient.from('miembros').delete().eq('id', id);
-            await sincronizarMiembrosYSelects();
-            renderizarListaConfigMiembros();
+        // Reordenación inteligente: Pone al inicio del Selector a los miembros cuyo rol coincida con el espacio activo
+        function filtrarYOrdenarSelectorResponsables() {
+            const selectResponsable = document.getElementById('form-responsable');
+            if(!selectResponsable) return;
+
+            let ordenados = [...cacheMiembros];
+            const areaActual = tableroActualTitulo.toLowerCase().trim();
+
+            ordenados.sort((a, b) => {
+                const aRol = (a.rol || '').toLowerCase().trim();
+                const bRol = (b.rol || '').toLowerCase().trim();
+                let aMatch = aRol === areaActual ? 1 : 0;
+                let bMatch = bRol === areaActual ? 1 : 0;
+                return bMatch - aMatch;
+            });
+
+            selectResponsable.innerHTML = ordenados.map(m => `
+                <option value="${m.nombre}">👤 ${m.nombre} (${m.rol || 'Especialista'})</option>
+            `).join('');
         }
 
-        /* 🎨 ESPACIOS DE TRABAJO */
-        async function cargarEspaciosDeTrabajo() {
+        /* 🎨 VERIFICACIÓN E INYECCIÓN DE LAS 8 ÁREAS EN SUPABASE */
+        async function verificarEInicializarTablerosOficiales() {
+            let { data: tablerosExistentes } = await supabaseClient.from('tableros').select('*');
+            
+            // Si la base de datos está vacía o le faltan áreas, inyectar de golpe las oficiales
+            if (!tablerosExistentes || tablerosExistentes.length < 8) {
+                for (const area of AREAS_OFICIALES) {
+                    const existe = (tablerosExistentes || []).some(t => t.titulo.toLowerCase().trim() === area.titulo.toLowerCase().trim());
+                    if (!existe) {
+                        await supabaseClient.from('tableros').insert([{ titulo: area.titulo, descripcion: `Espacio oficial de control para ${area.titulo}` }]);
+                    }
+                }
+                // Volver a consultar para obtener los IDs reales generados por Supabase
+                let { data: actualizados } = await supabaseClient.from('tableros').select('*');
+                tablerosExistentes = actualizados;
+            }
+
+            renderizarListaEspaciosUI(tablerosExistentes);
+        }
+
+        function renderizarListaEspaciosUI(tableros) {
             const lista = document.getElementById('lista-espacios');
-            let { data: tableros } = await supabaseClient.from('tableros').select('*').order('created_at', { ascending: true });
-            if (!tableros) return;
-
             lista.innerHTML = '';
+
             tableros.forEach((tab, index) => {
-                let icono = '🎬';
-                if (tab.titulo.toLowerCase().includes('audio')) icono = '🎛️';
-                if (tab.titulo.toLowerCase().includes('diseño') || tab.titulo.toLowerCase().includes('grafic')) icono = '🎨';
-                if (tab.titulo.toLowerCase().includes('marketing') || tab.titulo.toLowerCase().includes('redes')) icono = '📢';
+                // Encontrar la configuración estética estricta definida arriba
+                const configEstetica = AREAS_OFICIALES.find(a => a.titulo.toLowerCase().trim() === tab.titulo.toLowerCase().trim()) || { icono: "🎬", banner: "" };
 
                 const esActivo = tableroActualId === null ? index === 0 : tab.id === tableroActualId;
                 if (esActivo) {
                     tableroActualId = tab.id;
-                    tabboardActualTitulo = tab.titulo;
-                    tableroActualTitulo = tab.titulo; 
+                    tableroActualTitulo = tab.titulo;
                     document.getElementById('tablero-titulo').innerText = tab.titulo;
-                    document.getElementById('tablero-icono').innerText = icono;
-                    establecerBannerFondo(tab.titulo);
+                    document.getElementById('tablero-icono').innerText = configEstetica.icono;
+                    document.getElementById('header-banner').style.backgroundImage = `url('${configEstetica.banner}')`;
                 }
 
                 lista.innerHTML += `
-                    <button onclick="cambiarTablero('${tab.id}')" class="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-medium transition cursor-pointer ${esActivo ? 'bg-[#222226] text-indigo-400' : 'text-gray-400 hover:bg-[#1a1a1e] hover:text-gray-200'}">
-                        <span>${icono}</span> ${tab.titulo}
+                    <button onclick="cambiarTablero('${tab.id}')" class="w-full flex items-center justify-between px-3 py-2 text-left rounded-lg text-sm font-medium transition cursor-pointer ${esActivo ? 'bg-[#222226] text-indigo-400 border border-indigo-500/10' : 'text-gray-400 hover:bg-[#1a1a1e] hover:text-gray-200'}">
+                        <div class="flex items-center gap-3">
+                            <span>${configEstetica.icono}</span>
+                            <span>${tab.titulo}</span>
+                        </div>
                     </button>`;
             });
 
+            filtrarYOrdenarSelectorResponsables();
             if (tableroActualId) cargarColumnasYTasks();
         }
 
-        function establecerBannerFondo(titulo) {
-            const banner = document.getElementById('header-banner');
-            if (titulo.toLowerCase().includes('audio')) banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200')";
-            else if (titulo.toLowerCase().includes('diseño') || titulo.toLowerCase().includes('grafic')) banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200')";
-            else banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200')";
+        async function cambiarTablero(id) {
+            tableroActualId = id;
+            let { data: tableros } = await supabaseClient.from('tableros').select('*');
+            renderizarListaEspaciosUI(tableros);
         }
 
-        async function cambiarTablero(id) { tableroActualId = id; await cargarEspaciosDeTrabajo(); }
-        function cambiarFiltro(tipo) {
-            filtroActual = tipo;
-            document.getElementById('filtro-todo').className = tipo === 'todo' ? "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition" : "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
-            document.getElementById('filtro-asignados').className = tipo === 'asignados' ? "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition" : "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
-            cargarColumnasYTasks();
-        }
-
-        /* 🛠 KANBAN PIPELINE */
+        /* 📋 KANBAN CORE (MÉTRICAS Y DRAG & DROP INTEGRADO) */
         async function cargarColumnasYTasks() {
             const contenedor = document.getElementById('tablero-columnas');
             let totalPorHacer = 0, totalEnProceso = 0, totalFinalizado = 0, totalVencidas = 0, totalGeneral = 0;
@@ -436,46 +401,57 @@
             let { data: segmentos } = await supabaseClient.from('segmentos').select('*').eq('tablero_id', tableroActualId).order('posicion', { ascending: true });
 
             if (!segmentos || segmentos.length === 0) {
-                contenedor.innerHTML = `<div class="text-center py-12 px-4 border-2 border-dashed border-[#222226] rounded-xl max-w-sm mx-auto mt-6"><p class="text-gray-500 text-xs mb-3">Este espacio no tiene columnas todavía.</p><button onclick="inicializarColumnasEspacio()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition shadow-md cursor-pointer">✨ Inicializar Pipeline de Trabajo</button></div>`;
-                calcularYMostrarMetricas(0, 0, 0, 0, 0);
+                contenedor.innerHTML = `
+                    <div class="text-center py-12 px-4 border-2 border-dashed border-[#222226] rounded-xl max-w-sm mx-auto mt-6">
+                        <p class="text-gray-500 text-xs mb-3">Este espacio no tiene pipeline de trabajo estructurado.</p>
+                        <button onclick="inicializarColumnasEspacio()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition shadow-md cursor-pointer">
+                            ✨ Inicializar Pipeline de Trabajo
+                        </button>
+                    </div>`;
+                actualizarCuadroMetricas(0,0,0,0,0);
                 return;
             }
 
             contenedor.innerHTML = '';
+
             for (const col of segmentos) {
                 let query = supabaseClient.from('tareas').select('*').eq('segmento_id', col.id);
-                if (filtroActual === 'asignados') query = query.eq('responsable', OPERADOR_ACTUAL);
+                if (filtroActual === 'asignados') query = query.eq('responsable', document.getElementById('operador-nombre').innerText);
+                
                 const { data: tareas } = await query.order('posicion', { ascending: true });
 
-                const esFin = col.nombre.toLowerCase().match(/(finalizado|listo|terminado|done)/);
-                const esProc = col.nombre.toLowerCase().match(/(proceso|haciendo|doing)/);
+                const esFin = col.nombre.toLowerCase().includes('finalizado') || col.nombre.toLowerCase().includes('listo') || col.nombre.toLowerCase().includes('terminado');
+                const esPro = col.nombre.toLowerCase().includes('proceso') || col.nombre.toLowerCase().includes('haciendo');
+                const esHac = col.nombre.toLowerCase().includes('hacer') || col.nombre.toLowerCase().includes('pendiente');
 
                 let htmlTareas = '';
                 if (tareas && tareas.length > 0) {
-                    tareas.forEach(tarea => {
+                    tareas.forEach(t => {
                         totalGeneral++;
                         if (esFin) totalFinalizado++;
-                        else if (esProc) totalEnProceso++;
-                        else totalPorHacer++;
+                        else if (esPro) totalEnProceso++;
+                        else if (esHac) totalPorHacer++;
 
                         let esVencida = false;
-                        if (tarea.fecha_entrega && !esFin) {
-                            if (new Date(tarea.fecha_entrega + 'T23:59:59') < hoy) { esVencida = true; totalVencidas++; }
+                        if (t.fecha_entrega && !esFin) {
+                            const limite = new Date(t.fecha_entrega + 'T23:59:59');
+                            if (limite < hoy) { esVencida = true; totalVencidas++; }
                         }
 
-                        let bColor = "bg-gray-800 text-gray-400";
-                        if (tarea.prioridad === 'Alta') bColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-                        if (tarea.prioridad === 'Urgente') bColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                        let badge = "bg-gray-800 text-gray-400";
+                        if (t.prioridad === 'Alta') badge = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                        if (t.prioridad === 'Urgente') badge = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
 
                         htmlTareas += `
-                            <div id="tarea-${tarea.id}" draggable="true" ondragstart="handleDragStart(event, '${tarea.id}')" ondragend="handleDragEnd(event)" class="bg-[#161619] border ${esVencida ? 'border-rose-500/40 bg-rose-500/[0.02]' : 'border-[#222226]'} p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3 cursor-grab active:cursor-grabbing select-none relative">
-                                <button onclick="eliminarTarea('${tarea.id}')" class="absolute top-3 right-3 text-gray-500 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition font-bold text-xs cursor-pointer z-20">✕</button>
-                                ${tarea.miniatura_url ? `<img src="${tarea.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" draggable="false" />` : ''}
-                                <h4 class="font-medium text-xs text-gray-200 group-hover:text-white leading-tight pr-4">${tarea.titulo}</h4>
+                            <div id="tarea-${t.id}" draggable="true" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)"
+                                 class="bg-[#161619] border ${esVencida ? 'border-rose-500/40 bg-rose-500/[0.02]' : 'border-[#222226]'} p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3 cursor-grab active:cursor-grabbing select-none relative">
+                                <button onclick="eliminarTarea('${t.id}')" class="absolute top-3 right-3 text-gray-500 hover:text-rose-500 text-xs font-bold cursor-pointer opacity-0 group-hover:opacity-100 transition z-20">✕</button>
+                                ${t.miniatura_url ? `<img src="${t.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" draggable="false" />` : ''}
+                                <h4 class="font-medium text-xs text-gray-200 group-hover:text-white leading-tight pr-4">${t.titulo}</h4>
                                 ${esVencida ? `<div class="text-[9px] text-rose-400 font-bold bg-rose-500/10 p-1 rounded border border-rose-500/20 text-center animate-pulse">⚠️ No Terminada (Vencida)</div>` : ''}
                                 <div class="flex items-center justify-between pt-1">
-                                    <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold ${bColor}">${tarea.prioridad}</span>
-                                    <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${tarea.responsable}</span>
+                                    <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold ${badge}">${t.prioridad}</span>
+                                    <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${t.responsable}</span>
                                 </div>
                             </div>`;
                     });
@@ -484,42 +460,57 @@
                 }
 
                 contenedor.innerHTML += `
-                    <div class="w-72 shrink-0 flex flex-col max-h-[calc(100vh-280px)] bg-[#121214]/60 p-4 rounded-xl border border-[#1c1c21]" data-columna-id="${col.id}" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${col.id}')">
+                    <div class="w-72 shrink-0 flex flex-col max-h-[calc(100vh-280px)] bg-[#121214]/60 p-4 rounded-xl border border-[#1c1c21]"
+                         data-columna-id="${col.id}" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${col.id}')">
                         <div class="flex justify-between items-center mb-3">
                             <div class="flex items-center gap-2">
                                 <h3 class="font-semibold text-xs tracking-wide text-gray-300">${col.nombre}</h3>
                                 <span class="bg-[#1c1c21] text-[10px] text-gray-400 px-2 py-0.5 rounded-full font-bold">${tareas ? tareas.length : 0}</span>
                             </div>
-                            <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white text-sm p-1 font-bold cursor-pointer">＋</button>
+                            <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm font-bold p-1 cursor-pointer">＋</button>
                         </div>
                         <div class="space-y-3 overflow-y-auto pr-1 flex-1 lista-tareas-contenedor">${htmlTareas}</div>
                     </div>`;
             }
-            calcularYMostrarMetricas(totalPorHacer, totalEnProceso, totalFinalizado, totalVencidas, totalGeneral);
+
+            actualizarCuadroMetricas(totalPorHacer, totalEnProceso, totalFinalizado, totalVencidas, totalGeneral);
         }
 
-        function calcularYMostrarMetricas(ph, ep, fi, ve, tot) {
-            document.getElementById('meta-por-hacer').innerText = ph;
-            document.getElementById('meta-en-proceso').innerText = ep;
-            document.getElementById('meta-finalizado').innerText = fi;
-            document.getElementById('meta-vencidas').innerText = ve;
-            document.getElementById('meta-total').innerText = tot;
-            document.getElementById('meta-eficiencia').innerText = tot === 0 ? "100%" : `${Math.round((fi / tot) * 100)}%`;
+        function actualizarCuadroMetricas(hacer, proceso, fin, vencidas, total) {
+            document.getElementById('meta-por-hacer').innerText = hacer;
+            document.getElementById('meta-en-proceso').innerText = proceso;
+            document.getElementById('meta-finalizado').innerText = fin;
+            document.getElementById('meta-vencidas').innerText = vencidas;
+            document.getElementById('meta-total').innerText = total;
+            document.getElementById('meta-eficiencia').innerText = total === 0 ? "100%" : `${Math.round((fin / total) * 100)}%`;
         }
 
-        /* DRAG & DROP */
-        function handleDragStart(e, id) { e.dataTransfer.setData("text/plain", id); document.getElementById(`tarea-${id}`).classList.add('dragging'); }
+        /* 🎛️ DRAG AND DROP NATIVO FIXED */
+        function handleDragStart(e, id) {
+            e.dataTransfer.setData("text/plain", id);
+            e.dropEffect = "move";
+            document.getElementById(`tarea-${id}`).classList.add('dragging');
+        }
         function handleDragEnd(e) { e.currentTarget.classList.remove('dragging'); }
         function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
         function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
         async function handleDrop(e, colId) {
-            e.preventDefault(); e.currentTarget.classList.remove('drag-over');
-            const tId = e.dataTransfer.getData("text/plain"); if (!tId) return;
+            e.preventDefault();
+            const col = e.currentTarget; col.classList.remove('drag-over');
+            const tId = e.dataTransfer.getData("text/plain");
+            if (!tId) return;
+
+            const tDOM = document.getElementById(`tarea-${tId}`);
+            if (tDOM) {
+                const dest = col.querySelector('.lista-tareas-contenedor');
+                const empty = dest.querySelector('.empty-state-msg'); if(empty) empty.remove();
+                dest.appendChild(tDOM);
+            }
             await supabaseClient.from('tareas').update({ segmento_id: colId }).eq('id', tId);
             await cargarColumnasYTasks();
         }
 
-        async function eliminarTarea(id) { if(!confirm("¿Eliminar asignación?")) return; await supabaseClient.from('tareas').delete().eq('id', id); await cargarColumnasYTasks(); }
+        /* AUXILIARES DE MODALES Y CREACIÓN */
         async function inicializarColumnasEspacio() {
             await supabaseClient.from('segmentos').insert([
                 { tablero_id: tableroActualId, nombre: "📋 Por Hacer", posicion: 1 },
@@ -529,41 +520,106 @@
             await cargarColumnasYTasks();
         }
 
-        function abrirModalTarea(id) { 
-            document.getElementById('form-segmento-id').value = id; 
-            actualizarSelectResponsables(); 
-            document.getElementById('modal-tarea').classList.remove('hidden'); 
+        function abrirModalTarea(colId) {
+            document.getElementById('form-segmento-id').value = colId;
+            document.getElementById('modal-tarea').classList.remove('hidden');
         }
-        function cerrarModalTarea() { document.getElementById('modal-tarea').classList.add('hidden'); document.getElementById('form-titulo').value = ''; document.getElementById('form-miniatura').value = ''; }
+        function cerrarModalTarea() {
+            document.getElementById('modal-tarea').classList.add('hidden');
+            document.getElementById('form-titulo').value = '';
+            document.getElementById('form-miniatura').value = '';
+        }
 
         async function guardarTarea() {
-            const segmentoId = document.getElementById('form-segmento-id').value;
-            const titulo = document.getElementById('form-titulo').value;
+            const segId = document.getElementById('form-segmento-id').value;
+            const titulo = document.getElementById('form-titulo').value.trim();
             const prioridad = document.getElementById('form-prioridad').value;
-            const responsable = document.getElementById('form-responsable').value;
-            const miniatura = document.getElementById('form-miniatura').value;
+            const resp = document.getElementById('form-responsable').value;
+            const mini = document.getElementById('form-miniatura').value;
             const fecha = document.getElementById('form-fecha').value;
 
-            if(!titulo) return alert("Escribe el título.");
+            if(!titulo) return alert("Por favor asigna un título claro.");
 
-            await supabaseClient.from('tareas').insert([{ segmento_id: segmentoId, titulo, prioridad, responsable, miniatura_url: miniatura || null, fecha_entrega: fecha || null }]);
+            await supabaseClient.from('tareas').insert([{
+                segmento_id: segId, titulo, prioridad, responsable: resp,
+                miniatura_url: mini || null, fecha_entrega: fecha || null
+            }]);
 
-            const mAsignado = cacheMiembros.find(m => m.nombre === responsable);
-            if(mAsignado && mAsignado.correo) {
-                const cuerpoTareaHtml = `<div style="background-color:#121214;color:#e4e4e7;font-family:sans-serif;padding:24px;border-radius:12px;"><h3 style="color:#6366f1;">📋 Nueva Tarea Asignada</h3><p>Hola <strong>${responsable}</strong>,</p><div style="background-color:#1c1c21;padding:12px;border-radius:6px;border-left:4px solid #6366f1;"><strong>${titulo}</strong><br><small>Prioridad: ${prioridad}</small></div></div>`;
-                await enviarNotificacionPorCorreo(mAsignado.correo, `Nueva tarea: ${titulo}`, cuerpoTareaHtml);
+            const mb = cacheMiembros.find(m => m.nombre === resp);
+            if(mb && mb.correo) {
+                const cuerpoHtml = `
+                    <div style="background-color: #121214; color: #e4e4e7; font-family: sans-serif; padding: 24px; border-radius: 12px; border: 1px solid #222226; max-width: 500px;">
+                        <h3 style="color: #6366f1; margin: 0;">📋 Asignación de Flujo: ${tableroActualTitulo}</h3>
+                        <p style="font-size: 14px;">Hola <strong>${resp}</strong>, se te ha asignado una tarea en el área:</p>
+                        <div style="background-color: #1c1c21; padding: 12px; border-radius: 6px; border-left: 4px solid #6366f1; margin: 15px 0;">
+                            <p style="margin: 0; font-size: 14px; font-weight: bold; color: #fff;">${titulo}</p>
+                            <p style="margin: 4px 0 0 0; font-size: 11px; color: #a1a1aa;">Prioridad: ${prioridad} | Entrega: ${fecha || 'Inmediata'}</p>
+                        </div>
+                    </div>`;
+                await enviarNotificacionPorCorreo(mb.correo, `Nueva asignación en ${tableroActualTitulo}: ${titulo}`, cuerpoHtml);
             }
 
-            cerrarModalTarea(); await cargarColumnasYTasks();
+            cerrarModalTarea();
+            await cargarColumnasYTasks();
         }
 
-        function abrirModalEspacio() { document.getElementById('modal-espacio').classList.remove('hidden'); }
-        function cerrarModalEspacio() { document.getElementById('modal-espacio').classList.add('hidden'); document.getElementById('espacio-titulo').value = ''; }
-        async function guardarEspacio() {
-            const titulo = document.getElementById('espacio-titulo').value; if(!titulo) return alert("Escribe el nombre");
-            const { data } = await supabaseClient.from('tableros').insert([{ titulo, descripcion: `Mesa para ${titulo}` }]).select();
-            cerrarModalEspacio(); if(data && data[0]) tableroActualId = data[0].id;
-            await cargarEspaciosDeTrabajo();
+        async function eliminarTarea(id) {
+            if(!confirm("¿Deseas remover esta asignación?")) return;
+            await supabaseClient.from('tareas').delete().eq('id', id);
+            await cargarColumnasYTasks();
+        }
+
+        function abrirModalConfiguracion() {
+            document.getElementById('modal-configuracion').classList.remove('hidden');
+            renderizarListaConfigMiembros();
+        }
+        function cerrarModalConfiguracion() { document.getElementById('modal-configuracion').classList.add('hidden'); }
+
+        function renderizarListaConfigMiembros() {
+            const container = document.getElementById('lista-config-miembros');
+            container.innerHTML = cacheMiembros.map(m => `
+                <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg">
+                    <div class="min-w-0 flex-1 pr-2">
+                        <p class="text-xs font-semibold text-gray-200 truncate">${m.nombre}</p>
+                        <p class="text-[10px] text-gray-400 font-mono truncate">${m.correo}</p>
+                        <p class="text-[9px] text-indigo-400 mt-0.5 bg-indigo-500/5 px-1.5 py-0.5 rounded w-max">${m.rol}</p>
+                    </div>
+                    <div>
+                        ${m.correo !== EMAIL_OPERADOR_MAESTRO ? `
+                            <button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>
+                        ` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Maestro</span>'}
+                    </div>
+                </div>`).join('');
+        }
+
+        async function agregarMiembroEquipo() {
+            const nombre = document.getElementById('config-nombre-miembro').value.trim();
+            const correo = document.getElementById('config-correo-miembro').value.trim();
+            const rol = document.getElementById('config-rol-miembro').value;
+
+            if(!nombre || !correo) return alert("Completa los campos obligatorios.");
+            await supabaseClient.from('miembros').insert([{ nombre, correo, rol }]);
+            
+            document.getElementById('config-nombre-miembro').value = '';
+            document.getElementById('config-correo-miembro').value = '';
+            await sincronizarMiembrosYSelects();
+            renderizarListaConfigMiembros();
+            filtrarYOrdenarSelectorResponsables();
+        }
+
+        async function removerMiembroEquipo(id) {
+            if(!confirm("¿Remover del equipo?")) return;
+            await supabaseClient.from('miembros').delete().eq('id', id);
+            await sincronizarMiembrosYSelects();
+            renderizarListaConfigMiembros();
+            filtrarYOrdenarSelectorResponsables();
+        }
+
+        function cambiarFiltro(tipo) {
+            filtroActual = tipo;
+            document.getElementById('filtro-todo').className = tipo === 'todo' ? "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition" : "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
+            document.getElementById('filtro-asignados').className = tipo === 'asignados' ? "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition" : "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
+            cargarColumnasYTasks();
         }
     </script>
 </body>
