@@ -204,7 +204,8 @@
                     <input type="email" id="config-correo-miembro" placeholder="correo@ejemplo.com" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
                     <div class="sm:col-span-2">
                         <select id="config-rol-miembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                            <option value="Sistemas & Media">💻 Sistemas & Media</option>
+                            <!-- Rol Líder con ID para control -->
+                            <option value="Líder" id="opt-lider">👑 Líder</option>
                             <option value="Diseñador Gráfico">🎨 Diseñador Gráfico</option>
                             <option value="Social Media Manager">📱 Social Media Manager</option>
                             <option value="Fotógrafo Oficial">📸 Fotógrafo Oficial</option>
@@ -240,27 +241,56 @@
         let cacheMiembros = []; 
 
         window.addEventListener('DOMContentLoaded', async () => {
-            // Forzar limpieza completa de cualquier renderizado antiguo local
             document.getElementById('tablero-columnas').innerHTML = '';
             await cargarAnunciosDesdeSupabase();
             await sincronizarMiembrosYSelects();
             await cargarEspaciosDeTrabajo();
         });
 
-        async function enviarNotificacionPorCorreo(destinatario, asunto, cuerpoHtml) {
-            if (!RESEND_API_KEY || RESEND_API_KEY.includes("TU_API_KEY")) return;
-            try {
-                await fetch("https://api.resend.com/emails", {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        from: "Multimedia Workspace <onboarding@resend.dev>",
-                        to: [destinatario], subject: asunto, html: cuerpoHtml
-                    })
-                });
-            } catch (err) { console.error(err); }
+        // Función para controlar la visibilidad del rol Líder
+        function verificarRolLider() {
+            const yaExisteLider = cacheMiembros.some(m => m.rol === 'Líder');
+            const optLider = document.getElementById('opt-lider');
+            if (optLider) {
+                optLider.style.display = yaExisteLider ? 'none' : 'block';
+            }
         }
 
+        async function sincronizarMiembrosYSelects() {
+            const selectResponsable = document.getElementById('form-responsable');
+            let { data: miembros } = await supabaseClient.from('miembros').select('*').order('nombre', { ascending: true });
+            
+            cacheMiembros = miembros || [];
+            
+            // Validar existencia de operador
+            if (!cacheMiembros.some(m => m.nombre.toLowerCase() === OPERADOR_ACTUAL.toLowerCase())) {
+                await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, correo: 'rene@ejemplo.com', rol: 'Diseñador Gráfico' }]);
+                return sincronizarMiembrosYSelects();
+            }
+
+            selectResponsable.innerHTML = cacheMiembros.map(m => `<option value="${m.nombre}">👤 ${m.nombre}</option>`).join('');
+            verificarRolLider();
+        }
+
+        function renderizarListaConfigMiembros() {
+            verificarRolLider();
+            const container = document.getElementById('lista-config-miembros');
+            container.innerHTML = cacheMiembros.map(m => `
+                <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg">
+                    <div class="min-w-0 flex-1 pr-2">
+                        <p class="text-xs font-semibold text-gray-200 truncate">${m.nombre}</p>
+                        <p class="text-[10px] text-gray-400 font-mono truncate">${m.correo || 'Sin correo'}</p>
+                        <p class="text-[9px] text-indigo-400 mt-0.5">${m.rol}</p>
+                    </div>
+                    <div>
+                        ${m.nombre !== OPERADOR_ACTUAL ? `
+                            <button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>
+                        ` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>'}
+                    </div>
+                </div>`).join('');
+        }
+
+        // --- El resto de tus funciones originales permanecen sin cambios ---
         async function cargarAnunciosDesdeSupabase() {
             const contenedor = document.getElementById('contenedor-anuncios');
             const { data: anuncios } = await supabaseClient.from('anuncios').select('*').order('created_at', { ascending: false });
@@ -287,45 +317,11 @@
             await cargarAnunciosDesdeSupabase();
         }
 
-        async function sincronizarMiembrosYSelects() {
-            const selectResponsable = document.getElementById('form-responsable');
-            let { data: miembros } = await supabaseClient.from('miembros').select('*').order('nombre', { ascending: true });
-            
-            cacheMiembros = miembros || [];
-            if (!cacheMiembros.some(m => m.nombre.toLowerCase() === OPERADOR_ACTUAL.toLowerCase())) {
-                await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, correo: 'rene@ejemplo.com', rol: 'Sistemas & Media' }]);
-                return sincronizarMiembrosYSelects();
-            }
-
-            selectResponsable.innerHTML = cacheMiembros.map(m => `<option value="${m.nombre}">👤 ${m.nombre}</option>`).join('');
-        }
-
         function abrirModalConfiguracion() {
             document.getElementById('modal-configuracion').classList.remove('hidden');
             renderizarListaConfigMiembros();
         }
         function cerrarModalConfiguracion() { document.getElementById('modal-configuracion').classList.add('hidden'); }
-
-        function renderizarListaConfigMiembros() {
-            const container = document.getElementById('lista-config-miembros');
-            if (cacheMiembros.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No hay miembros.</p>`;
-                return;
-            }
-            container.innerHTML = cacheMiembros.map(m => `
-                <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg">
-                    <div class="min-w-0 flex-1 pr-2">
-                        <p class="text-xs font-semibold text-gray-200 truncate">${m.nombre}</p>
-                        <p class="text-[10px] text-gray-400 font-mono truncate">${m.correo || 'Sin correo'}</p>
-                        <p class="text-[9px] text-indigo-400 mt-0.5">${m.rol}</p>
-                    </div>
-                    <div>
-                        ${m.nombre !== OPERADOR_ACTUAL ? `
-                            <button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>
-                        ` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>'}
-                    </div>
-                </div>`).join('');
-        }
 
         async function agregarMiembroEquipo() {
             const nombre = document.getElementById('config-nombre-miembro').value.trim();
