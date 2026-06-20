@@ -48,7 +48,7 @@
         
         <div class="p-4 border-t border-[#222226] bg-[#121214] flex items-center justify-between gap-2">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
+                <div class="w-9 h-9 bg-indigo-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
                 <div>
                     <p class="text-sm font-medium text-gray-300">René Raudales</p>
                     <p class="text-xs text-gray-500">Sistemas & Media</p>
@@ -70,8 +70,8 @@
             <div class="flex gap-4 items-end">
                 <div class="w-16 h-16 bg-[#161619] border-2 border-[#222226] rounded-2xl flex items-center justify-center text-3xl shadow-xl select-none" id="tablero-icono">🎬</div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-white mb-0.5" id="tablero-titulo">Producción Audiovisual</h1>
-                    <p class="text-xs text-gray-400" id="tablero-descripcion">Gestión integrada de proyectos y control cruzado en tiempo real.</p>
+                    <h1 class="text-2xl font-bold tracking-tight text-white mb-0.5" id="tablero-titulo">Cargando área...</h1>
+                    <p class="text-xs text-gray-400" id="tablero-descripcion">Gestión operativa y control de flujos en tiempo real.</p>
                 </div>
             </div>
             
@@ -92,7 +92,7 @@
                 <h2 class="text-sm font-bold tracking-wide uppercase text-gray-400 flex items-center gap-2">
                     📊 Control de Eficiencia y Rendimiento Operativo
                 </h2>
-                <p class="text-xs text-gray-500">Métricas analíticas calculadas automáticamente según entregas e hitos temporales.</p>
+                <p class="text-xs text-gray-500">Métricas analíticas calculadas automáticamente según flujos reales.</p>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -109,7 +109,7 @@
                     <span id="meta-finalizado" class="text-xl font-bold text-emerald-400 mt-2">0</span>
                 </div>
                 <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between border-rose-500/20 bg-rose-500/[0.01]">
-                    <span class="text-[10px] uppercase font-bold text-rose-400 tracking-wider flex items-center gap-1">⚠️ No Terminadas</span>
+                    <span class="text-[10px] uppercase font-bold text-rose-400 tracking-wider flex items-center gap-1">⚠️ Vencidas</span>
                     <span id="meta-vencidas" class="text-xl font-bold text-rose-400 mt-2">0</span>
                 </div>
                 <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
@@ -117,7 +117,7 @@
                     <span id="meta-total" class="text-xl font-bold text-white mt-2">0</span>
                 </div>
                 <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between border-indigo-500/20 bg-indigo-500/[0.02]">
-                    <span class="text-[10px] uppercase font-bold text-indigo-400 tracking-wider">Eficiencia Equipo</span>
+                    <span class="text-[10px] uppercase font-bold text-indigo-400 tracking-wider">Eficiencia</span>
                     <span id="meta-eficiencia" class="text-xl font-bold text-indigo-400 mt-2">100%</span>
                 </div>
             </div>
@@ -155,16 +155,16 @@
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Fecha límite de entrega</label>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Fecha límite</label>
                 <input type="date" id="form-fecha" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">URL de Miniatura / Imagen Preview (Opcional)</label>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">URL de Miniatura (Opcional)</label>
                 <input type="url" id="form-miniatura" placeholder="https://images.unsplash.com/..." class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
 
-            <button onclick="guardarTarea()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg shadow-lg shadow-indigo-600/20 transition cursor-pointer">
+            <button onclick="guardarTarea()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition cursor-pointer">
                 🚀 Desplegar Asignación
             </button>
         </div>
@@ -182,7 +182,7 @@
             </div>
             <div>
                 <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Icono (Emoji)</label>
-                <input type="text" id="espacio-icono" placeholder="🎛️" value="🎛️" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm text-center focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                <input type="text" id="espacio-icono" placeholder="🎛️" value="🎬" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm text-center focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
             <button onclick="guardarEspacio()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition cursor-pointer">
                 ✨ Crear Nuevo Espacio
@@ -223,8 +223,7 @@
 
             <div class="mt-4 flex-1 overflow-y-auto pr-1">
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Miembros Activos en el Sistema</p>
-                <div id="lista-config-miembros" class="space-y-1.5">
-                    </div>
+                <div id="lista-config-miembros" class="space-y-1.5"></div>
             </div>
         </div>
     </div>
@@ -233,7 +232,6 @@
         const SUPABASE_URL = "https://cpyueytgzapjguyoigsg.supabase.co";
         const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         const RESEND_API_KEY = "re_AMiXVe4q_HHhEwbFujLuLFHvskaUUBihC";
 
         let tableroActualId = null;
@@ -242,74 +240,45 @@
         let cacheMiembros = []; 
 
         window.addEventListener('DOMContentLoaded', async () => {
+            // Forzar limpieza completa de cualquier renderizado antiguo local
+            document.getElementById('tablero-columnas').innerHTML = '';
             await cargarAnunciosDesdeSupabase();
             await sincronizarMiembrosYSelects();
             await cargarEspaciosDeTrabajo();
         });
 
         async function enviarNotificacionPorCorreo(destinatario, asunto, cuerpoHtml) {
-            if (!RESEND_API_KEY || RESEND_API_KEY.includes("TU_API_KEY")) {
-                console.warn("Resend API Key no configurada. Saltando envío de correo.");
-                return;
-            }
-
+            if (!RESEND_API_KEY || RESEND_API_KEY.includes("TU_API_KEY")) return;
             try {
-                const response = await fetch("https://api.resend.com/emails", {
+                await fetch("https://api.resend.com/emails", {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${RESEND_API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         from: "Multimedia Workspace <onboarding@resend.dev>",
-                        to: [destinatario],
-                        subject: asunto,
-                        html: cuerpoHtml
+                        to: [destinatario], subject: asunto, html: cuerpoHtml
                     })
                 });
-
-                if(!response.ok) {
-                    const errData = await response.json();
-                    console.error("Error en Resend API:", errData);
-                } else {
-                    console.log(`📧 Notificación enviada con éxito a ${destinatario}`);
-                }
-            } catch (err) {
-                console.error("Fallo de red al conectar con Resend:", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function cargarAnunciosDesdeSupabase() {
             const contenedor = document.getElementById('contenedor-anuncios');
-            const { data: anuncios, error } = await supabaseClient
-                .from('anuncios')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                contenedor.innerHTML = `<div class="text-center p-1"><p class="text-[10px] text-gray-500">Tabla anuncios inactiva</p></div>`;
-                return;
-            }
-
+            const { data: anuncios } = await supabaseClient.from('anuncios').select('*').order('created_at', { ascending: false });
             if (!anuncios || anuncios.length === 0) {
                 contenedor.innerHTML = `<p class="text-xs text-gray-500 italic">No hay anuncios recientes.</p>`;
                 return;
             }
-
-            contenedor.innerHTML = '';
-            anuncios.forEach(anuncio => {
-                contenedor.innerHTML += `
-                    <div class="border-b border-[#222226] last:border-0 pb-1.5 last:pb-0 relative group/msg">
-                        <p class="text-xs text-gray-300 leading-relaxed">${anuncio.contenido}</p>
-                        <button onclick="eliminarAnuncio('${anuncio.id}')" class="absolute top-0 right-0 text-gray-600 hover:text-rose-400 text-[9px] opacity-0 group-hover/msg:opacity-100 cursor-pointer transition">✕</button>
-                    </div>`;
-            });
+            contenedor.innerHTML = anuncios.map(a => `
+                <div class="border-b border-[#222226] last:border-0 pb-1.5 last:pb-0 relative group/msg">
+                    <p class="text-xs text-gray-300 leading-relaxed">${a.contenido}</p>
+                    <button onclick="eliminarAnuncio('${a.id}')" class="absolute top-0 right-0 text-gray-600 hover:text-rose-400 text-[9px] opacity-0 group-hover/msg:opacity-100 cursor-pointer transition">✕</button>
+                </div>`).join('');
         }
 
         async function crearAnuncio() {
-            const contenido = prompt("Escribe el nuevo anuncio para el equipo:");
+            const contenido = prompt("Escribe el anuncio para el equipo:");
             if (!contenido) return;
-            await supabaseClient.from('anuncios').insert([{ contenido: contenido }]);
+            await supabaseClient.from('anuncios').insert([{ contenido }]);
             await cargarAnunciosDesdeSupabase();
         }
 
@@ -320,63 +289,42 @@
 
         async function sincronizarMiembrosYSelects() {
             const selectResponsable = document.getElementById('form-responsable');
+            let { data: miembros } = await supabaseClient.from('miembros').select('*').order('nombre', { ascending: true });
             
-            let { data: miembros, error } = await supabaseClient
-                .from('miembros')
-                .select('*')
-                .order('nombre', { ascending: true });
-
-            if (error) {
-                console.warn("Tabla miembros inactiva.");
-                cacheMiembros = [{ id: '1', nombre: "René Raudales", correo: "rene@ejemplo.com", rol: "Sistemas & Media" }];
-            } else {
-                cacheMiembros = miembros || [];
-                if (!cacheMiembros.some(m => m.nombre.toLowerCase() === OPERADOR_ACTUAL.toLowerCase())) {
-                    await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, correo: 'rene@ejemplo.com', rol: 'Sistemas & Media' }]);
-                    return sincronizarMiembrosYSelects();
-                }
+            cacheMiembros = miembros || [];
+            if (!cacheMiembros.some(m => m.nombre.toLowerCase() === OPERADOR_ACTUAL.toLowerCase())) {
+                await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, correo: 'rene@ejemplo.com', rol: 'Sistemas & Media' }]);
+                return sincronizarMiembrosYSelects();
             }
 
-            selectResponsable.innerHTML = '';
-            cacheMiembros.forEach(m => {
-                selectResponsable.innerHTML += `<option value="${m.nombre}">👤 ${m.nombre}</option>`;
-            });
+            selectResponsable.innerHTML = cacheMiembros.map(m => `<option value="${m.nombre}">👤 ${m.nombre}</option>`).join('');
         }
 
         function abrirModalConfiguracion() {
             document.getElementById('modal-configuracion').classList.remove('hidden');
             renderizarListaConfigMiembros();
         }
-
-        function cerrarModalConfiguracion() {
-            document.getElementById('modal-configuracion').classList.add('hidden');
-        }
+        function cerrarModalConfiguracion() { document.getElementById('modal-configuracion').classList.add('hidden'); }
 
         function renderizarListaConfigMiembros() {
-            const listaDOM = document.getElementById('lista-config-miembros');
-            listaDOM.innerHTML = '';
-
+            const container = document.getElementById('lista-config-miembros');
             if (cacheMiembros.length === 0) {
-                listaDOM.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No hay miembros registrados.</p>`;
+                container.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No hay miembros.</p>`;
                 return;
             }
-
-            cacheMiembros.forEach(m => {
-                const correoMostrar = m.correo ? m.correo : 'Sin correo registrado';
-                listaDOM.innerHTML += `
-                    <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg">
-                        <div class="min-w-0 flex-1 pr-2">
-                            <p class="text-xs font-semibold text-gray-200 truncate">${m.nombre}</p>
-                            <p class="text-[10px] text-gray-400 font-mono truncate">${correoMostrar}</p>
-                            <p class="text-[9px] text-gray-500 mt-0.5">${m.rol}</p>
-                        </div>
-                        <div class="shrink-0 flex items-center">
-                            ${m.nombre !== OPERADOR_ACTUAL ? `
-                                <button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>
-                            ` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>'}
-                        </div>
-                    </div>`;
-            });
+            container.innerHTML = cacheMiembros.map(m => `
+                <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg">
+                    <div class="min-w-0 flex-1 pr-2">
+                        <p class="text-xs font-semibold text-gray-200 truncate">${m.nombre}</p>
+                        <p class="text-[10px] text-gray-400 font-mono truncate">${m.correo || 'Sin correo'}</p>
+                        <p class="text-[9px] text-indigo-400 mt-0.5">${m.rol}</p>
+                    </div>
+                    <div>
+                        ${m.nombre !== OPERADOR_ACTUAL ? `
+                            <button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>
+                        ` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>'}
+                    </div>
+                </div>`).join('');
         }
 
         async function agregarMiembroEquipo() {
@@ -384,28 +332,9 @@
             const correo = document.getElementById('config-correo-miembro').value.trim();
             const rol = document.getElementById('config-rol-miembro').value;
 
-            if(!nombre) return alert("Por favor escribe el nombre del integrante");
-            if(!correo) return alert("Por favor escribe el correo electrónico");
-
-            const { error } = await supabaseClient.from('miembros').insert([{ nombre, correo, rol }]);
-
-            if (error) {
-                alert("Hubo un percance al guardar el miembro. Revisa duplicados.");
-                return;
-            }
-
-            const cuerpoHtml = `
-                <div style="background-color: #121214; color: #e4e4e7; font-family: sans-serif; padding: 24px; border-radius: 12px; max-width: 500px; border: 1px solid #222226;">
-                    <h2 style="color: #6366f1; margin-bottom: 4px;">¡Bienvenido al Ministerio Media! 🎬</h2>
-                    <p style="font-size: 14px; color: #a1a1aa;">Hola <strong>${nombre}</strong>,</p>
-                    <p style="font-size: 14px; line-height: 1.5;">Has sido vinculado formalmente al espacio de control de producción como <strong>${rol}</strong>.</p>
-                    <p style="font-size: 14px; line-height: 1.5;">A partir de ahora recibirás notificaciones aquí cuando se te asigne una nueva tarea en los flujos de trabajo.</p>
-                    <hr style="border-color: #222226; margin: 20px 0;">
-                    <p style="font-size: 11px; color: #71717a; text-align: center;">Workspace Administrado por René Raudales</p>
-                </div>`;
+            if(!nombre || !correo) return alert("Completa los datos necesarios.");
+            await supabaseClient.from('miembros').insert([{ nombre, correo, rol }]);
             
-            await enviarNotificacionPorCorreo(correo, "Invitación Oficial - Ministerio Media 🎛️", cuerpoHtml);
-
             document.getElementById('config-nombre-miembro').value = '';
             document.getElementById('config-correo-miembro').value = '';
             await sincronizarMiembrosYSelects();
@@ -413,41 +342,27 @@
         }
 
         async function removerMiembroEquipo(id) {
-            if(!confirm("¿Deseas desvincular a este miembro del equipo?")) return;
+            if(!confirm("¿Remover del equipo?")) return;
             await supabaseClient.from('miembros').delete().eq('id', id);
             await sincronizarMiembrosYSelects();
             renderizarListaConfigMiembros();
         }
 
-        function cambiarFiltro(tipo) {
-            filtroActual = tipo;
-            const btnTodo = document.getElementById('filtro-todo');
-            const btnAsignados = document.getElementById('filtro-asignados');
-            if (tipo === 'todo') {
-                btnTodo.className = "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition";
-                btnAsignados.className = "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
-            } else {
-                btnAsignados.className = "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition";
-                btnTodo.className = "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
-            }
-            cargarColumnasYTasks();
-        }
-
         async function cargarEspaciosDeTrabajo() {
             const lista = document.getElementById('lista-espacios');
-            let { data: tableros, error } = await supabaseClient
-                .from('tableros')
-                .select('*')
-                .order('created_at', { ascending: true });
+            let { data: tableros } = await supabaseClient.from('tableros').select('*').order('created_at', { ascending: true });
 
-            if (error) return console.error(error);
+            if (!tableros || tableros.length === 0) {
+                lista.innerHTML = `<p class="text-xs text-gray-500 p-2">No hay espacios.</p>`;
+                return;
+            }
 
             lista.innerHTML = '';
             tableros.forEach((tab, index) => {
                 let icono = '🎬';
                 if (tab.titulo.toLowerCase().includes('audio')) icono = '🎛️';
                 if (tab.titulo.toLowerCase().includes('diseño') || tab.titulo.toLowerCase().includes('grafic')) icono = '🎨';
-                if (tab.titulo.toLowerCase().includes('marketing') || tab.titulo.toLowerCase().includes('redes')) icono = '📢';
+                if (tab.titulo.toLowerCase().includes('redes') || tab.titulo.toLowerCase().includes('social')) icono = '📱';
 
                 const esActivo = tableroActualId === null ? index === 0 : tab.id === tableroActualId;
                 if (esActivo) {
@@ -460,8 +375,7 @@
                 lista.innerHTML += `
                     <button onclick="cambiarTablero('${tab.id}')" class="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-medium transition cursor-pointer ${esActivo ? 'bg-[#222226] text-indigo-400' : 'text-gray-400 hover:bg-[#1a1a1e] hover:text-gray-200'}">
                         <span>${icono}</span> ${tab.titulo}
-                    </button>
-                `;
+                    </button>`;
             });
 
             if (tableroActualId) cargarColumnasYTasks();
@@ -469,13 +383,9 @@
 
         function establecerBannerFondo(titulo) {
             const banner = document.getElementById('header-banner');
-            if (titulo.toLowerCase().includes('audio')) {
-                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200')";
-            } else if (titulo.toLowerCase().includes('diseño') || titulo.toLowerCase().includes('grafic')) {
-                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200')";
-            } else {
-                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200')";
-            }
+            if (titulo.toLowerCase().includes('audio')) banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200')";
+            else if (titulo.toLowerCase().includes('diseño') || titulo.toLowerCase().includes('grafic')) banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200')";
+            else banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200')";
         }
 
         async function cambiarTablero(id) {
@@ -485,24 +395,20 @@
 
         async function cargarColumnasYTasks() {
             const contenedor = document.getElementById('tablero-columnas');
-            let totalPorHacer = 0, totalEnProceso = 0, totalFinalizado = 0, totalVencidasNoTerminadas = 0, totalGeneralTareas = 0;
+            let totalPorHacer = 0, totalEnProceso = 0, totalFinalizado = 0, totalVencidas = 0, totalGeneral = 0;
             const hoy = new Date();
 
-            let { data: segments } = await supabaseClient
-                .from('segmentos')
-                .select('*')
-                .eq('tablero_id', tableroActualId)
-                .order('posicion', { ascending: true });
+            let { data: segments } = await supabaseClient.from('segmentos').select('*').eq('tablero_id', tableroActualId).order('posicion', { ascending: true });
 
             if (!segments || segments.length === 0) {
                 contenedor.innerHTML = `
                     <div class="text-center py-12 px-4 border-2 border-dashed border-[#222226] rounded-xl max-w-sm mx-auto mt-6">
                         <p class="text-gray-500 text-xs mb-3">Este espacio no tiene columnas todavía.</p>
-                        <button onclick="inicializarColumnasEspacio()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition shadow-md cursor-pointer">
-                            ✨ Inicializar Pipeline de Trabajo
+                        <button onclick="inicializarColumnasEspacio()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition cursor-pointer">
+                            ✨ Inicializar Pipeline
                         </button>
                     </div>`;
-                calcularYMostrarMetricas(0, 0, 0, 0, 0);
+                actualizarMetricas(0,0,0,0,0);
                 return;
             }
 
@@ -510,53 +416,42 @@
 
             for (const col of segments) {
                 let query = supabaseClient.from('tareas').select('*').eq('segmento_id', col.id);
-                if (filtroActual === 'asignados') {
-                    query = query.eq('responsable', OPERADOR_ACTUAL);
-                }
+                if (filtroActual === 'asignados') query = query.eq('responsable', OPERADOR_ACTUAL);
+                
                 const { data: tasks } = await query.order('posicion', { ascending: true });
 
-                const esColumnaFinalizado = col.nombre.toLowerCase().includes('finalizado') || col.nombre.toLowerCase().includes('listo') || col.nombre.toLowerCase().includes('terminado');
-                const esColumnaProceso = col.nombre.toLowerCase().includes('proceso') || col.nombre.toLowerCase().includes('haciendo');
-                const esColumnaPorHacer = col.nombre.toLowerCase().includes('hacer') || col.nombre.toLowerCase().includes('pendiente');
+                const esFin = col.nombre.toLowerCase().match(/(finalizado|listo|terminado)/);
+                const esPro = col.nombre.toLowerCase().match(/(proceso|haciendo)/);
+                const esHac = col.nombre.toLowerCase().match(/(hacer|pendiente)/);
 
                 let htmlTareas = '';
                 if (tasks && tasks.length > 0) {
-                    tasks.forEach(tarea => {
-                        totalGeneralTareas++;
-                        if (esColumnaFinalizado) totalFinalizado++;
-                        else if (esColumnaProceso) totalEnProceso++;
-                        else if (esColumnaPorHacer) totalPorHacer++;
+                    tasks.forEach(t => {
+                        totalGeneral++;
+                        if (esFin) totalFinalizado++;
+                        else if (esPro) totalEnProceso++;
+                        else if (esHac) totalPorHacer++;
 
                         let esVencida = false;
-                        if (tarea.fecha_entrega && !esColumnaFinalizado) {
-                            const fechaLimite = new Date(tarea.fecha_entrega + 'T23:59:59');
-                            if (fechaLimite < hoy) {
-                                esVencida = true;
-                                totalVencidasNoTerminadas++;
-                            }
+                        if (t.fecha_entrega && !esFin) {
+                            const limite = new Date(t.fecha_entrega + 'T23:59:59');
+                            if (limite < hoy) { esVencida = true; totalVencidas++; }
                         }
 
-                        let badgeColor = "bg-gray-800 text-gray-400";
-                        if (tarea.prioridad === 'Alta') badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-                        if (tarea.prioridad === 'Urgente') badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                        let bColor = "bg-gray-800 text-gray-400";
+                        if (t.prioridad === 'Alta') bColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                        if (t.prioridad === 'Urgente') bColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
 
                         htmlTareas += `
-                            <div id="tarea-${tarea.id}" 
-                                 draggable="true" 
-                                 ondragstart="handleDragStart(event, '${tarea.id}')"
-                                 ondragend="handleDragEnd(event)"
+                            <div id="tarea-${t.id}" draggable="true" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)"
                                  class="bg-[#161619] border ${esVencida ? 'border-rose-500/40 bg-rose-500/[0.02]' : 'border-[#222226]'} p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3 cursor-grab active:cursor-grabbing select-none relative">
-                                
-                                <button onclick="eliminarTarea('${tarea.id}')" class="absolute top-3 right-3 text-gray-500 hover:text-rose-500 transition font-bold text-xs cursor-pointer opacity-0 group-hover:opacity-100 z-20">✕</button>
-                                
-                                ${tarea.miniatura_url ? `<img src="${tarea.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" draggable="false" />` : ''}
-                                <h4 class="font-medium text-xs text-gray-200 group-hover:text-white leading-tight pr-4">${tarea.titulo}</h4>
-                                
-                                ${esVencida ? `<div class="text-[9px] text-rose-400 font-bold bg-rose-500/10 p-1 rounded border border-rose-500/20 text-center animate-pulse">⚠️ No Terminada (Vencida)</div>` : ''}
-
+                                <button onclick="eliminarTarea('${t.id}')" class="absolute top-3 right-3 text-gray-500 hover:text-rose-500 transition font-bold text-xs cursor-pointer opacity-0 group-hover:opacity-100 z-20">✕</button>
+                                ${t.miniatura_url ? `<img src="${t.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" draggable="false" />` : ''}
+                                <h4 class="font-medium text-xs text-gray-200 group-hover:text-white leading-tight pr-4">${t.titulo}</h4>
+                                ${esVencida ? `<div class="text-[9px] text-rose-400 font-bold bg-rose-500/10 p-1 rounded border border-rose-500/20 text-center">⚠️ Vencida</div>` : ''}
                                 <div class="flex items-center justify-between pt-1">
-                                    <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold ${badgeColor}">${tarea.prioridad}</span>
-                                    <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${tarea.responsable}</span>
+                                    <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold ${bColor}">${t.prioridad}</span>
+                                    <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${t.responsable}</span>
                                 </div>
                             </div>`;
                     });
@@ -565,11 +460,8 @@
                 }
 
                 contenedor.innerHTML += `
-                    <div class="w-72 shrink-0 flex flex-col max-h-[calc(100vh-280px)] bg-[#121214]/60 p-4 rounded-xl border border-[#1c1c21] transition-all duration-200"
-                         data-columna-id="${col.id}"
-                         ondragover="handleDragOver(event)"
-                         ondragleave="handleDragLeave(event)"
-                         ondrop="handleDrop(event, '${col.id}')">
+                    <div class="w-72 shrink-0 flex flex-col max-h-[calc(100vh-280px)] bg-[#121214]/60 p-4 rounded-xl border border-[#1c1c21]"
+                         data-columna-id="${col.id}" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${col.id}')">
                         <div class="flex justify-between items-center mb-3">
                             <div class="flex items-center gap-2">
                                 <h3 class="font-semibold text-xs tracking-wide text-gray-300">${col.nombre}</h3>
@@ -577,59 +469,44 @@
                             </div>
                             <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold cursor-pointer">＋</button>
                         </div>
-                        <div class="space-y-3 overflow-y-auto pr-1 flex-1 lista-tareas-contenedor">
-                            ${htmlTareas}
-                        </div>
+                        <div class="space-y-3 overflow-y-auto pr-1 flex-1 lista-tareas-contenedor">${htmlTareas}</div>
                     </div>`;
             }
 
-            calcularYMostrarMetricas(totalPorHacer, totalEnProceso, totalFinalizado, totalVencidasNoTerminadas, totalGeneralTareas);
+            actualizarMetricas(totalPorHacer, totalEnProceso, totalFinalizado, totalVencidas, totalGeneral);
         }
 
-        function calcularYMostrarMetricas(porHacer, enProceso, finalizado, vencidas, total) {
+        function actualizarMetricas(porHacer, enProceso, finalizado, vencidas, total) {
             document.getElementById('meta-por-hacer').innerText = porHacer;
             document.getElementById('meta-en-proceso').innerText = enProceso;
             document.getElementById('meta-finalizado').innerText = finalizado;
             document.getElementById('meta-vencidas').innerText = vencidas;
             document.getElementById('meta-total').innerText = total;
-            if (total === 0) document.getElementById('meta-eficiencia').innerText = "100%";
-            else document.getElementById('meta-eficiencia').innerText = `${Math.round((finalizado / total) * 100)}%`;
+            document.getElementById('meta-eficiencia').innerText = total === 0 ? "100%" : `${Math.round((finalizado / total) * 100)}%`;
         }
 
-        function handleDragStart(event, tareaId) {
-            event.dataTransfer.setData("text/plain", tareaId);
-            event.dropEffect = "move";
-            document.getElementById(`tarea-${tareaId}`).classList.add('dragging');
-        }
-        function handleDragEnd(event) { event.currentTarget.classList.remove('dragging'); }
-        function handleDragOver(event) {
-            event.preventDefault();
-            const colContenedor = event.currentTarget;
-            if (!colContenedor.classList.contains('drag-over')) colContenedor.classList.add('drag-over');
-        }
-        function handleDragLeave(event) { event.currentTarget.classList.remove('drag-over'); }
+        function handleDragStart(e, id) { e.dataTransfer.setData("text/plain", id); document.getElementById(`tarea-${id}`).classList.add('dragging'); }
+        function handleDragEnd(e) { e.currentTarget.classList.remove('dragging'); }
+        function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+        function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+        async function handleDrop(e, colId) {
+            e.preventDefault();
+            const col = e.currentTarget; col.classList.remove('drag-over');
+            const tId = e.dataTransfer.getData("text/plain");
+            if (!tId) return;
 
-        async function handleDrop(event, destinoColumnaId) {
-            event.preventDefault();
-            const colContenedor = event.currentTarget;
-            colContenedor.classList.remove('drag-over');
-            const tareaId = event.dataTransfer.getData("text/plain");
-            if (!tareaId) return;
-
-            const tarjetaDOM = document.getElementById(`tarea-${tareaId}`);
-            if (!tarjetaDOM) return;
-
-            const contenedorDestino = colContenedor.querySelector('.lista-tareas-contenedor');
-            const msgVacio = contenedorDestino.querySelector('.empty-state-msg'); 
-            if (msgVacio) msgVacio.remove();
-
-            contenedorDestino.appendChild(tarjetaDOM);
-            await supabaseClient.from('tareas').update({ segmento_id: destinoColumnaId }).eq('id', tareaId);
+            const tDOM = document.getElementById(`tarea-${tId}`);
+            if (tDOM) {
+                const dest = col.querySelector('.lista-tareas-contenedor');
+                const empty = dest.querySelector('.empty-state-msg'); if (empty) empty.remove();
+                dest.appendChild(tDOM);
+            }
+            await supabaseClient.from('tareas').update({ segmento_id: colId }).eq('id', tId);
             await cargarColumnasYTasks();
         }
 
         async function eliminarTarea(id) {
-            if(!confirm("¿Seguro que deseas eliminar esta asignación?")) return;
+            if(!confirm("¿Eliminar asignación?")) return;
             await supabaseClient.from('tareas').delete().eq('id', id);
             await cargarColumnasYTasks();
         }
@@ -643,51 +520,19 @@
             await cargarColumnasYTasks();
         }
 
-        function abrirModalTarea(segmentoId) {
-            document.getElementById('form-segmento-id').value = segmentoId;
-            document.getElementById('modal-tarea').classList.remove('hidden');
-        }
-        function cerrarModalTarea() {
-            document.getElementById('modal-tarea').classList.add('hidden');
-            document.getElementById('form-titulo').value = '';
-            document.getElementById('form-miniatura').value = '';
-        }
+        function abrirModalTarea(segId) { document.getElementById('form-segmento-id').value = segId; document.getElementById('modal-tarea').classList.remove('hidden'); }
+        function cerrarModalTarea() { document.getElementById('modal-tarea').classList.add('hidden'); document.getElementById('form-titulo').value = ''; }
 
         async function guardarTarea() {
-            const segmentoId = document.getElementById('form-segmento-id').value;
-            const titulo = document.getElementById('form-titulo').value;
+            const segId = document.getElementById('form-segmento-id').value;
+            const titulo = document.getElementById('form-titulo').value.trim();
             const prioridad = document.getElementById('form-prioridad').value;
-            const responsable = document.getElementById('form-responsable').value;
-            const miniatura = document.getElementById('form-miniatura').value;
+            const resp = document.getElementById('form-responsable').value;
+            const mini = document.getElementById('form-miniatura').value;
             const fecha = document.getElementById('form-fecha').value;
 
-            if(!titulo) return alert("Por favor escribe el título de la tarea");
-
-            await supabaseClient.from('tareas').insert([{
-                segmento_id: segmentoId,
-                titulo: titulo,
-                prioridad: prioridad,
-                responsable: responsable,
-                miniatura_url: miniatura || null,
-                fecha_entrega: fecha || null
-            }]);
-
-            const miembroAsignado = cacheMiembros.find(m => m.nombre === responsable);
-            if(miembroAsignado && miembroAsignado.correo) {
-                const cuerpoTareaHtml = `
-                    <div style="background-color: #121214; color: #e4e4e7; font-family: sans-serif; padding: 24px; border-radius: 12px; max-width: 500px; border: 1px solid #222226;">
-                        <h3 style="color: #6366f1; margin-top: 0;">📋 Nueva Tarea Asignada</h3>
-                        <p style="font-size: 14px; color: #a1a1aa;">Hola <strong>${responsable}</strong>,</p>
-                        <p style="font-size: 14px; line-height: 1.5;">Se te ha desplegado una nueva asignación operativa en el tablero de control:</p>
-                        <div style="background-color: #1c1c21; padding: 12px; border-radius: 6px; border-left: 4px solid #6366f1; margin: 16px 0;">
-                            <p style="margin: 0; font-size: 14px; font-weight: bold; color: #fff;">${titulo}</p>
-                            <p style="margin: 4px 0 0 0; font-size: 11px; color: #a1a1aa;">Prioridad: ${prioridad} | Límite: ${fecha || 'Sin fecha fija'}</p>
-                        </div>
-                        <p style="font-size: 13px; color: #71717a;">Por favor revisa el pipeline Kanban para actualizar el estado del trabajo.</p>
-                    </div>`;
-
-                await enviarNotificacionPorCorreo(miembroAsignado.correo, `Nueva tarea asignada: ${titulo}`, cuerpoTareaHtml);
-            }
+            if(!titulo) return alert("Escribe un título.");
+            await supabaseClient.from('tareas').insert([{ segmento_id: segId, titulo, prioridad, responsable: resp, miniatura_url: mini || null, fecha_entrega: fecha || null }]);
 
             cerrarModalTarea();
             await cargarColumnasYTasks();
@@ -697,12 +542,20 @@
         function cerrarModalEspacio() { document.getElementById('modal-espacio').classList.add('hidden'); document.getElementById('espacio-titulo').value = ''; }
         
         async function guardarEspacio() {
-            const titulo = document.getElementById('espacio-titulo').value;
+            const titulo = document.getElementById('espacio-titulo').value.trim();
+            const icono = document.getElementById('espacio-icono').value.trim();
             if(!titulo) return alert("Escribe el nombre del espacio");
-            const { data } = await supabaseClient.from('tableros').insert([{ titulo, descripcion: `Mesa de trabajo para ${titulo}` }]).select();
+            const { data } = await supabaseClient.from('tableros').insert([{ titulo, descripcion: `Mesa para ${titulo}` }]).select();
             cerrarModalEspacio();
             if(data && data[0]) tableroActualId = data[0].id;
             await cargarEspaciosDeTrabajo();
+        }
+
+        function cambiarFiltro(tipo) {
+            filtroActual = tipo;
+            document.getElementById('filtro-todo').className = tipo === 'todo' ? "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition" : "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
+            document.getElementById('filtro-asignados').className = tipo === 'asignados' ? "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition" : "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
+            cargarColumnasYTasks();
         }
     </script>
 </body>
