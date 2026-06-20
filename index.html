@@ -3,714 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multimedia Workspace</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #121214; }
-        ::-webkit-scrollbar-thumb { background: #2a2a30; border-radius: 4px; }
-        .drag-over { border-color: #4f46e5 !important; background-color: rgba(79, 70, 229, 0.05) !important; }
-        .dragging { opacity: 0.5; cursor: grabbing !important; }
-    </style>
+    <title>Multimedia Workspace - Control de Personal</title>
+    <!-- Tailwind CSS para los estilos oscuros -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0f0f11] text-gray-100 font-sans antialiased min-h-screen flex">
+<body class="bg-[#09090b] text-zinc-100 min-h-screen flex items-center justify-center p-4">
 
-    <aside class="w-64 bg-[#161619] border-r border-[#222226] flex flex-col justify-between hidden md:flex shrink-0">
-        <div class="p-4 flex-1 flex flex-col min-h-0">
-            <div class="flex items-center gap-3 mb-6 px-2">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-600/30">M</div>
-                <span class="font-semibold text-base tracking-wide text-gray-200">Ministerio Media</span>
-            </div>
-            
-            <div class="mb-6 bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-3 relative group">
-                <div class="flex items-center justify-between mb-1.5">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs">📢</span>
-                        <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Tablón de Anuncios</p>
-                    </div>
-                    <button onclick="crearAnuncio()" class="text-gray-500 hover:text-indigo-400 text-[11px] font-bold cursor-pointer opacity-0 group-hover:opacity-100 transition">＋</button>
-                </div>
-                <div id="contenedor-anuncios" class="space-y-2 max-h-32 overflow-y-auto pr-1">
-                    <p id="texto-anuncio" class="text-xs text-gray-400 leading-relaxed italic">Cargando anuncios oficiales...</p>
-                </div>
-            </div>
-
-            <div class="flex-1 overflow-y-auto pr-1">
-                <div class="flex justify-between items-center px-2 mb-2">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Espacios de Trabajo</p>
-                    <button onclick="abrirModalEspacio()" class="text-gray-400 hover:text-indigo-400 text-sm transition font-bold cursor-pointer">＋</button>
-                </div>
-                <nav id="lista-espacios" class="space-y-1">
-                    </nav>
-            </div>
+    <!-- Tarjeta del Formulario de Configuración del Ministerio -->
+    <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-6 w-full max-w-md shadow-2xl shadow-purple-950/10">
+        <div class="mb-6">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                🎬 Vincular Miembro Profesional
+            </h3>
+            <p class="text-xs text-zinc-500 mt-1">El miembro recibirá una invitación automática por correo una vez registrado.</p>
         </div>
         
-        <div class="p-4 border-t border-[#222226] bg-[#121214] flex items-center justify-between gap-2">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">RR</div>
-                <div>
-                    <p class="text-sm font-medium text-gray-300">René Raudales</p>
-                    <p class="text-xs text-gray-500">Sistemas & Media</p>
-                </div>
-            </div>
-            <button onclick="abrirModalConfiguracion()" class="text-gray-400 hover:text-indigo-400 p-1.5 rounded-lg hover:bg-[#1c1c21] transition cursor-pointer" title="Configuración del Equipo">
-                ⚙️
-            </button>
-        </div>
-    </aside>
-
-    <main class="flex-1 flex flex-col min-h-screen min-w-0">
-        <div id="header-banner" class="w-full h-44 bg-cover bg-center relative border-b border-[#222226]" 
-             style="background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200');">
-            <div class="absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/40 to-transparent"></div>
-        </div>
-
-        <header class="-mt-10 px-8 pb-4 relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-            <div class="flex gap-4 items-end">
-                <div class="w-16 h-16 bg-[#161619] border-2 border-[#222226] rounded-2xl flex items-center justify-center text-3xl shadow-xl select-none" id="tablero-icono">🎬</div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-white mb-0.5" id="tablero-titulo">Producción Audiovisual</h1>
-                    <p class="text-xs text-gray-400" id="tablero-descripcion">Gestión integrada de proyectos y control cruzado en tiempo real.</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-2 bg-[#161619] border border-[#222226] rounded-lg p-1 text-xs">
-                <button id="filtro-todo" onclick="cambiarFiltro('todo')" class="px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition">Todo</button>
-                <button id="filtro-asignados" onclick="cambiarFiltro('asignados')" class="px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition">Asignados</button>
-            </div>
-        </header>
-
-        <section id="tablero-columnas" class="flex-1 p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
-            <div class="text-gray-600 text-xs animate-pulse flex items-center justify-center w-full h-48">
-                Leyendo flujos de trabajo en Supabase...
-            </div>
-        </section>
-
-        <section class="p-8 border-t border-[#1c1c21] bg-[#121214]/40">
-            <div class="mb-4">
-                <h2 class="text-sm font-bold tracking-wide uppercase text-gray-400 flex items-center gap-2">
-                    📊 Control de Eficiencia y Rendimiento Operativo
-                </h2>
-                <p class="text-xs text-gray-500">Métricas analíticas calculadas automáticamente según entregas e hitos temporales.</p>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
-                    <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Por Hacer</span>
-                    <span id="meta-por-hacer" class="text-xl font-bold text-gray-300 mt-2">0</span>
-                </div>
-                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
-                    <span class="text-[10px] uppercase font-bold text-amber-500/80 tracking-wider">En Proceso</span>
-                    <span id="meta-en-proceso" class="text-xl font-bold text-amber-400 mt-2">0</span>
-                </div>
-                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
-                    <span class="text-[10px] uppercase font-bold text-emerald-500/80 tracking-wider">Finalizado</span>
-                    <span id="meta-finalizado" class="text-xl font-bold text-emerald-400 mt-2">0</span>
-                </div>
-                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between border-rose-500/20 bg-rose-500/[0.01]">
-                    <span class="text-[10px] uppercase font-bold text-rose-400 tracking-wider flex items-center gap-1">⚠️ No Terminadas</span>
-                    <span id="meta-vencidas" class="text-xl font-bold text-rose-400 mt-2">0</span>
-                </div>
-                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between">
-                    <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Total Tareas</span>
-                    <span id="meta-total" class="text-xl font-bold text-white mt-2">0</span>
-                </div>
-                <div class="bg-[#161619] border border-[#222226] p-4 rounded-xl flex flex-col justify-between border-indigo-500/20 bg-indigo-500/[0.02]">
-                    <span class="text-[10px] uppercase font-bold text-indigo-400 tracking-wider">Eficiencia Equipo</span>
-                    <span id="meta-eficiencia" class="text-xl font-bold text-indigo-400 mt-2">100%</span>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-[#222226] pb-3">
-                <h3 class="font-bold text-gray-200 text-base flex items-center gap-2">📝 Nueva Asignación</h3>
-                <button onclick="cerrarModalTarea()" class="text-gray-500 hover:text-white text-lg cursor-pointer">✕</button>
-            </div>
-            <input type="hidden" id="form-segmento-id">
-            
+        <div class="space-y-4">
+            <!-- Campo: Nombre -->
             <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Título de la asignación</label>
-                <input type="text" id="form-titulo" placeholder="Ej. Mezclar voces del servicio de adoración" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Nombre Completo</label>
+                <input type="text" id="nombreMiembro" placeholder="Ej. Alejandro Espinal" 
+                       class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 transition-colors">
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Prioridad</label>
-                    <select id="form-prioridad" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                        <option value="Baja">🟢 Baja</option>
-                        <option value="Media" selected>🟡 Media</option>
-                        <option value="Alta">🟠 Alta</option>
-                        <option value="Urgente">🔴 Urgente</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Responsable</label>
-                    <select id="form-responsable" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                        </select>
-                </div>
-            </div>
-
+            <!-- Campo: Correo Electrónico -->
             <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Fecha límite de entrega</label>
-                <input type="date" id="form-fecha" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
+                <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Correo Electrónico</label>
+                <input type="email" id="correoMiembro" placeholder="ejemplo@correo.com" 
+                       class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 transition-colors">
             </div>
 
+            <!-- Campo: Espacio de Trabajo (Exclusivo para los 8 roles operativos estándar) -->
             <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">URL de Miniatura / Imagen Preview (Opcional)</label>
-                <input type="url" id="form-miniatura" placeholder="https://images.unsplash.com/..." class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                <label class="block text-xs font-semibold text-zinc-400 uppercase mb-1">Espacio de Trabajo</label>
+                <select id="rolMiembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2.5 text-xs text-zinc-300 focus:outline-none focus:border-purple-500 transition-colors cursor-pointer">
+                    <option value="Audio">🔊 Audio / Mezcla en Vivo</option>
+                    <option value="Transmisión">🎛️ Transmisión (ATEM / OBS)</option>
+                    <option value="Camarografía">📹 Camarografía</option>
+                    <option value="Proyección">🖥️ Proyección (ProPresenter)</option>
+                    <option value="Luces">💡 Luces / Iluminación</option>
+                    <option value="Diseño gráfico">🎨 Diseño gráfico</option>
+                    <option value="Redes sociales">📱 Redes sociales</option>
+                    <option value="Fotografía">📸 Fotografía</option>
+                </select>
             </div>
 
-            <button onclick="guardarTarea()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg shadow-lg shadow-indigo-600/20 transition cursor-pointer">
-                🚀 Desplegar Asignación
+            <!-- Botón de Acción -->
+            <button id="btnVincular" onclick="agregarMiembroEquipo()" 
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg p-3 text-xs transition-all cursor-pointer shadow-lg shadow-purple-900/20 active:scale-[0.98]">
+                Vincular al Espacio de Control
             </button>
         </div>
     </div>
 
-    <div id="modal-espacio" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-[#161619] border border-[#26262b] w-full max-w-sm rounded-xl p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-[#222226] pb-3">
-                <h3 class="font-bold text-gray-200 text-base">🎨 Crear Espacio de Trabajo</h3>
-                <button onclick="cerrarModalEspacio()" class="text-gray-500 hover:text-white cursor-pointer">✕</button>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Nombre del Espacio</label>
-                <input type="text" id="espacio-titulo" placeholder="Ej. Audio, Redes Sociales" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Icono (Emoji)</label>
-                <input type="text" id="espacio-icono" placeholder="🎛️" value="🎛️" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm text-center focus:outline-hidden focus:border-indigo-500 text-gray-200">
-            </div>
-            <button onclick="guardarEspacio()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition cursor-pointer">
-                ✨ Crear Nuevo Espacio
-            </button>
-        </div>
-    </div>
-
-    <div id="modal-configuracion" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-[#161619] border border-[#26262b] w-full max-w-lg rounded-xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center border-b border-[#222226] pb-3 shrink-0">
-                <h3 class="font-bold text-gray-200 text-base flex items-center gap-2">⚙️ Configuración del Ministerio</h3>
-                <button onclick="cerrarModalConfiguracion()" class="text-gray-500 hover:text-white cursor-pointer">✕</button>
-            </div>
-            
-            <div class="bg-[#1c1c21] p-4 rounded-xl border border-[#2a2a33] mt-4 space-y-3 shrink-0">
-                <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Agregar Integrante al Equipo</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <input type="text" id="config-nombre-miembro" placeholder="Nombre completo" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
-                    <input type="email" id="config-correo-miembro" placeholder="correo@ejemplo.com" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
-                    <div class="sm:col-span-2">
-                        <select id="config-rol-miembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                            <option value="Operador">🎛️ Operador / Técnico</option>
-                            <option value="Cámaras">🎥 Equipo de Cámaras</option>
-                            <option value="Diseñador">🎨 Diseñador Gráfico</option>
-                            <option value="Social Media">📱 Gestor de Contenido</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="agregarMiembroEquipo()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition cursor-pointer">
-                    ＋ Vincular Miembro Profesional
-                </button>
-            </div>
-
-            <div class="mt-4 flex-1 overflow-y-auto pr-1">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Miembros Activos en el Sistema</p>
-                <div id="lista-config-miembros" class="space-y-1.5">
-                    </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Lógica de Control y Supabase -->
     <script>
-        const SUPABASE_URL = "https://cpyueytgzapjguyoigsg.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // NOTA: La función frontend 'enviarNotificacionPorCorreo' ha sido removida por completo.
+    // El flujo de correo se delega al Trigger seguro de la base de datos de Supabase.
 
-        // 🛡️ API Key de Resend vinculada con éxito
-        const RESEND_API_KEY = "re_AMiXVe4q_HHhEwbFujLuLFHvskaUUBihC";
+    async function agregarMiembroEquipo() {
+        const nombreInput = document.getElementById('nombreMiembro');
+        const correoInput = document.getElementById('correoMiembro');
+        const rolInput = document.getElementById('rolMiembro');
+        const btnVincular = document.getElementById('btnVincular');
 
-        let tableroActualId = null;
-        let filtroActual = 'todo'; 
-        const OPERADOR_ACTUAL = "René Raudales";
-        let cacheMiembros = []; 
+        const nombre = nombreInput.value.trim();
+        const correo = correoInput.value.trim();
+        const rol = rolInput.value;
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            await cargarAnunciosDesdeSupabase();
-            await sincronizarMiembrosYSelects();
-            await cargarEspaciosDeTrabajo();
-        });
-
-        /* 📨 SERVICIO AUTOMÁTICO DE NOTIFICACIONES POR CORREO (RESEND API) */
-        async function enviarNotificacionPorCorreo(destinatario, asunto, cuerpoHtml) {
-            if (!RESEND_API_KEY || RESEND_API_KEY.includes("TU_API_KEY")) {
-                console.warn("Resend API Key no configurada. Saltando envío de correo.");
-                return;
-            }
-
-            try {
-                const response = await fetch("https://api.resend.com/emails", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${RESEND_API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        from: "Multimedia Workspace <onboarding@resend.dev>",
-                        to: [destinatario],
-                        subject: asunto,
-                        html: cuerpoHtml
-                    })
-                });
-
-                if(!response.ok) {
-                    const errData = await response.json();
-                    console.error("Error en Resend API:", errData);
-                } else {
-                    console.log(`📧 Notificación enviada con éxito a ${destinatario}`);
-                }
-            } catch (err) {
-                console.error("Fallo de red al conectar con Resend:", err);
-            }
+        // Validación de campos vacíos en el cliente
+        if (!nombre || !correo) {
+            alert('Por favor, ingresa el nombre y el correo electrónico del miembro.');
+            return;
         }
 
-        /* 📢 SECCIÓN DE ANUNCIOS DINÁMICOS */
-        async function cargarAnunciosDesdeSupabase() {
-            const contenedor = document.getElementById('contenedor-anuncios');
-            const { data: anuncios, error } = await supabaseClient
-                .from('anuncios')
-                .select('*')
-                .order('created_at', { ascending: false });
+        // Bloqueo visual del botón durante la transacción
+        btnVincular.disabled = true;
+        btnVincular.innerText = 'Insertando en base de datos...';
 
-            if (error) {
-                contenedor.innerHTML = `<div class="text-center p-1"><p class="text-[10px] text-gray-500">Tabla anuncios inactiva</p></div>`;
-                return;
-            }
-
-            if (!anuncios || anuncios.length === 0) {
-                contenedor.innerHTML = `<p class="text-xs text-gray-500 italic">No hay anuncios recientes.</p>`;
-                return;
-            }
-
-            contenedor.innerHTML = '';
-            anuncios.forEach(anuncio => {
-                contenedor.innerHTML += `
-                    <div class="border-b border-[#222226] last:border-0 pb-1.5 last:pb-0 relative group/msg">
-                        <p class="text-xs text-gray-300 leading-relaxed">${anuncio.contenido}</p>
-                        <button onclick="eliminarAnuncio('${anuncio.id}')" class="absolute top-0 right-0 text-gray-600 hover:text-rose-400 text-[9px] opacity-0 group-hover/msg:opacity-100 cursor-pointer transition">✕</button>
-                    </div>`;
-            });
-        }
-
-        async function crearAnuncio() {
-            const contenido = prompt("Escribe el nuevo anuncio para el equipo:");
-            if (!contenido) return;
-            await supabaseClient.from('anuncios').insert([{ contenido: contenido }]);
-            await cargarAnunciosDesdeSupabase();
-        }
-
-        async function eliminarAnuncio(id) {
-            await supabaseClient.from('anuncios').delete().eq('id', id);
-            await cargarAnunciosDesdeSupabase();
-        }
-
-        /* ⚙️ MENÚ DE CONFIGURACIÓN GENERAL Y MIEMBROS DINÁMICOS */
-        async function sincronizarMiembrosYSelects() {
-            const selectResponsable = document.getElementById('form-responsable');
-            
-            let { data: miembros, error } = await supabaseClient
+        try {
+            // Comunicación directa con tu cliente de Supabase (asegúrate de que 'supabase' esté inicializado en tu script global)
+            const { data, error } = await supabase
                 .from('miembros')
-                .select('*')
-                .order('nombre', { ascending: true });
+                .insert([
+                    { nombre: nombre, correo: correo, rol: rol }
+                ]);
 
-            if (error) {
-                console.warn("Tabla miembros inactiva.");
-                cacheMiembros = [{ id: '1', nombre: "René Raudales", correo: "rene@ejemplo.com", rol: "Operador" }];
-            } else {
-                cacheMiembros = miembros || [];
-                if (!cacheMiembros.some(m => m.nombre.toLowerCase() === OPERADOR_ACTUAL.toLowerCase())) {
-                    await supabaseClient.from('miembros').insert([{ nombre: OPERADOR_ACTUAL, correo: 'rene@ejemplo.com', rol: 'Operador' }]);
-                    return sincronizarMiembrosYSelects();
-                }
-            }
+            if (error) throw error;
 
-            selectResponsable.innerHTML = '';
-            cacheMiembros.forEach(m => {
-                selectResponsable.innerHTML += `<option value="${m.nombre}">👤 ${m.nombre}</option>`;
-            });
-        }
-
-        function abrirModalConfiguracion() {
-            document.getElementById('modal-configuracion').classList.remove('hidden');
-            renderizarListaConfigMiembros();
-        }
-
-        function cerrarModalConfiguracion() {
-            document.getElementById('modal-configuracion').classList.add('hidden');
-        }
-
-        function renderizarListaConfigMiembros() {
-            const listaDOM = document.getElementById('lista-config-miembros');
-            listaDOM.innerHTML = '';
-
-            if (cacheMiembros.length === 0) {
-                listaDOM.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No hay miembros registrados.</p>`;
-                return;
-            }
-
-            cacheMiembros.forEach(m => {
-                const correoMostrar = m.correo ? m.correo : 'Sin correo registrado';
-                listaDOM.innerHTML += `
-                    <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg">
-                        <div class="min-w-0 flex-1 pr-2">
-                            <p class="text-xs font-semibold text-gray-200 truncate">${m.nombre}</p>
-                            <p class="text-[10px] text-gray-400 font-mono truncate">${correoMostrar}</p>
-                            <p class="text-[9px] text-gray-500 mt-0.5">${m.rol}</p>
-                        </div>
-                        <div class="shrink-0 flex items-center">
-                            ${m.nombre !== OPERADOR_ACTUAL ? `
-                                <button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>
-                            ` : '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>'}
-                        </div>
-                    </div>`;
-            });
-        }
-
-        async function agregarMiembroEquipo() {
-            const nombre = document.getElementById('config-nombre-miembro').value.trim();
-            const correo = document.getElementById('config-correo-miembro').value.trim();
-            const rol = document.getElementById('config-rol-miembro').value;
-
-            if(!nombre) return alert("Por favor escribe el nombre del integrante");
-            if(!correo) return alert("Por favor escribe el correo electrónico");
-
-            const { error } = await supabaseClient.from('miembros').insert([{ nombre, correo, rol }]);
-
-            if (error) {
-                alert("Hubo un percance al guardar el miembro. Revisa duplicados.");
-                return;
-            }
-
-            // 📩 Correo formal de Invitación
-            const cuerpoHtml = `
-                <div style="background-color: #121214; color: #e4e4e7; font-family: sans-serif; padding: 24px; border-radius: 12px; max-width: 500px; border: 1px solid #222226;">
-                    <h2 style="color: #6366f1; margin-bottom: 4px;">¡Bienvenido al Ministerio Media! 🎬</h2>
-                    <p style="font-size: 14px; color: #a1a1aa;">Hola <strong>${nombre}</strong>,</p>
-                    <p style="font-size: 14px; line-height: 1.5;">Has sido vinculado formalmente al espacio de control de producción como <strong>${rol}</strong>.</p>
-                    <p style="font-size: 14px; line-height: 1.5;">A partir de ahora recibirás notificaciones aquí cuando se te asigne una nueva tarea en los flujos de trabajo.</p>
-                    <hr style="border-color: #222226; margin: 20px 0;">
-                    <p style="font-size: 11px; color: #71717a; text-align: center;">Workspace Administrado por René Raudales</p>
-                </div>`;
+            // Al completarse el INSERT, el Trigger de Supabase se activa y le ordena a Resend despachar la plantilla HTML de inmediato
+            alert(`¡Vinculación Exitosa!\n${nombre} ha sido agregado a ${rol}. El correo de invitación se está enviando de servidor a servidor.`);
             
-            await enviarNotificacionPorCorreo(correo, "Invitación Oficial - Ministerio Media 🎛️", cuerpoHtml);
-
-            document.getElementById('config-nombre-miembro').value = '';
-            document.getElementById('config-correo-miembro').value = '';
-            await sincronizarMiembrosYSelects();
-            renderizarListaConfigMiembros();
+            // Limpieza del formulario para el siguiente registro
+            nombreInput.value = '';
+            correoInput.value = '';
+            
+        } catch (err) {
+            console.error('Error detectado en la transacción:', err);
+            // Manejo de errores amigable si se violan restricciones del servidor (como correos duplicados o roles prohibidos)
+            alert('Error al registrar en Supabase: ' + (err.message || err));
+        } finally {
+            // Restauración del estado del botón
+            btnVincular.disabled = false;
+            btnVincular.innerText = 'Vincular al Espacio de Control';
         }
-
-        async function removerMiembroEquipo(id) {
-            if(!confirm("¿Deseas desvincular a este miembro del equipo?")) return;
-            await supabaseClient.from('miembros').delete().eq('id', id);
-            await sincronizarMiembrosYSelects();
-            renderizarListaConfigMiembros();
-        }
-
-        /* 👥 FILTRADO */
-        function cambiarFiltro(tipo) {
-            filtroActual = tipo;
-            const btnTodo = document.getElementById('filtro-todo');
-            const btnAsignados = document.getElementById('filtro-asignados');
-            if (tipo === 'todo') {
-                btnTodo.className = "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition";
-                btnAsignados.className = "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
-            } else {
-                btnAsignados.className = "px-3 py-1.5 font-medium rounded-md bg-[#222226] text-indigo-400 shadow-sm cursor-pointer transition";
-                btnTodo.className = "px-3 py-1.5 font-medium rounded-md text-gray-400 hover:text-white cursor-pointer transition";
-            }
-            cargarColumnasYTasks();
-        }
-
-        /* 🎨 ESPACIOS DE TRABAJO */
-        async function cargarEspaciosDeTrabajo() {
-            const lista = document.getElementById('lista-espacios');
-            let { data: tableros, error } = await supabaseClient
-                .from('tableros')
-                .select('*')
-                .order('created_at', { ascending: true });
-
-            if (error) return console.error(error);
-
-            lista.innerHTML = '';
-            tableros.forEach((tab, index) => {
-                let icono = '🎬';
-                if (tab.titulo.toLowerCase().includes('audio')) icono = '🎛️';
-                if (tab.titulo.toLowerCase().includes('diseño') || tab.titulo.toLowerCase().includes('grafic')) icono = '🎨';
-                if (tab.titulo.toLowerCase().includes('marketing') || tab.titulo.toLowerCase().includes('redes')) icono = '📢';
-
-                const esActivo = tableroActualId === null ? index === 0 : tab.id === tableroActualId;
-                if (esActivo) {
-                    tableroActualId = tab.id;
-                    document.getElementById('tablero-titulo').innerText = tab.titulo;
-                    document.getElementById('tablero-icono').innerText = icono;
-                    establecerBannerFondo(tab.titulo);
-                }
-
-                lista.innerHTML += `
-                    <button onclick="cambiarTablero('${tab.id}')" class="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-medium transition cursor-pointer ${esActivo ? 'bg-[#222226] text-indigo-400' : 'text-gray-400 hover:bg-[#1a1a1e] hover:text-gray-200'}">
-                        <span>${icono}</span> ${tab.titulo}
-                    </button>
-                `;
-            });
-
-            if (tableroActualId) cargarColumnasYTasks();
-        }
-
-        function establecerBannerFondo(titulo) {
-            const banner = document.getElementById('header-banner');
-            if (titulo.toLowerCase().includes('audio')) {
-                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200')";
-            } else if (titulo.toLowerCase().includes('diseño') || titulo.toLowerCase().includes('grafic')) {
-                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200')";
-            } else {
-                banner.style.backgroundImage = "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200')";
-            }
-        }
-
-        async function cambiarTablero(id) {
-            tableroActualId = id;
-            await cargarEspaciosDeTrabajo();
-        }
-
-        /* 🛠 * KANBAN RENDERING + METRICS */
-        async function cargarColumnasYTasks() {
-            const contenedor = document.getElementById('tablero-columnas');
-            let totalPorHacer = 0, totalEnProceso = 0, totalFinalizado = 0, totalVencidasNoTerminadas = 0, totalGeneralTareas = 0;
-            const hoy = new Date();
-
-            let { data: segmentos } = await supabaseClient
-                .from('segmentos')
-                .select('*')
-                .eq('tablero_id', tableroActualId)
-                .order('posicion', { ascending: true });
-
-            if (!segmentos || segmentos.length === 0) {
-                contenedor.innerHTML = `
-                    <div class="text-center py-12 px-4 border-2 border-dashed border-[#222226] rounded-xl max-w-sm mx-auto mt-6">
-                        <p class="text-gray-500 text-xs mb-3">Este espacio no tiene columnas todavía.</p>
-                        <button onclick="inicializarColumnasEspacio()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition shadow-md cursor-pointer">
-                            ✨ Inicializar Pipeline de Trabajo
-                        </button>
-                    </div>`;
-                calcularYMostrarMetricas(0, 0, 0, 0, 0);
-                return;
-            }
-
-            contenedor.innerHTML = '';
-
-            for (const col of segmentos) {
-                let query = supabaseClient.from('tareas').select('*').eq('segmento_id', col.id);
-                if (filtroActual === 'asignados') {
-                    query = query.eq('responsable', OPERADOR_ACTUAL);
-                }
-                const { data: tareas } = await query.order('posicion', { ascending: true });
-
-                const esColumnaFinalizado = col.nombre.toLowerCase().includes('finalizado') || col.nombre.toLowerCase().includes('listo') || col.nombre.toLowerCase().includes('terminado');
-                const esColumnaProceso = col.nombre.toLowerCase().includes('proceso') || col.nombre.toLowerCase().includes('haciendo');
-                const esColumnaPorHacer = col.nombre.toLowerCase().includes('hacer') || col.nombre.toLowerCase().includes('pendiente');
-
-                let htmlTareas = '';
-                if (tareas && tareas.length > 0) {
-                    tareas.forEach(tarea => {
-                        totalGeneralTareas++;
-                        if (esColumnaFinalizado) totalFinalizado++;
-                        else if (esColumnaProceso) totalEnProceso++;
-                        else if (esColumnaPorHacer) totalPorHacer++;
-
-                        let esVencida = false;
-                        if (tarea.fecha_entrega && !esColumnaFinalizado) {
-                            const fechaLimite = new Date(tarea.fecha_entrega + 'T23:59:59');
-                            if (fechaLimite < hoy) {
-                                esVencida = true;
-                                totalVencidasNoTerminadas++;
-                            }
-                        }
-
-                        let badgeColor = "bg-gray-800 text-gray-400";
-                        if (tarea.prioridad === 'Alta') badgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-                        if (tarea.prioridad === 'Urgente') badgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
-
-                        htmlTareas += `
-                            <div id="tarea-${tarea.id}" 
-                                 draggable="true" 
-                                 ondragstart="handleDragStart(event, '${tarea.id}')"
-                                 ondragend="handleDragEnd(event)"
-                                 class="bg-[#161619] border ${esVencida ? 'border-rose-500/40 bg-rose-500/[0.02]' : 'border-[#222226]'} p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3 cursor-grab active:cursor-grabbing select-none relative">
-                                
-                                <button onclick="eliminarTarea('${tarea.id}')" class="absolute top-3 right-3 text-gray-500 hover:text-rose-500 transition font-bold text-xs cursor-pointer opacity-0 group-hover:opacity-100 z-20">✕</button>
-                                
-                                ${tarea.miniatura_url ? `<img src="${tarea.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" draggable="false" />` : ''}
-                                <h4 class="font-medium text-xs text-gray-200 group-hover:text-white leading-tight pr-4">${tarea.titulo}</h4>
-                                
-                                ${esVencida ? `<div class="text-[9px] text-rose-400 font-bold bg-rose-500/10 p-1 rounded border border-rose-500/20 text-center animate-pulse">⚠️ No Terminada (Vencida)</div>` : ''}
-
-                                <div class="flex items-center justify-between pt-1">
-                                    <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold ${badgeColor}">${tarea.prioridad}</span>
-                                    <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${tarea.responsable}</span>
-                                </div>
-                            </div>`;
-                    });
-                } else {
-                    htmlTareas = `<div class="text-[11px] text-gray-600 text-center py-6 border border-dashed border-[#1c1c21]/40 rounded-xl select-none empty-state-msg">No hay asignaciones</div>`;
-                }
-
-                contenedor.innerHTML += `
-                    <div class="w-72 shrink-0 flex flex-col max-h-[calc(100vh-280px)] bg-[#121214]/60 p-4 rounded-xl border border-[#1c1c21] transition-all duration-200"
-                         data-columna-id="${col.id}"
-                         ondragover="handleDragOver(event)"
-                         ondragleave="handleDragLeave(event)"
-                         ondrop="handleDrop(event, '${col.id}')">
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-semibold text-xs tracking-wide text-gray-300">${col.nombre}</h3>
-                                <span class="bg-[#1c1c21] text-[10px] text-gray-400 px-2 py-0.5 rounded-full font-bold">${tareas ? tareas.length : 0}</span>
-                            </div>
-                            <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold cursor-pointer">＋</button>
-                        </div>
-                        <div class="space-y-3 overflow-y-auto pr-1 flex-1 lista-tareas-contenedor">
-                            ${htmlTareas}
-                        </div>
-                    </div>`;
-            }
-
-            calcularYMostrarMetricas(totalPorHacer, totalEnProceso, totalFinalizado, totalVencidasNoTerminadas, totalGeneralTareas);
-        }
-
-        function calcularYMostrarMetricas(porHacer, enProceso, finalizado, vencidas, total) {
-            document.getElementById('meta-por-hacer').innerText = porHacer;
-            document.getElementById('meta-en-proceso').innerText = enProceso;
-            document.getElementById('meta-finalizado').innerText = finalizado;
-            document.getElementById('meta-vencidas').innerText = vencidas;
-            document.getElementById('meta-total').innerText = total;
-            if (total === 0) document.getElementById('meta-eficiencia').innerText = "100%";
-            else document.getElementById('meta-eficiencia').innerText = `${Math.round((finalizado / total) * 100)}%`;
-        }
-
-        /* 🎛️ DRAG AND DROP */
-        function handleDragStart(event, tareaId) {
-            event.dataTransfer.setData("text/plain", tareaId);
-            event.dropEffect = "move";
-            document.getElementById(`tarea-${tareaId}`).classList.add('dragging');
-        }
-        function handleDragEnd(event) { event.currentTarget.classList.remove('dragging'); }
-        function handleDragOver(event) {
-            event.preventDefault();
-            const colContenedor = event.currentTarget;
-            if (!colContenedor.classList.contains('drag-over')) colContenedor.classList.add('drag-over');
-        }
-        function handleDragLeave(event) { event.currentTarget.classList.remove('drag-over'); }
-
-        async function handleDrop(event, destinoColumnaId) {
-            event.preventDefault();
-            const colContenedor = event.currentTarget;
-            colContenedor.classList.remove('drag-over');
-            const tareaId = event.dataTransfer.getData("text/plain");
-            if (!tareaId) return;
-
-            const tarjetaDOM = document.getElementById(`tarea-${tareaId}`);
-            if (!tarjetaDOM) return;
-
-            const contenedorDestino = colContenedor.querySelector('.lista-tareas-contenedor');
-            const msgVacio = contenedorDestino.querySelector('.empty-state-msg'); 
-            if (msgVacio) msgVacio.remove();
-
-            contenedorDestino.appendChild(tarjetaDOM);
-            await supabaseClient.from('tareas').update({ segmento_id: destinoColumnaId }).eq('id', tareaId);
-            await cargarColumnasYTasks();
-        }
-
-        /* 🗑️ ELIMINAR TAREA */
-        async function eliminarTarea(id) {
-            if(!confirm("¿Seguro que deseas eliminar esta asignación?")) return;
-            await supabaseClient.from('tareas').delete().eq('id', id);
-            await cargarColumnasYTasks();
-        }
-
-        /* 🛠️ AUXILIARES */
-        async function inicializarColumnasEspacio() {
-            await supabaseClient.from('segmentos').insert([
-                { tablero_id: tableroActualId, nombre: "📋 Por Hacer", posicion: 1 },
-                { tablero_id: tableroActualId, nombre: "🎬 En Proceso", posicion: 2 },
-                { tablero_id: tableroActualId, nombre: "🚀 Finalizado", posicion: 3 }
-            ]);
-            await cargarColumnasYTasks();
-        }
-
-        function abrirModalTarea(segmentoId) {
-            document.getElementById('form-segmento-id').value = segmentoId;
-            document.getElementById('modal-tarea').classList.remove('hidden');
-        }
-        function cerrarModalTarea() {
-            document.getElementById('modal-tarea').classList.add('hidden');
-            document.getElementById('form-titulo').value = '';
-            document.getElementById('form-miniatura').value = '';
-        }
-
-        async function guardarTarea() {
-            const segmentoId = document.getElementById('form-segmento-id').value;
-            const titulo = document.getElementById('form-titulo').value;
-            const prioridad = document.getElementById('form-prioridad').value;
-            const responsable = document.getElementById('form-responsable').value;
-            const miniatura = document.getElementById('form-miniatura').value;
-            const fecha = document.getElementById('form-fecha').value;
-
-            if(!titulo) return alert("Por favor escribe el título de la tarea");
-
-            await supabaseClient.from('tareas').insert([{
-                segmento_id: segmentoId,
-                titulo: titulo,
-                prioridad: prioridad,
-                responsable: responsable,
-                miniatura_url: miniatura || null,
-                fecha_entrega: fecha || null
-            }]);
-
-            // 📩 Buscar el correo del responsable asignado para notificarle
-            const miembroAsignado = cacheMiembros.find(m => m.nombre === responsable);
-            if(miembroAsignado && miembroAsignado.correo) {
-                const cuerpoTareaHtml = `
-                    <div style="background-color: #121214; color: #e4e4e7; font-family: sans-serif; padding: 24px; border-radius: 12px; max-width: 500px; border: 1px solid #222226;">
-                        <h3 style="color: #6366f1; margin-top: 0;">📋 Nueva Tarea Asignada</h3>
-                        <p style="font-size: 14px; color: #a1a1aa;">Hola <strong>${responsable}</strong>,</p>
-                        <p style="font-size: 14px; line-height: 1.5;">Se te ha desplegado una nueva asignación operativa en el tablero de control:</p>
-                        <div style="background-color: #1c1c21; padding: 12px; border-radius: 6px; border-left: 4px solid #6366f1; margin: 16px 0;">
-                            <p style="margin: 0; font-size: 14px; font-weight: bold; color: #fff;">${titulo}</p>
-                            <p style="margin: 4px 0 0 0; font-size: 11px; color: #a1a1aa;">Prioridad: ${prioridad} | Límite: ${fecha || 'Sin fecha fija'}</p>
-                        </div>
-                        <p style="font-size: 13px; color: #71717a;">Por favor revisa el pipeline Kanban para actualizar el estado del trabajo.</p>
-                    </div>`;
-
-                await enviarNotificacionPorCorreo(miembroAsignado.correo, `Nueva tarea asignada: ${titulo}`, cuerpoTareaHtml);
-            }
-
-            cerrarModalTarea();
-            await cargarColumnasYTasks();
-        }
-
-        function abrirModalEspacio() { document.getElementById('modal-espacio').classList.remove('hidden'); }
-        function cerrarModalEspacio() { document.getElementById('modal-espacio').classList.add('hidden'); document.getElementById('espacio-titulo').value = ''; }
-        
-        async function guardarEspacio() {
-            const titulo = document.getElementById('espacio-titulo').value;
-            if(!titulo) return alert("Escribe el nombre del espacio");
-            const { data } = await supabaseClient.from('tableros').insert([{ titulo, descripcion: `Mesa de trabajo para ${titulo}` }]).select();
-            cerrarModalEspacio();
-            if(data && data[0]) tableroActualId = data[0].id;
-            await cargarEspaciosDeTrabajo();
-        }
+    }
     </script>
 </body>
 </html>
