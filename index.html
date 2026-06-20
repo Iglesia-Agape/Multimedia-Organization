@@ -16,7 +16,6 @@
 </head>
 <body class="bg-[#0f0f11] text-gray-100 font-sans antialiased min-h-screen flex">
 
-    <!-- BARRA LATERAL -->
     <aside class="w-64 bg-[#161619] border-r border-[#222226] flex flex-col justify-between hidden md:flex shrink-0">
         <div class="p-4 flex-1 flex flex-col min-h-0">
             <div class="flex items-center gap-3 mb-6 px-2">
@@ -24,7 +23,6 @@
                 <span class="font-semibold text-base tracking-wide text-gray-200">Ministerio Media</span>
             </div>
             
-            <!-- Tablón de Anuncios -->
             <div class="mb-6 bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-3 relative group">
                 <div class="flex items-center justify-between mb-1.5">
                     <div class="flex items-center gap-2">
@@ -38,14 +36,12 @@
                 </div>
             </div>
 
-            <!-- Lista de Espacios de Trabajo Oficiales -->
             <div class="flex-1 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center px-2 mb-2">
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Espacios de Trabajo</p>
                 </div>
                 <nav id="lista-espacios" class="space-y-1">
-                    <!-- Se genera estáticamente por JavaScript -->
-                </nav>
+                    </nav>
             </div>
         </div>
         
@@ -63,7 +59,6 @@
         </div>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="flex-1 flex flex-col min-h-screen min-w-0">
         <div id="header-banner" class="w-full h-44 bg-cover bg-center relative border-b border-[#222226]">
             <div class="absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/40 to-transparent"></div>
@@ -84,14 +79,12 @@
             </div>
         </header>
 
-        <!-- Contenedor de Columnas Kanban -->
         <section id="tablero-columnas" class="flex-1 p-8 flex gap-6 overflow-x-auto items-start bg-[#0f0f11]">
             <div class="text-gray-600 text-xs animate-pulse flex items-center justify-center w-full h-48">
                 Sincronizando flujos de trabajo...
             </div>
         </section>
 
-        <!-- Panel de Métricas -->
         <section class="p-8 border-t border-[#1c1c21] bg-[#121214]/40">
             <div class="mb-4">
                 <h2 class="text-sm font-bold tracking-wide uppercase text-gray-400 flex items-center gap-2">
@@ -129,7 +122,6 @@
         </section>
     </main>
 
-    <!-- MODAL NUEVA TAREA -->
     <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
@@ -140,7 +132,7 @@
             
             <div>
                 <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Título de la asignación</label>
-                <input type="text" id="form-titulo" placeholder="Ej. Preparar mezcla de monitores" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                <input type="text" id="form-titulo" placeholder="Ej. Configurar micrófonos inalámbricos" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -156,7 +148,7 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Responsable</label>
                     <select id="form-responsable" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                    </select>
+                        </select>
                 </div>
             </div>
 
@@ -176,7 +168,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONFIGURACIÓN -->
     <div id="modal-configuracion" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#161619] border border-[#26262b] w-full max-w-lg rounded-xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3 shrink-0">
@@ -221,7 +212,6 @@
         const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // CONFIGURACIÓN DE LAS 8 ÁREAS OFICIALES (Fijas e inamovibles)
         const AREAS_OFICIALES = [
             { id: "area-audio", titulo: "Audio", icono: "🎛️", banner: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1200" },
             { id: "area-transmision", titulo: "Transmisión", icono: "💻", banner: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200" },
@@ -233,7 +223,7 @@
             { id: "area-fotografia", titulo: "Fotografía", icono: "📷", banner: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=1200" }
         ];
 
-        let tableroActualId = "area-audio"; // Inicia por defecto en Audio
+        let tableroActualId = "area-audio"; 
         let filtroActual = 'todo'; 
         const OPERADOR_ACTUAL = "René Raudales";
         let cacheMiembros = []; 
@@ -244,7 +234,7 @@
             renderizarMenuEspacios();
         });
 
-        /* 📢 SECCIÓN DE ANUNCIOS */
+        /* 📢 ANUNCIOS */
         async function cargarAnunciosDesdeSupabase() {
             const contenedor = document.getElementById('contenedor-anuncios');
             const { data: anuncios, error } = await supabaseClient
@@ -252,12 +242,7 @@
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                contenedor.innerHTML = `<div class="text-center p-1"><p class="text-[10px] text-gray-500">Tabla anuncios inactiva</p></div>`;
-                return;
-            }
-
-            if (!anuncios || anuncios.length === 0) {
+            if (error || !anuncios || anuncios.length === 0) {
                 contenedor.innerHTML = `<p class="text-xs text-gray-500 italic">No hay anuncios recientes.</p>`;
                 return;
             }
@@ -284,10 +269,8 @@
             await cargarAnunciosDesdeSupabase();
         }
 
-        /* ⚙️ MIEMBROS DEL EQUIPO */
+        /* ⚙️ INTEGRANTES DE LA BASE DE DATOS */
         async function sincronizarMiembrosYSelects() {
-            const selectResponsable = document.getElementById('form-responsable');
-            
             let { data: miembros, error } = await supabaseClient
                 .from('miembros')
                 .select('*')
@@ -302,11 +285,40 @@
                     return sincronizarMiembrosYSelects();
                 }
             }
+        }
 
+        // FUNCIÓN CLAVE: Agrupa y filtra miembros poniendo arriba a los del área actual, y abajo al resto
+        function actualizarSelectResponsables() {
+            const selectResponsable = document.getElementById('form-responsable');
             selectResponsable.innerHTML = '';
-            cacheMiembros.forEach(m => {
-                selectResponsable.innerHTML += `<option value="${m.nombre}">👤 ${m.nombre}</option>`;
-            });
+
+            // Obtener el objeto del área actual para saber el título (ej: "Audio")
+            const areaActualObj = AREAS_OFICIALES.find(a => a.id === tableroActualId);
+            const tituloAreaActual = areaActualObj ? areaActualObj.titulo : "";
+
+            // Separar miembros de esta área del resto del equipo
+            const delArea = cacheMiembros.filter(m => m.rol.toLowerCase() === tituloAreaActual.toLowerCase());
+            const otrosAreas = cacheMiembros.filter(m => m.rol.toLowerCase() !== tituloAreaActual.toLowerCase());
+
+            let htmlOptions = "";
+
+            if (delArea.length > 0) {
+                htmlOptions += `<optgroup label="✨ Miembros de ${tituloAreaActual}">`;
+                delArea.forEach(m => {
+                    htmlOptions += `<option value="${m.nombre}">👤 ${m.nombre}</option>`;
+                });
+                htmlOptions += `</optgroup>`;
+            }
+
+            if (otrosAreas.length > 0) {
+                htmlOptions += `<optgroup label="🌐 Resto del Personal (Otras Áreas)">`;
+                otrosAreas.forEach(m => {
+                    htmlOptions += `<option value="${m.nombre}">👤 ${m.nombre} (${m.rol})</option>`;
+                });
+                htmlOptions += `</optgroup>`;
+            }
+
+            selectResponsable.innerHTML = htmlOptions;
         }
 
         function abrirModalConfiguracion() {
@@ -319,7 +331,6 @@
         function renderizarListaConfigMiembros() {
             const listaDOM = document.getElementById('lista-config-miembros');
             listaDOM.innerHTML = '';
-
             cacheMiembros.forEach(m => {
                 const correoMostrar = m.correo ? m.correo : 'Sin correo';
                 listaDOM.innerHTML += `
@@ -361,7 +372,7 @@
             renderizarListaConfigMiembros();
         }
 
-        /* 🎨 RENDERIZADO CONTROLADO DE LOS 8 ESPACIOS EXCLUSIVOS */
+        /* 🎨 RENDERIZADO DEL MENÚ LATERAL DE ESPACIOS */
         function renderizarMenuEspacios() {
             const lista = document.getElementById('lista-espacios');
             lista.innerHTML = '';
@@ -403,13 +414,12 @@
             cargarColumnasYTasks();
         }
 
-        /* 🛠 KANBAN Y RENDERING SEGÚN EL ESPACIO SELECCIONADO */
+        /* 🛠 TABLERO KANBAN */
         async function cargarColumnasYTasks() {
             const contenedor = document.getElementById('tablero-columnas');
             let totalPorHacer = 0, totalEnProceso = 0, totalFinalizado = 0, totalVencidas = 0, totalGeneral = 0;
             const hoy = new Date();
 
-            // Usamos identificadores de segmentos fijos por cada área ("id_columna")
             const columnasPorDefecto = [
                 { id: `${tableroActualId}_todo`, nombre: "📋 Por Hacer" },
                 { id: `${tableroActualId}_proceso`, nombre: "🎬 En Proceso" },
@@ -533,8 +543,10 @@
 
         function abrirModalTarea(segmentoId) {
             document.getElementById('form-segmento-id').value = segmentoId;
+            actualizarSelectResponsables(); // Actualiza y agrupa el personal justo antes de abrir
             document.getElementById('modal-tarea').classList.remove('hidden');
         }
+        
         function cerrarModalTarea() {
             document.getElementById('modal-tarea').classList.add('hidden');
             document.getElementById('form-titulo').value = '';
