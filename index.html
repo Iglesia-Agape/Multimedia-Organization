@@ -322,8 +322,12 @@
                 <h3 id="modal-tarea-titulo-header" class="font-bold text-gray-200 text-base flex items-center gap-2">📝 Nueva Asignación</h3>
                 <button onclick="cerrarModalTarea()" class="text-gray-500 hover:text-white text-lg cursor-pointer">✕</button>
             </div>
-            <input type="hidden" id="form-segmento-id">
             <input type="hidden" id="form-tarea-id" value="">
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Estado / Columna</label>
+                <select id="form-segmento-id" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300"></select>
+            </div>
             
             <div>
                 <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Título de la asignación</label>
@@ -387,85 +391,89 @@
     </div>
 
     <div id="modal-configuracion" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-[#161619] border border-[#26262b] w-full max-w-lg rounded-xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
+        <div class="bg-[#161619] border border-[#26262b] w-full max-w-4xl rounded-xl p-6 shadow-2xl flex flex-col max-h-[88vh]">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3 shrink-0">
                 <h3 class="font-bold text-gray-200 text-base flex items-center gap-2">⚙️ Configuración del Ministerio</h3>
                 <button onclick="cerrarModalConfiguracion()" class="text-gray-500 hover:text-white cursor-pointer">✕</button>
             </div>
 
-            <button onclick="mostrarVistaCalendario()" class="mt-4 w-full flex items-center justify-between bg-[#1c1c21] hover:bg-[#222226] border border-[#2a2a33] rounded-xl p-3 transition cursor-pointer shrink-0">
-                <span class="text-sm font-semibold text-gray-200 flex items-center gap-2">📅 Ver Calendario de Eventos</span>
-                <span class="text-gray-500">→</span>
-            </button>
-            
-            <div class="bg-[#1c1c21] p-4 rounded-xl border border-[#2a2a33] mt-4 space-y-3 shrink-0">
-                <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1">📊 Métrica del Equipo (General)</p>
-                <p class="text-[10px] text-gray-500">Suma de todos los espacios de trabajo, no solo el actual.</p>
-                <div id="metrica-equipo-general" class="grid grid-cols-3 gap-2 text-center">
-                    <div class="bg-[#121214] p-2 rounded-lg border border-[#2a2a33]">
-                        <p class="text-[9px] text-gray-500 uppercase">Por Hacer</p>
-                        <p id="mg-por-hacer" class="text-sm font-bold text-gray-300">--</p>
+            <div class="mt-4 flex flex-col md:flex-row gap-4 overflow-y-auto flex-1 min-h-0">
+                <!-- Columna izquierda: acciones y configuración -->
+                <div class="flex-1 md:max-w-sm space-y-4">
+                    <button onclick="mostrarVistaCalendario()" class="w-full flex items-center justify-between bg-[#1c1c21] hover:bg-[#222226] border border-[#2a2a33] rounded-xl p-3 transition cursor-pointer shrink-0">
+                        <span class="text-sm font-semibold text-gray-200 flex items-center gap-2">📅 Ver Calendario de Eventos</span>
+                        <span class="text-gray-500">→</span>
+                    </button>
+
+                    <div class="bg-[#1c1c21] p-4 rounded-xl border border-[#2a2a33] space-y-3 shrink-0">
+                        <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1">📊 Métrica del Equipo (General)</p>
+                        <p class="text-[10px] text-gray-500">Suma de todos los espacios de trabajo, no solo el actual.</p>
+                        <div id="metrica-equipo-general" class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-[#121214] p-2 rounded-lg border border-[#2a2a33]">
+                                <p class="text-[9px] text-gray-500 uppercase">Por Hacer</p>
+                                <p id="mg-por-hacer" class="text-sm font-bold text-gray-300">--</p>
+                            </div>
+                            <div class="bg-[#121214] p-2 rounded-lg border border-[#2a2a33]">
+                                <p class="text-[9px] text-amber-500 uppercase">En Proceso</p>
+                                <p id="mg-en-proceso" class="text-sm font-bold text-amber-400">--</p>
+                            </div>
+                            <div class="bg-[#121214] p-2 rounded-lg border border-[#2a2a33]">
+                                <p class="text-[9px] text-emerald-500 uppercase">Finalizado</p>
+                                <p id="mg-finalizado" class="text-sm font-bold text-emerald-400">--</p>
+                            </div>
+                            <div class="bg-[#121214] p-2 rounded-lg border border-rose-500/20">
+                                <p class="text-[9px] text-rose-400 uppercase">Vencidas</p>
+                                <p id="mg-vencidas" class="text-sm font-bold text-rose-400">--</p>
+                            </div>
+                            <div class="bg-[#121214] p-2 rounded-lg border border-[#2a2a33]">
+                                <p class="text-[9px] text-gray-500 uppercase">Total</p>
+                                <p id="mg-total" class="text-sm font-bold text-white">--</p>
+                            </div>
+                            <div class="bg-[#121214] p-2 rounded-lg border border-indigo-500/20">
+                                <p class="text-[9px] text-indigo-400 uppercase">Eficiencia</p>
+                                <p id="mg-eficiencia" class="text-sm font-bold text-indigo-400">--</p>
+                            </div>
+                        </div>
+                        <div id="acciones-lider-metricas" class="hidden flex gap-2 pt-1">
+                            <button onclick="reiniciarMetricas()" class="flex-1 text-[10px] bg-[#121214] hover:bg-[#1a1a1e] border border-[#2a2a33] text-gray-300 rounded-lg py-2 cursor-pointer transition">🔄 Reiniciar Métricas</button>
+                            <button onclick="descargarReportePDF()" class="flex-1 text-[10px] bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg py-2 cursor-pointer transition">📄 Descargar Reporte</button>
+                        </div>
                     </div>
-                    <div class="bg-[#121214] p-2 rounded-lg border border-[#2a2a33]">
-                        <p class="text-[9px] text-amber-500 uppercase">En Proceso</p>
-                        <p id="mg-en-proceso" class="text-sm font-bold text-amber-400">--</p>
+
+                    <div id="seccion-auditoria-lider" class="hidden bg-[#1c1c21] p-4 rounded-xl border border-rose-500/15 space-y-2 shrink-0 max-h-40 overflow-y-auto">
+                        <p class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1">🗑️ Tareas Eliminadas (auditoría — solo Líder)</p>
+                        <div id="lista-auditoria-eliminadas" class="space-y-1.5"></div>
                     </div>
-                    <div class="bg-[#121214] p-2 rounded-lg border border-[#2a2a33]">
-                        <p class="text-[9px] text-emerald-500 uppercase">Finalizado</p>
-                        <p id="mg-finalizado" class="text-sm font-bold text-emerald-400">--</p>
-                    </div>
-                    <div class="bg-[#121214] p-2 rounded-lg border border-rose-500/20">
-                        <p class="text-[9px] text-rose-400 uppercase">Vencidas</p>
-                        <p id="mg-vencidas" class="text-sm font-bold text-rose-400">--</p>
-                    </div>
-                    <div class="bg-[#121214] p-2 rounded-lg border border-[#2a2a33]">
-                        <p class="text-[9px] text-gray-500 uppercase">Total</p>
-                        <p id="mg-total" class="text-sm font-bold text-white">--</p>
-                    </div>
-                    <div class="bg-[#121214] p-2 rounded-lg border border-indigo-500/20">
-                        <p class="text-[9px] text-indigo-400 uppercase">Eficiencia</p>
-                        <p id="mg-eficiencia" class="text-sm font-bold text-indigo-400">--</p>
+
+                    <div class="bg-[#1c1c21] p-4 rounded-xl border border-[#2a2a33] space-y-3 shrink-0">
+                        <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Agregar Integrante al Equipo</p>
+                        <div class="grid grid-cols-1 gap-2.5">
+                            <input type="text" id="config-nombre-miembro" placeholder="Nombre completo" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                            <input type="email" id="config-correo-miembro" placeholder="correo@ejemplo.com" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                            <select id="config-rol-miembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-300">
+                                <!-- Rol Líder con ID para control -->
+                                <option value="Líder" id="opt-lider">👑 Líder</option>
+                                <option value="Diseño gráfico">🎨 Diseño gráfico</option>
+                                <option value="Redes sociales">📱 Redes sociales</option>
+                                <option value="Fotografía">📸 Fotografía</option>
+                                <option value="Transmisión">📡 Transmisión</option>
+                                <option value="Proyección">🖥️ Proyección</option>
+                                <option value="Camarografía">🎥 Camarografía</option>
+                                <option value="Luces">💡 Luces</option>
+                                <option value="Audio">🎛️ Audio</option>
+                            </select>
+                        </div>
+                        <button onclick="agregarMiembroEquipo()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition cursor-pointer">
+                            ＋ Vincular Miembro Profesional
+                        </button>
                     </div>
                 </div>
-                <div id="acciones-lider-metricas" class="hidden flex gap-2 pt-1">
-                    <button onclick="reiniciarMetricas()" class="flex-1 text-[10px] bg-[#121214] hover:bg-[#1a1a1e] border border-[#2a2a33] text-gray-300 rounded-lg py-2 cursor-pointer transition">🔄 Reiniciar Métricas</button>
-                    <button onclick="descargarReportePDF()" class="flex-1 text-[10px] bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg py-2 cursor-pointer transition">📄 Descargar Reporte</button>
+
+                <!-- Columna derecha: lista de miembros, más ancha y legible -->
+                <div class="flex-1 md:min-w-[280px] bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-4 flex flex-col min-h-0">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 shrink-0">Miembros Activos en el Sistema</p>
+                    <div id="lista-config-miembros" class="space-y-2 overflow-y-auto flex-1"></div>
                 </div>
-            </div>
-
-            <div id="seccion-auditoria-lider" class="hidden bg-[#1c1c21] p-4 rounded-xl border border-rose-500/15 mt-4 space-y-2 shrink-0 max-h-40 overflow-y-auto">
-                <p class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1">🗑️ Tareas Eliminadas (auditoría — solo Líder)</p>
-                <div id="lista-auditoria-eliminadas" class="space-y-1.5"></div>
-            </div>
-
-            <div class="bg-[#1c1c21] p-4 rounded-xl border border-[#2a2a33] mt-4 space-y-3 shrink-0">
-                <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Agregar Integrante al Equipo</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <input type="text" id="config-nombre-miembro" placeholder="Nombre completo" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
-                    <input type="email" id="config-correo-miembro" placeholder="correo@ejemplo.com" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
-                    <div class="sm:col-span-2">
-                        <select id="config-rol-miembro" class="w-full bg-[#121214] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                            <!-- Rol Líder con ID para control -->
-                            <option value="Líder" id="opt-lider">👑 Líder</option>
-                            <option value="Diseño gráfico">🎨 Diseño gráfico</option>
-                            <option value="Redes sociales">📱 Redes sociales</option>
-                            <option value="Fotografía">📸 Fotografía</option>
-                            <option value="Transmisión">📡 Transmisión</option>
-                            <option value="Proyección">🖥️ Proyección</option>
-                            <option value="Camarografía">🎥 Camarografía</option>
-                            <option value="Luces">💡 Luces</option>
-                            <option value="Audio">🎛️ Audio</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="agregarMiembroEquipo()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-lg transition cursor-pointer">
-                    ＋ Vincular Miembro Profesional
-                </button>
-            </div>
-
-            <div class="mt-4 flex-1 overflow-y-auto pr-1">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Miembros Activos en el Sistema</p>
-                <div id="lista-config-miembros" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
             </div>
         </div>
     </div>
@@ -531,6 +539,7 @@
         let usuariosEnLinea = new Set();
         let mesCalendarioActual = new Date();
         let cacheEventos = [];
+        let cacheSegmentosActuales = [];
 
         window.addEventListener('DOMContentLoaded', async () => {
             verificarLiderEnRegistro();
@@ -776,20 +785,20 @@
             container.innerHTML = cacheMiembros.map(m => {
                 const enLinea = m.user_id && usuariosEnLinea.has(m.user_id);
                 return `
-                <div class="flex items-center justify-between p-2 bg-[#1c1c21] border border-[#222226] rounded-lg ${m.activo === false ? 'opacity-50' : ''}">
+                <div class="flex items-center justify-between p-3 bg-[#1c1c21] border border-[#222226] rounded-lg ${m.activo === false ? 'opacity-50' : ''}">
                     <div class="min-w-0 flex-1 pr-2">
-                        <p class="text-xs font-semibold text-gray-200 truncate flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full shrink-0 ${enLinea ? 'bg-emerald-400' : 'bg-gray-600'}" title="${enLinea ? 'En línea' : 'Desconectado'}"></span>
-                            ${m.nombre} ${m.activo === false ? '<span class="text-[9px] text-rose-400">(removido)</span>' : ''}
+                        <p class="text-sm font-semibold text-gray-200 truncate flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full shrink-0 ${enLinea ? 'bg-emerald-400' : 'bg-gray-600'}" title="${enLinea ? 'En línea' : 'Desconectado'}"></span>
+                            ${m.nombre} ${m.activo === false ? '<span class="text-[10px] text-rose-400">(removido)</span>' : ''}
                         </p>
-                        <p class="text-[10px] text-gray-400 font-mono truncate">${m.correo || 'Sin correo'}</p>
-                        <p class="text-[9px] ${enLinea ? 'text-emerald-400' : 'text-indigo-400'} mt-0.5">${enLinea ? '🟢 Activo ahora · ' : ''}${m.rol}</p>
+                        <p class="text-xs text-gray-400 font-mono truncate">${m.correo || 'Sin correo'}</p>
+                        <p class="text-[11px] ${enLinea ? 'text-emerald-400' : 'text-indigo-400'} mt-0.5">${enLinea ? '🟢 Activo ahora · ' : ''}${m.rol}</p>
                     </div>
                     <div>
-                        ${m.nombre === OPERADOR_ACTUAL ? '<span class="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>' :
+                        ${m.nombre === OPERADOR_ACTUAL ? '<span class="text-[10px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>' :
                           !yoSoyLider ? '' :
-                          m.activo === false ? `<button onclick="reactivarMiembroEquipo('${m.id}')" class="text-gray-500 hover:text-emerald-400 text-[10px] px-2 py-1 cursor-pointer transition">Reactivar</button>` :
-                          `<button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-xs px-2 py-1 cursor-pointer transition">✕</button>`}
+                          m.activo === false ? `<button onclick="reactivarMiembroEquipo('${m.id}')" class="text-gray-500 hover:text-emerald-400 text-xs px-2 py-1 cursor-pointer transition">Reactivar</button>` :
+                          `<button onclick="removerMiembroEquipo('${m.id}')" class="text-gray-600 hover:text-rose-500 text-sm px-2 py-1 cursor-pointer transition">✕</button>`}
                     </div>
                 </div>`;
             }).join('');
@@ -911,8 +920,17 @@
                         <p class="text-[11px] text-gray-300 truncate">${t.titulo}</p>
                         <p class="text-[9px] text-gray-500">Por ${t.eliminada_por || 'desconocido'} · ${new Date(t.eliminada_en).toLocaleString('es-HN', { dateStyle: 'short', timeStyle: 'short' })}</p>
                     </div>
-                    <button onclick="restaurarTareaEliminada('${t.id}')" class="text-[10px] text-emerald-400 hover:text-emerald-300 px-2 py-1 cursor-pointer shrink-0">Restaurar</button>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="restaurarTareaEliminada('${t.id}')" class="text-[10px] text-emerald-400 hover:text-emerald-300 px-2 py-1 cursor-pointer">Restaurar</button>
+                        <button onclick="purgarRegistroAuditoria('${t.id}')" title="Borrar este registro permanentemente" class="text-[10px] text-rose-500 hover:text-rose-400 px-1.5 py-1 cursor-pointer">✕</button>
+                    </div>
                 </div>`).join('');
+        }
+
+        async function purgarRegistroAuditoria(id) {
+            if (!confirm('Esto borra el registro de auditoría para siempre (la tarea ya estaba eliminada, esto solo limpia la lista). ¿Continuar?')) return;
+            await supabaseClient.from('tareas').delete().eq('id', id);
+            await cargarTareasEliminadas();
         }
 
         async function restaurarTareaEliminada(id) {
@@ -1266,6 +1284,7 @@
             const hoy = new Date();
 
             let { data: segments } = await supabaseClient.from('segmentos').select('*').eq('tablero_id', tableroActualId).order('posicion', { ascending: true });
+            cacheSegmentosActuales = segments || [];
 
             if (!segments || segments.length === 0) {
                 contenedor.innerHTML = `
@@ -1341,13 +1360,13 @@
                         const creadorEsLider = t.creado_por && cacheMiembros.some(m => m.nombre === t.creado_por && m.rol === 'Líder');
 
                         htmlTareas += `
-                            <div id="tarea-${t.id}" draggable="true" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)"
+                            <div id="tarea-${t.id}" draggable="${esFin ? 'false' : 'true'}" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)"
                                  onclick="abrirModalEditarTarea(event, '${t.id}')"
                                  data-id="${t.id}" data-segmento-id="${col.id}"
                                  data-titulo="${(t.titulo || '').replace(/"/g, '&quot;')}"
                                  data-prioridad="${t.prioridad}" data-responsable="${(t.responsable || '').replace(/"/g, '&quot;')}"
                                  data-fecha="${t.fecha_entrega || ''}" data-miniatura="${(t.miniatura_url || '').replace(/"/g, '&quot;')}"
-                                 class="bg-[#161619] border ${creadorEsLider ? 'border-l-2 border-l-indigo-500 ' : ''}${esVencida ? 'border-rose-500/40 bg-rose-500/[0.02]' : proximaAVencer ? 'border-amber-500/30' : 'border-[#222226]'} p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3 cursor-grab active:cursor-grabbing select-none relative">
+                                 class="bg-[#161619] border ${creadorEsLider ? 'border-l-2 border-l-indigo-500 ' : ''}${esVencida ? 'border-rose-500/40 bg-rose-500/[0.02]' : proximaAVencer ? 'border-amber-500/30' : 'border-[#222226]'} p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3 ${esFin ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'} select-none relative">
                                 <button onclick="event.stopPropagation(); eliminarTarea('${t.id}')" class="absolute top-3 right-3 text-gray-500 hover:text-rose-500 transition font-bold text-xs cursor-pointer opacity-0 group-hover:opacity-100 z-20">✕</button>
                                 ${t.miniatura_url ? `<img src="${t.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" draggable="false" />` : ''}
                                 <div class="flex items-start gap-1.5 pr-4">
@@ -1433,9 +1452,16 @@
             await cargarColumnasYTasks();
         }
 
+        function llenarSelectorEstado(segIdSeleccionado) {
+            const select = document.getElementById('form-segmento-id');
+            select.innerHTML = cacheSegmentosActuales.map(s =>
+                `<option value="${s.id}" ${s.id === segIdSeleccionado ? 'selected' : ''}>${s.nombre}</option>`
+            ).join('');
+        }
+
         function abrirModalTarea(segId) {
             document.getElementById('form-tarea-id').value = '';
-            document.getElementById('form-segmento-id').value = segId;
+            llenarSelectorEstado(segId);
             document.getElementById('form-titulo').value = '';
             document.getElementById('form-prioridad').value = 'Media';
             document.getElementById('form-miniatura').value = '';
@@ -1455,7 +1481,7 @@
             const d = card.dataset;
 
             document.getElementById('form-tarea-id').value = d.id;
-            document.getElementById('form-segmento-id').value = d.segmentoId;
+            llenarSelectorEstado(d.segmentoId);
             document.getElementById('form-titulo').value = d.titulo;
             document.getElementById('form-prioridad').value = d.prioridad;
             document.getElementById('form-responsable').value = d.responsable;
