@@ -445,7 +445,7 @@
 
             <div class="mt-4 flex flex-col md:flex-row gap-4 overflow-y-auto flex-1 min-h-0">
                 <!-- Columna izquierda: acciones y configuración -->
-                <div class="flex-1 md:max-w-sm space-y-4">
+                <div class="md:flex-1 md:max-w-sm space-y-4">
                     <button onclick="mostrarVistaCalendario()" class="w-full flex items-center justify-between bg-[#1c1c21] hover:bg-[#222226] border border-[#2a2a33] rounded-xl p-3 transition cursor-pointer shrink-0">
                         <span class="text-sm font-semibold text-gray-200 flex items-center gap-2">📅 Ver Calendario de Eventos</span>
                         <span class="text-gray-500">→</span>
@@ -525,9 +525,9 @@
                 </div>
 
                 <!-- Columna derecha: lista de miembros, más ancha y legible -->
-                <div class="flex-1 md:min-w-[280px] bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-4 flex flex-col min-h-0">
+                <div class="md:flex-1 md:min-w-[280px] bg-[#1c1c21] border border-[#2a2a33] rounded-xl p-4 md:flex md:flex-col md:min-h-0">
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 shrink-0">Miembros Activos en el Sistema</p>
-                    <div id="lista-config-miembros" class="space-y-2 overflow-y-auto flex-1"></div>
+                    <div id="lista-config-miembros" class="space-y-2 md:overflow-y-auto md:flex-1"></div>
                 </div>
             </div>
         </div>
