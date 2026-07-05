@@ -275,7 +275,7 @@
             </div>
         </header>
 
-        <section id="tablero-columnas" class="flex-1 p-4 sm:p-8 flex gap-4 sm:gap-6 overflow-x-auto items-start bg-[#0f0f11]">
+        <section id="tablero-columnas" class="flex-1 p-3 sm:p-8 flex gap-3 sm:gap-6 overflow-x-auto items-start bg-[#0f0f11] snap-x snap-proximity sm:snap-none">
             <div class="text-gray-600 text-xs animate-pulse flex items-center justify-center w-full h-48">
                 Leyendo flujos de trabajo en Supabase...
             </div>
@@ -426,7 +426,7 @@
     </div>
 
     <div id="modal-tarea" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4 modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-tarea-titulo-header">
-        <div class="modal-panel bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4">
+        <div class="modal-panel bg-[#161619] border border-[#26262b] w-full max-w-md rounded-xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-[#222226] pb-3">
                 <h3 id="modal-tarea-titulo-header" class="font-bold text-gray-200 text-base flex items-center gap-2">📝 Nueva Asignación</h3>
                 <button onclick="cerrarModalTarea()" class="text-gray-500 hover:text-white text-lg cursor-pointer">✕</button>
@@ -443,21 +443,25 @@
                 <input type="text" id="form-titulo" placeholder="Ej. Mezclar voces del servicio de adoración" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-200">
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Prioridad</label>
-                    <select id="form-prioridad" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                        <option value="Baja">🟢 Baja</option>
-                        <option value="Media" selected>🟡 Media</option>
-                        <option value="Alta">🟠 Alta</option>
-                        <option value="Urgente">🔴 Urgente</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Responsable</label>
-                    <select id="form-responsable" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
-                        </select>
-                </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Prioridad</label>
+                <select id="form-prioridad" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm focus:outline-hidden focus:border-indigo-500 text-gray-300">
+                    <option value="Baja">🟢 Baja</option>
+                    <option value="Media" selected>🟡 Media</option>
+                    <option value="Alta">🟠 Alta</option>
+                    <option value="Urgente">🔴 Urgente</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Responsables</label>
+                <div id="chips-responsables" class="flex flex-wrap gap-1.5 empty:hidden mb-1.5"></div>
+                <button type="button" onclick="toggleSelectorResponsables()" class="w-full bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2.5 text-sm text-left text-gray-400 hover:border-indigo-500/50 transition cursor-pointer flex items-center justify-between">
+                    <span id="texto-btn-selector-responsables">＋ Asignar personas</span>
+                    <span class="text-gray-600 text-xs">▾</span>
+                </button>
+                <div id="panel-selector-responsables" class="hidden mt-1.5 bg-[#121214] border border-[#2a2a33] rounded-lg p-1.5 max-h-40 overflow-y-auto space-y-0.5"></div>
+                <p class="text-[10px] text-gray-500 mt-1">⭐ marca a quienes ya pertenecen a esta área de trabajo.</p>
             </div>
 
             <div>
@@ -648,10 +652,13 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let tableroActualId = null;
+        let tableroActualTitulo = '';
         let filtroActual = 'todo';
         let OPERADOR_ACTUAL = null;
         let MODO_REGISTRO = false;
         let cacheMiembros = [];
+        let responsablesSeleccionados = [];
+        const PALETA_AVATARES = ['bg-indigo-500','bg-emerald-500','bg-amber-500','bg-rose-500','bg-sky-500','bg-fuchsia-500','bg-teal-500','bg-orange-500','bg-violet-500','bg-lime-600'];
         let canalRealtime = null;
         let canalPresencia = null;
         let usuariosEnLinea = new Set();
@@ -981,7 +988,6 @@
         }
 
         async function sincronizarMiembrosYSelects(session) {
-            const selectResponsable = document.getElementById('form-responsable');
             let { data: miembros } = await supabaseClient.from('miembros').select('*').order('nombre', { ascending: true });
 
             cacheMiembros = miembros || [];
@@ -1021,7 +1027,6 @@
                 document.getElementById('usuario-iniciales').innerText = miPerfil.nombre.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
             }
 
-            selectResponsable.innerHTML = cacheMiembros.filter(m => m.activo !== false).map(m => `<option value="${m.nombre}" ${m.nombre === OPERADOR_ACTUAL ? 'selected' : ''}>👤 ${m.nombre}</option>`).join('');
             verificarRolLider();
         }
 
@@ -1258,10 +1263,13 @@
                 porArea[nombreArea].total++;
                 if (esFin) porArea[nombreArea].finalizado++;
 
-                const resp = t.responsable || 'Sin asignar';
-                if (!porMiembro[resp]) porMiembro[resp] = { total: 0, finalizado: 0 };
-                porMiembro[resp].total++;
-                if (esFin) porMiembro[resp].finalizado++;
+                const listaResp = listaResponsablesDe(t);
+                const respsParaConteo = listaResp.length ? listaResp : ['Sin asignar'];
+                respsParaConteo.forEach(resp => {
+                    if (!porMiembro[resp]) porMiembro[resp] = { total: 0, finalizado: 0 };
+                    porMiembro[resp].total++;
+                    if (esFin) porMiembro[resp].finalizado++;
+                });
             });
 
             const { jsPDF } = window.jspdf;
@@ -1457,6 +1465,7 @@
 
                 const esActivo = tab.id === tableroActualId;
                 if (esActivo) {
+                    tableroActualTitulo = tab.titulo;
                     document.getElementById('tablero-titulo').innerText = tab.titulo;
                     document.getElementById('tablero-icono').innerText = icono;
                     establecerBannerFondo(tab.titulo);
@@ -1692,7 +1701,7 @@
             // Una sola query para TODAS las tareas activas del tablero (todas las columnas a la vez)
             let queryTareas = supabaseClient.from('tareas').select('*')
                 .in('segmento_id', idsSegmentos).eq('eliminada', false).eq('archivada', false);
-            if (filtroActual === 'asignados') queryTareas = queryTareas.eq('responsable', OPERADOR_ACTUAL);
+            if (filtroActual === 'asignados') queryTareas = queryTareas.contains('responsables', [OPERADOR_ACTUAL]);
             const { data: tareasRaw } = await queryTareas.order('posicion', { ascending: true });
             if (token !== cargarColumnasToken || tableroActualId !== tableroId) return;
 
@@ -1700,7 +1709,7 @@
             if (idsFinalizado.length > 0) {
                 let queryCredito = supabaseClient.from('tareas').select('id', { count: 'exact', head: true })
                     .in('segmento_id', idsFinalizado).eq('eliminada', true).eq('archivada', false);
-                if (filtroActual === 'asignados') queryCredito = queryCredito.eq('responsable', OPERADOR_ACTUAL);
+                if (filtroActual === 'asignados') queryCredito = queryCredito.contains('responsables', [OPERADOR_ACTUAL]);
                 const { count } = await queryCredito;
                 if (token !== cargarColumnasToken || tableroActualId !== tableroId) return;
                 totalFinalizado += count || 0;
@@ -1746,22 +1755,131 @@
                 }
 
                 htmlColumnas += `
-                    <div class="w-72 shrink-0 flex flex-col max-h-[calc(100vh-280px)] bg-[#121214]/60 p-4 rounded-xl border border-[#1c1c21]"
+                    <div class="w-[78vw] sm:w-72 shrink-0 flex flex-col max-h-[calc(100vh-260px)] bg-[#121214]/60 p-3 rounded-xl border border-[#1c1c21] snap-center"
                          data-columna-id="${col.id}" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${col.id}')">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex justify-between items-center mb-2.5">
                             <div class="flex items-center gap-2">
                                 <h3 class="font-semibold text-xs tracking-wide text-gray-300">${col.nombre}</h3>
                                 <span class="bg-[#1c1c21] text-[10px] text-gray-400 px-2 py-0.5 rounded-full font-bold">${tasks ? tasks.length : 0}</span>
                             </div>
                             <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold cursor-pointer" aria-label="Agregar tarea en ${col.nombre}">＋</button>
                         </div>
-                        <div class="space-y-3 overflow-y-auto pr-1 flex-1 lista-tareas-contenedor">${htmlTareas}</div>
+                        <div class="space-y-2 overflow-y-auto pr-1 flex-1 lista-tareas-contenedor">${htmlTareas}</div>
                     </div>`;
             }
 
             if (token !== cargarColumnasToken || tableroActualId !== tableroId) return;
             contenedor.innerHTML = htmlColumnas;
             actualizarMetricas(totalPorHacer, totalEnProceso, totalFinalizado, totalVencidas, totalProximas, totalGeneral);
+        }
+
+        // --- Utilidades de avatares para responsables múltiples ---
+        function colorAvatar(nombre) {
+            let hash = 0;
+            const n = nombre || '?';
+            for (let i = 0; i < n.length; i++) hash = n.charCodeAt(i) + ((hash << 5) - hash);
+            return PALETA_AVATARES[Math.abs(hash) % PALETA_AVATARES.length];
+        }
+        function inicialesDe(nombre) {
+            if (!nombre) return '?';
+            const partes = nombre.trim().split(/\s+/);
+            const ini = (partes[0]?.[0] || '') + (partes[1]?.[0] || '');
+            return (ini || nombre[0] || '?').toUpperCase();
+        }
+        // Devuelve la lista de nombres responsables de una tarea, con compatibilidad hacia atrás
+        // para tareas antiguas que solo tenían el campo de texto "responsable".
+        function listaResponsablesDe(t) {
+            if (Array.isArray(t.responsables) && t.responsables.length) return t.responsables;
+            if (t.responsable) return t.responsable.split(',').map(s => s.trim()).filter(Boolean);
+            return [];
+        }
+        // Genera el stack de avatares superpuestos (estilo Notion) para mostrar en la tarjeta.
+        function renderizarAvataresResponsables(lista) {
+            if (!lista || !lista.length) return `<span class="text-[9px] text-gray-600">Sin asignar</span>`;
+            const max = 3;
+            const visibles = lista.slice(0, max);
+            let html = visibles.map(n => `<div class="w-5 h-5 rounded-full ${colorAvatar(n)} border-2 border-[#161619] flex items-center justify-center text-[8px] font-bold text-white shrink-0" title="${(n || '').replace(/"/g, '&quot;')}">${inicialesDe(n)}</div>`).join('');
+            if (lista.length > max) {
+                html += `<div class="w-5 h-5 rounded-full bg-[#2a2a30] border-2 border-[#161619] flex items-center justify-center text-[8px] font-bold text-gray-300 shrink-0" title="${lista.slice(max).join(', ').replace(/"/g, '&quot;')}">+${lista.length - max}</div>`;
+            }
+            return `<div class="flex -space-x-1.5">${html}</div>`;
+        }
+
+        // --- Selector múltiple de responsables (dentro del modal de tarea) ---
+        // Ordena a los miembros activos priorizando quienes pertenecen al área/espacio
+        // de trabajo actual (comparando su rol con el título del tablero abierto).
+        function miembrosOrdenadosParaAsignar() {
+            const activos = cacheMiembros.filter(m => m.activo !== false);
+            const tituloActual = (tableroActualTitulo || '').toLowerCase();
+            return activos.slice().sort((a, b) => {
+                const aMatch = a.rol && a.rol.toLowerCase() === tituloActual;
+                const bMatch = b.rol && b.rol.toLowerCase() === tituloActual;
+                if (aMatch !== bMatch) return aMatch ? -1 : 1;
+                const aLider = a.rol === 'Líder', bLider = b.rol === 'Líder';
+                if (aLider !== bLider) return aLider ? -1 : 1;
+                return (a.nombre || '').localeCompare(b.nombre || '');
+            });
+        }
+
+        function renderizarPanelSelectorResponsables() {
+            const panel = document.getElementById('panel-selector-responsables');
+            if (!panel) return;
+            const miembros = miembrosOrdenadosParaAsignar();
+            const tituloActual = (tableroActualTitulo || '').toLowerCase();
+            if (!miembros.length) {
+                panel.innerHTML = `<p class="text-[11px] text-gray-500 text-center py-2">No hay miembros disponibles.</p>`;
+                return;
+            }
+            panel.innerHTML = miembros.map(m => {
+                const seleccionado = responsablesSeleccionados.includes(m.nombre);
+                const esDeEstaArea = m.rol && m.rol.toLowerCase() === tituloActual;
+                const nombreEscapado = (m.nombre || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return `
+                <button type="button" onclick="toggleResponsable('${nombreEscapado}')"
+                    class="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left transition cursor-pointer ${seleccionado ? 'bg-indigo-500/10' : 'hover:bg-[#1c1c21]'}">
+                    <div class="w-6 h-6 rounded-full ${colorAvatar(m.nombre)} flex items-center justify-center text-[9px] font-bold text-white shrink-0">${inicialesDe(m.nombre)}</div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs text-gray-200 truncate">${m.nombre}</p>
+                        <p class="text-[9px] ${esDeEstaArea ? 'text-indigo-400' : 'text-gray-500'} truncate">${esDeEstaArea ? '⭐ ' : ''}${m.rol || ''}</p>
+                    </div>
+                    <span class="text-xs font-bold ${seleccionado ? 'text-indigo-400' : 'text-transparent'} shrink-0">✓</span>
+                </button>`;
+            }).join('');
+        }
+
+        function renderizarChipsResponsables() {
+            const cont = document.getElementById('chips-responsables');
+            if (!cont) return;
+            if (!responsablesSeleccionados.length) { cont.innerHTML = ''; return; }
+            cont.innerHTML = responsablesSeleccionados.map(n => {
+                const nombreEscapado = (n || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return `
+                <span class="inline-flex items-center gap-1.5 bg-[#1c1c21] border border-[#2a2a33] rounded-full pl-1 pr-2 py-1">
+                    <span class="w-5 h-5 rounded-full ${colorAvatar(n)} flex items-center justify-center text-[8px] font-bold text-white shrink-0">${inicialesDe(n)}</span>
+                    <span class="text-xs text-gray-200">${n}</span>
+                    <button type="button" onclick="quitarResponsable('${nombreEscapado}')" class="text-gray-500 hover:text-rose-400 text-[10px] font-bold cursor-pointer">✕</button>
+                </span>`;
+            }).join('');
+        }
+
+        function toggleResponsable(nombre) {
+            const idx = responsablesSeleccionados.indexOf(nombre);
+            if (idx === -1) responsablesSeleccionados.push(nombre); else responsablesSeleccionados.splice(idx, 1);
+            renderizarChipsResponsables();
+            renderizarPanelSelectorResponsables();
+        }
+
+        function quitarResponsable(nombre) {
+            responsablesSeleccionados = responsablesSeleccionados.filter(n => n !== nombre);
+            renderizarChipsResponsables();
+            renderizarPanelSelectorResponsables();
+        }
+
+        function toggleSelectorResponsables() {
+            const panel = document.getElementById('panel-selector-responsables');
+            const btnTexto = document.getElementById('texto-btn-selector-responsables');
+            panel.classList.toggle('hidden');
+            if (btnTexto) btnTexto.innerText = panel.classList.contains('hidden') ? '＋ Asignar personas' : '▴ Cerrar lista';
         }
 
         // Genera el HTML de una sola tarjeta de tarea. Extraído como función independiente
@@ -1780,49 +1898,60 @@
                 }
             }
 
-            let bColor = "bg-gray-800 text-gray-400";
-            if (t.prioridad === 'Alta') bColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-            if (t.prioridad === 'Urgente') bColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
+            // Estilo Notion: la prioridad se indica con una barra de color a la izquierda
+            // en vez de un borde completo alrededor de toda la tarjeta.
+            let barraPrioridad = "border-l-gray-600";
+            let textoPrioridad = "text-gray-500";
+            if (t.prioridad === 'Media') { barraPrioridad = "border-l-sky-500"; textoPrioridad = "text-sky-400"; }
+            if (t.prioridad === 'Alta') { barraPrioridad = "border-l-amber-500"; textoPrioridad = "text-amber-400"; }
+            if (t.prioridad === 'Urgente') { barraPrioridad = "border-l-rose-500"; textoPrioridad = "text-rose-400"; }
+
+            let claseFondoEstado = '';
+            if (esVencida) claseFondoEstado = 'bg-rose-500/[0.04]';
+            else if (proximaAVencer) claseFondoEstado = 'bg-amber-500/[0.03]';
 
             let chipFecha = '';
             if (t.fecha_entrega) {
                 const [y, m, d] = t.fecha_entrega.split('-');
                 const fechaLegible = `${d}/${m}`;
-                let claseFecha = "bg-[#1c1c21] text-gray-400 border-[#26262b]";
-                let textoFecha = `📅 ${fechaLegible}`;
+                let claseFecha = "text-gray-500";
+                let textoFecha = fechaLegible;
                 if (esVencida) {
-                    claseFecha = "bg-rose-500/10 text-rose-400 border-rose-500/20";
-                    textoFecha = `⚠️ Venció ${fechaLegible}`;
+                    claseFecha = "text-rose-400 font-semibold";
+                    textoFecha = `Venció ${fechaLegible}`;
                 } else if (proximaAVencer) {
-                    claseFecha = "bg-amber-500/10 text-amber-400 border-amber-500/20";
-                    textoFecha = diasRestantes === 0 ? `⏰ Hoy` : diasRestantes === 1 ? `⏰ Mañana` : `⏰ ${fechaLegible}`;
+                    claseFecha = "text-amber-400 font-semibold";
+                    textoFecha = diasRestantes === 0 ? `Hoy` : diasRestantes === 1 ? `Mañana` : fechaLegible;
                 }
-                chipFecha = `<span class="text-[10px] font-medium px-2 py-0.5 rounded border ${claseFecha}">${textoFecha}</span>`;
+                chipFecha = `<span class="text-[9px] ${claseFecha} shrink-0">📅 ${textoFecha}</span>`;
             }
 
             const creadorEsLider = t.creado_por && cacheMiembros.some(m => m.nombre === t.creado_por && m.rol === 'Líder');
+            const listaResp = listaResponsablesDe(t);
+            const responsablesJSON = JSON.stringify(listaResp).replace(/"/g, '&quot;');
 
             const html = `
                 <div id="tarea-${t.id}" tabindex="0" draggable="${esFin ? 'false' : 'true'}" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)"
                      onclick="abrirModalEditarTarea(event, '${t.id}')" onkeydown="if(event.key==='Enter'){abrirModalEditarTarea(event, '${t.id}')}"
                      data-id="${t.id}" data-segmento-id="${col.id}"
                      data-titulo="${(t.titulo || '').replace(/"/g, '&quot;')}"
-                     data-prioridad="${t.prioridad}" data-responsable="${(t.responsable || '').replace(/"/g, '&quot;')}"
+                     data-prioridad="${t.prioridad}" data-responsable="${(t.responsable || listaResp.join(', ')).replace(/"/g, '&quot;')}"
+                     data-responsables="${responsablesJSON}"
                      data-fecha="${t.fecha_entrega || ''}" data-miniatura="${(t.miniatura_url || '').replace(/"/g, '&quot;')}"
-                     class="tarea-card bg-[#161619] border ${creadorEsLider ? 'border-l-2 border-l-indigo-500 ' : ''}${esVencida ? 'border-rose-500/40 bg-rose-500/[0.02]' : proximaAVencer ? 'border-amber-500/30' : 'border-[#222226]'} p-4 rounded-xl shadow-xs hover:border-indigo-500/40 transition group space-y-3 ${esFin ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'} select-none relative"
-                     role="button" aria-label="${(t.titulo || 'Tarea').replace(/"/g, '&quot;')}, prioridad ${t.prioridad}, asignado a ${t.responsable || 'sin asignar'}">
-                    <button onclick="event.stopPropagation(); eliminarTarea('${t.id}')" class="absolute top-3 right-3 text-gray-500 hover:text-rose-500 transition font-bold text-xs cursor-pointer opacity-0 group-hover:opacity-100 z-20" aria-label="Eliminar tarea">✕</button>
-                    ${t.miniatura_url ? `<img src="${t.miniatura_url}" class="w-full h-28 object-cover rounded-lg border border-[#222226]" draggable="false" alt="" />` : ''}
-                    <div class="flex items-start gap-1.5 pr-4">
-                        ${creadorEsLider ? `<span class="text-[10px] shrink-0 mt-0.5" title="Asignada por la Líder">👑</span>` : ''}
-                        <h4 class="font-medium text-xs text-gray-200 group-hover:text-white leading-tight">${t.titulo}</h4>
+                     class="tarea-card bg-[#161619] ${claseFondoEstado} border-l-[3px] ${barraPrioridad} hover:bg-[#1b1b1f] transition group space-y-1.5 px-2.5 py-2 rounded-md ${esFin ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'} select-none relative"
+                     role="button" aria-label="${(t.titulo || 'Tarea').replace(/"/g, '&quot;')}, prioridad ${t.prioridad}, asignado a ${listaResp.join(', ') || 'sin asignar'}">
+                    <button onclick="event.stopPropagation(); eliminarTarea('${t.id}')" class="absolute top-1.5 right-1.5 text-gray-500 hover:text-rose-500 transition font-bold text-[10px] cursor-pointer opacity-0 group-hover:opacity-100 z-20 w-5 h-5 flex items-center justify-center" aria-label="Eliminar tarea">✕</button>
+                    ${t.miniatura_url ? `<img src="${t.miniatura_url}" class="w-full h-14 object-cover rounded-md border border-[#222226]" draggable="false" alt="" />` : ''}
+                    <div class="flex items-start gap-1 pr-4">
+                        ${creadorEsLider ? `<span class="text-[9px] shrink-0 mt-0.5" title="Asignada por la Líder">👑</span>` : ''}
+                        <h4 class="font-medium text-[12px] text-gray-200 group-hover:text-white leading-snug line-clamp-2">${t.titulo}</h4>
                     </div>
-                    <div class="flex items-center justify-between pt-1 gap-2">
-                        <span class="text-[9px] px-2 py-0.5 rounded-md font-semibold shrink-0 ${bColor}">${t.prioridad}</span>
-                        ${chipFecha}
-                    </div>
-                    <div class="flex items-center justify-between pt-1">
-                        <span class="text-[10px] text-gray-400 font-medium bg-[#1c1c21] px-2 py-0.5 rounded border border-[#26262b]">👤 ${t.responsable}</span>
+                    <div class="flex items-center justify-between gap-1.5">
+                        <div class="flex items-center min-w-0">${renderizarAvataresResponsables(listaResp)}</div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="text-[9px] font-semibold ${textoPrioridad}">${t.prioridad}</span>
+                            ${chipFecha}
+                        </div>
                     </div>
                 </div>`;
 
@@ -1871,9 +2000,11 @@
                 const dest = col.querySelector('.lista-tareas-contenedor');
                 const empty = dest.querySelector('.empty-state-msg'); if (empty) empty.remove();
 
+                let responsablesPlano = [];
+                if (tDOM.dataset.responsables) { try { responsablesPlano = JSON.parse(tDOM.dataset.responsables); } catch (err) { responsablesPlano = []; } }
                 const tareaPlano = {
                     id: tId, titulo: tDOM.dataset.titulo, prioridad: tDOM.dataset.prioridad,
-                    responsable: tDOM.dataset.responsable, fecha_entrega: tDOM.dataset.fecha || null,
+                    responsable: tDOM.dataset.responsable, responsables: responsablesPlano, fecha_entrega: tDOM.dataset.fecha || null,
                     miniatura_url: tDOM.dataset.miniatura || null,
                     creado_por: tDOM.querySelector('[title="Asignada por la Líder"]') ? OPERADOR_ACTUAL : null
                 };
@@ -1960,6 +2091,11 @@
             document.getElementById('miniatura-estado').innerText = '';
             document.getElementById('miniatura-preview').classList.add('hidden');
             document.getElementById('form-fecha').value = '';
+            responsablesSeleccionados = [];
+            document.getElementById('panel-selector-responsables').classList.add('hidden');
+            document.getElementById('texto-btn-selector-responsables').innerText = '＋ Asignar personas';
+            renderizarChipsResponsables();
+            renderizarPanelSelectorResponsables();
             document.getElementById('modal-tarea-titulo-header').innerText = '📝 Nueva Asignación';
             document.getElementById('boton-guardar-tarea').innerText = '🚀 Desplegar Asignación';
             abrirModal('modal-tarea');
@@ -1975,7 +2111,14 @@
             llenarSelectorEstado(d.segmentoId);
             document.getElementById('form-titulo').value = d.titulo;
             document.getElementById('form-prioridad').value = d.prioridad;
-            document.getElementById('form-responsable').value = d.responsable;
+            let listaResp = [];
+            if (d.responsables) { try { listaResp = JSON.parse(d.responsables); } catch (err) { listaResp = []; } }
+            if (!listaResp.length && d.responsable) listaResp = d.responsable.split(',').map(s => s.trim()).filter(Boolean);
+            responsablesSeleccionados = listaResp;
+            document.getElementById('panel-selector-responsables').classList.add('hidden');
+            document.getElementById('texto-btn-selector-responsables').innerText = '＋ Asignar personas';
+            renderizarChipsResponsables();
+            renderizarPanelSelectorResponsables();
             document.getElementById('form-fecha').value = d.fecha;
             document.getElementById('form-miniatura').value = d.miniatura;
             document.getElementById('form-miniatura-archivo').value = '';
@@ -2031,43 +2174,57 @@
             const segId = document.getElementById('form-segmento-id').value;
             const titulo = document.getElementById('form-titulo').value.trim();
             const prioridad = document.getElementById('form-prioridad').value;
-            const resp = document.getElementById('form-responsable').value;
             const mini = document.getElementById('form-miniatura').value;
             const fecha = document.getElementById('form-fecha').value;
 
             if(!titulo) return alert("Escribe un título.");
+            if(!responsablesSeleccionados.length) return alert("Asigna al menos una persona responsable.");
 
             const restaurarBoton = botonCargando(document.getElementById('boton-guardar-tarea'), 'Guardando...');
 
-            const datosTarea = { segmento_id: segId, titulo, prioridad, responsable: resp, miniatura_url: mini || null, fecha_entrega: fecha || null };
-            const miembroAsignado = cacheMiembros.find(m => m.nombre === resp);
+            const listaResp = responsablesSeleccionados.slice();
+            const datosTarea = { segmento_id: segId, titulo, prioridad, responsables: listaResp, responsable: listaResp.join(', '), miniatura_url: mini || null, fecha_entrega: fecha || null };
 
             if (!tareaId) datosTarea.creado_por = OPERADOR_ACTUAL;
 
             try {
+                let nuevosParaNotificar = listaResp;
+
                 if (tareaId) {
-                    // Modo edición: ver si el responsable cambió antes de actualizar
+                    // Modo edición: notifica solo a las personas recién agregadas (no a las que ya estaban).
                     const card = document.getElementById(`tarea-${tareaId}`);
-                    const responsableAnterior = card ? card.dataset.responsable : null;
+                    let responsablesAnteriores = [];
+                    if (card && card.dataset.responsables) {
+                        try { responsablesAnteriores = JSON.parse(card.dataset.responsables); } catch (err) { responsablesAnteriores = []; }
+                    }
+                    nuevosParaNotificar = listaResp.filter(n => !responsablesAnteriores.includes(n));
 
                     await supabaseClient.from('tareas').update(datosTarea).eq('id', tareaId);
 
-                    if (responsableAnterior !== resp && miembroAsignado && miembroAsignado.user_id) {
-                        await supabaseClient.from('notificaciones').insert([{
-                            miembro_user_id: miembroAsignado.user_id,
-                            tarea_id: tareaId,
-                            tarea_titulo: titulo
-                        }]);
+                    for (const nombre of nuevosParaNotificar) {
+                        const miembro = cacheMiembros.find(m => m.nombre === nombre);
+                        if (miembro && miembro.user_id) {
+                            await supabaseClient.from('notificaciones').insert([{
+                                miembro_user_id: miembro.user_id,
+                                tarea_id: tareaId,
+                                tarea_titulo: titulo
+                            }]);
+                        }
                     }
                 } else {
                     // Modo creación
                     const { data: nuevaTarea } = await supabaseClient.from('tareas').insert([datosTarea]).select();
-                    if (nuevaTarea && nuevaTarea[0] && miembroAsignado && miembroAsignado.user_id) {
-                        await supabaseClient.from('notificaciones').insert([{
-                            miembro_user_id: miembroAsignado.user_id,
-                            tarea_id: nuevaTarea[0].id,
-                            tarea_titulo: titulo
-                        }]);
+                    if (nuevaTarea && nuevaTarea[0]) {
+                        for (const nombre of nuevosParaNotificar) {
+                            const miembro = cacheMiembros.find(m => m.nombre === nombre);
+                            if (miembro && miembro.user_id) {
+                                await supabaseClient.from('notificaciones').insert([{
+                                    miembro_user_id: miembro.user_id,
+                                    tarea_id: nuevaTarea[0].id,
+                                    tarea_titulo: titulo
+                                }]);
+                            }
+                        }
                     }
                 }
 
@@ -2095,7 +2252,8 @@
             const q = texto.trim().toLowerCase();
             document.querySelectorAll('[id^="tarea-"]').forEach(card => {
                 const titulo = (card.dataset.titulo || '').toLowerCase();
-                card.style.display = (!q || titulo.includes(q)) ? '' : 'none';
+                const responsables = (card.dataset.responsable || '').toLowerCase();
+                card.style.display = (!q || titulo.includes(q) || responsables.includes(q)) ? '' : 'none';
             });
         }
 
