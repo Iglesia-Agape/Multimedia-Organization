@@ -1680,17 +1680,21 @@
 
         // Avisa a todo el equipo (excepto a quien lo creó) cuando se agenda un evento nuevo.
         async function notificarEventoATodos(titulo, fecha) {
-            const [y, m, d] = fecha.split('-');
-            const tituloNotificacion = `📅 Nuevo evento: ${titulo} (${d}/${m}/${y})`;
+            const [anio, mes, dia] = fecha.split('-');
+            const fechaLegible = `${dia}/${mes}/${anio}`;
+            const tituloNotificacion = `📅 Nuevo evento: ${titulo} (${fechaLegible})`;
             const destinatarios = cacheMiembros.filter(m => m.activo !== false && m.user_id && m.nombre !== OPERADOR_ACTUAL);
             if (destinatarios.length === 0) return;
 
             const filas = destinatarios.map(m => ({
                 miembro_user_id: m.user_id,
                 tarea_id: null,
-                tarea_titulo: tituloNotificacion
+                tarea_titulo: tituloNotificacion,
+                tipo: 'evento'
             }));
             await supabaseClient.from('notificaciones').insert(filas);
+
+            destinatarios.forEach(m => enviarPushANotificacion(m.user_id, 'Nuevo evento agendado', `${titulo} — ${fechaLegible}`));
         }
 
         async function eliminarEvento() {
