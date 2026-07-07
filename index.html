@@ -477,6 +477,15 @@
                 <img id="miniatura-preview" class="hidden w-full h-24 object-cover rounded-lg border border-[#222226] mt-2" />
             </div>
 
+            <div id="seccion-comentarios-tarea" class="hidden border-t border-[#222226] pt-3">
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">💬 Comentarios</label>
+                <div id="lista-comentarios-tarea" class="space-y-2 max-h-40 overflow-y-auto mb-2 pr-1"></div>
+                <div class="flex gap-2">
+                    <input type="text" id="input-nuevo-comentario" placeholder="Escribe un comentario..." onkeydown="if(event.key==='Enter'){event.preventDefault(); enviarComentarioTarea();}" class="flex-1 bg-[#1c1c21] border border-[#2a2a33] rounded-lg p-2 text-xs focus:outline-hidden focus:border-indigo-500 text-gray-200">
+                    <button type="button" onclick="enviarComentarioTarea()" class="px-3 bg-[#1c1c21] hover:bg-indigo-600 border border-[#2a2a33] hover:border-indigo-600 text-gray-300 hover:text-white rounded-lg text-xs font-medium transition cursor-pointer">Enviar</button>
+                </div>
+            </div>
+
             <button id="boton-guardar-tarea" onclick="guardarTarea()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition cursor-pointer">
                 🚀 Desplegar Asignación
             </button>
@@ -500,6 +509,8 @@
             </div>
         </div>
     </div>
+
+    <div id="menu-mover-tarea" class="hidden fixed z-50 bg-[#161619] border border-[#2a2a33] rounded-lg shadow-2xl py-1 min-w-[170px] max-w-[220px]"></div>
 
     <div id="modal-espacio" class="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center hidden z-50 p-4 modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-espacio-titulo">
         <div class="modal-panel bg-[#161619] border border-[#26262b] w-full max-w-sm rounded-xl p-6 shadow-2xl space-y-4">
@@ -647,6 +658,13 @@
             <button id="boton-guardar-perfil" onclick="guardarMiPerfil()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg transition cursor-pointer">
                 💾 Guardar Cambios
             </button>
+
+            <div class="border-t border-[#222226] pt-3">
+                <button id="boton-activar-push" onclick="activarNotificacionesPush()" class="w-full py-2.5 bg-[#1c1c21] hover:bg-[#232328] border border-[#2a2a33] text-gray-300 font-medium text-sm rounded-lg transition cursor-pointer flex items-center justify-center gap-2">
+                    🔔 Activar notificaciones push
+                </button>
+                <p id="texto-estado-push" class="text-[10px] text-gray-500 mt-1.5 text-center"></p>
+            </div>
         </div>
     </div>
 
@@ -677,6 +695,9 @@
         let cacheMiembros = [];
         let responsablesSeleccionados = [];
         const PALETA_AVATARES = ['bg-indigo-500','bg-emerald-500','bg-amber-500','bg-rose-500','bg-sky-500','bg-fuchsia-500','bg-teal-500','bg-orange-500','bg-violet-500','bg-lime-600'];
+        // Llave pública VAPID para notificaciones push del navegador. La llave privada correspondiente
+        // vive solo en el servidor (Supabase Edge Function), nunca en este archivo.
+        const VAPID_PUBLIC_KEY = "BPOfzUmxLB1HhtM1OIhiyrQpkd6VeGOCP-ir5QPgqyGJO_35sZA4TzXWDlSvIAsZ0JJp-120x6_4APL-eu8KdHA";
         let canalRealtime = null;
         let canalPresencia = null;
         let usuariosEnLinea = new Set();
@@ -882,6 +903,7 @@
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
             document.getElementById('tablero-columnas').innerHTML = '';
+            registrarServiceWorker();
             await sincronizarMiembrosYSelects(session);
             await cargarAnunciosDesdeSupabase();
             await cargarEspaciosDeTrabajo();
@@ -1139,6 +1161,7 @@
             optLider.style.display = (yaHayOtroLider && miPerfil.rol !== 'Líder') ? 'none' : 'block';
 
             abrirModal('modal-mi-perfil');
+            actualizarEstadoTextoPush();
         }
 
         async function guardarMiPerfil() {
@@ -1969,6 +1992,7 @@
                         <div class="flex items-center gap-2 shrink-0">
                             <span class="text-[9px] font-semibold ${textoPrioridad}">${t.prioridad}</span>
                             ${chipFecha}
+                            <button type="button" data-boton-mover onclick="event.stopPropagation(); abrirMenuMoverTarea(event, '${t.id}', '${col.id}')" class="text-gray-500 hover:text-indigo-400 transition text-[12px] leading-none cursor-pointer shrink-0 w-4 h-4 flex items-center justify-center" title="Mover a otra columna">⇅</button>
                         </div>
                     </div>
                 </div>`;
@@ -2006,17 +2030,24 @@
             const col = e.currentTarget; col.classList.remove('drag-over');
             const tId = e.dataTransfer.getData("text/plain");
             if (!tId) return;
+            await moverTareaAColumna(tId, colId);
+        }
 
+        // Mueve una tarea a otra columna, actualizando la UI al instante (optimista) y luego
+        // guardando el cambio en la base de datos. La usan tanto el drag&drop (escritorio)
+        // como el menú "⇅ Mover a..." (para pantallas táctiles, donde no existe drag&drop nativo).
+        async function moverTareaAColumna(tId, colDestinoId) {
             const tDOM = document.getElementById(`tarea-${tId}`);
-            const colOrigenId = tDOM ? tDOM.dataset.segmentoId : null;
-            if (colOrigenId === colId) return; // soltó en la misma columna, nada que hacer
+            if (!tDOM) return;
+            const colOrigenId = tDOM.dataset.segmentoId;
+            if (colOrigenId === colDestinoId) return;
 
-            const colDestino = cacheSegmentosActuales.find(s => s.id === colId);
+            const colDestino = cacheSegmentosActuales.find(s => s.id === colDestinoId);
             const esFinDestino = colDestino && colDestino.nombre.toLowerCase().match(/(finalizado|listo|terminado)/);
+            const contenedorDestino = document.querySelector(`[data-columna-id="${colDestinoId}"] .lista-tareas-contenedor`);
 
-            if (tDOM) {
-                const dest = col.querySelector('.lista-tareas-contenedor');
-                const empty = dest.querySelector('.empty-state-msg'); if (empty) empty.remove();
+            if (contenedorDestino) {
+                const empty = contenedorDestino.querySelector('.empty-state-msg'); if (empty) empty.remove();
 
                 let responsablesPlano = [];
                 if (tDOM.dataset.responsables) { try { responsablesPlano = JSON.parse(tDOM.dataset.responsables); } catch (err) { responsablesPlano = []; } }
@@ -2029,17 +2060,55 @@
                 const { html } = renderizarTarjetaTarea(tareaPlano, colDestino || { nombre: '' }, esFinDestino, new Date());
                 const temp = document.createElement('div');
                 temp.innerHTML = html.trim();
-                const nuevaTarjeta = temp.firstElementChild;
-                dest.appendChild(nuevaTarjeta);
+                contenedorDestino.appendChild(temp.firstElementChild);
                 tDOM.remove();
 
                 actualizarContadorColumna(colOrigenId);
-                actualizarContadorColumna(colId);
+                actualizarContadorColumna(colDestinoId);
             }
 
-            await supabaseClient.from('tareas').update({ segmento_id: colId }).eq('id', tId);
+            await supabaseClient.from('tareas').update({ segmento_id: colDestinoId }).eq('id', tId);
             await cargarColumnasYTasks();
         }
+
+        // Menú flotante "Mover a..." pensado para pantallas táctiles, donde arrastrar
+        // tarjetas (drag & drop nativo del navegador) no funciona con el dedo.
+        function abrirMenuMoverTarea(e, tareaId, colOrigenId) {
+            const menu = document.getElementById('menu-mover-tarea');
+            const otras = cacheSegmentosActuales.filter(s => s.id !== colOrigenId);
+            if (!otras.length) return;
+
+            menu.innerHTML = `
+                <p class="text-[10px] uppercase tracking-wide text-gray-500 font-semibold px-3 pt-2 pb-1">Mover a</p>
+                ${otras.map(s => `<button type="button" onclick="event.stopPropagation(); cerrarMenuMoverTarea(); moverTareaAColumna('${tareaId}', '${s.id}')" class="w-full text-left px-3 py-2 text-xs text-gray-200 hover:bg-[#232328] transition cursor-pointer truncate">➜ ${s.nombre}</button>`).join('')}
+            `;
+
+            menu.classList.remove('hidden');
+            const btnRect = e.currentTarget.getBoundingClientRect();
+            const anchoMenu = menu.offsetWidth;
+            const altoMenu = menu.offsetHeight;
+
+            let izquierda = btnRect.right - anchoMenu;
+            izquierda = Math.min(izquierda, window.innerWidth - anchoMenu - 12);
+            izquierda = Math.max(izquierda, 12);
+
+            let arriba = btnRect.bottom + 6;
+            if (arriba + altoMenu > window.innerHeight - 12) arriba = btnRect.top - altoMenu - 6;
+
+            menu.style.left = `${izquierda}px`;
+            menu.style.top = `${arriba}px`;
+        }
+
+        function cerrarMenuMoverTarea() {
+            document.getElementById('menu-mover-tarea').classList.add('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('menu-mover-tarea');
+            if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target) && !e.target.closest('[data-boton-mover]')) {
+                menu.classList.add('hidden');
+            }
+        });
 
         // Actualiza solo el contador numérico de tareas visibles en el encabezado de una columna,
         // sin reconstruir su contenido. Es una mejora visual inmediata; cargarColumnasYTasks()
@@ -2128,6 +2197,7 @@
             renderizarPanelSelectorResponsables();
             document.getElementById('modal-tarea-titulo-header').innerText = '📝 Nueva Asignación';
             document.getElementById('boton-guardar-tarea').innerText = '🚀 Desplegar Asignación';
+            document.getElementById('seccion-comentarios-tarea').classList.add('hidden');
             abrirModal('modal-tarea');
         }
 
@@ -2158,6 +2228,9 @@
             else { preview.classList.add('hidden'); }
             document.getElementById('modal-tarea-titulo-header').innerText = '✏️ Editar Asignación';
             document.getElementById('boton-guardar-tarea').innerText = '💾 Guardar Cambios';
+            document.getElementById('seccion-comentarios-tarea').classList.remove('hidden');
+            document.getElementById('input-nuevo-comentario').value = '';
+            cargarComentariosTarea(d.id);
             abrirModal('modal-tarea');
         }
 
@@ -2199,6 +2272,60 @@
 
         function cerrarModalTarea() { cerrarModal('modal-tarea'); document.getElementById('form-titulo').value = ''; }
 
+        // --- Comentarios de tarea ---
+        async function cargarComentariosTarea(tareaId) {
+            const lista = document.getElementById('lista-comentarios-tarea');
+            lista.innerHTML = `<p class="text-[10px] text-gray-600 text-center py-2">Cargando...</p>`;
+            const { data: comentarios } = await supabaseClient.from('comentarios_tarea')
+                .select('*').eq('tarea_id', tareaId).order('created_at', { ascending: true });
+
+            if (!comentarios || !comentarios.length) {
+                lista.innerHTML = `<p class="text-[10px] text-gray-600 text-center py-2">Sin comentarios todavía.</p>`;
+                return;
+            }
+            lista.innerHTML = comentarios.map(c => `
+                <div class="bg-[#1c1c21] border border-[#26262b] rounded-lg px-2.5 py-1.5">
+                    <div class="flex items-center gap-1.5 mb-0.5">
+                        <span class="w-4 h-4 rounded-full ${colorAvatar(c.autor)} flex items-center justify-center text-[7px] font-bold text-white shrink-0">${inicialesDe(c.autor)}</span>
+                        <span class="text-[10px] font-semibold text-gray-300">${(c.autor || '').replace(/</g, '&lt;')}</span>
+                        <span class="text-[9px] text-gray-600">${new Date(c.created_at).toLocaleString('es-HN', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                    </div>
+                    <p class="text-xs text-gray-300 leading-snug break-words">${(c.texto || '').replace(/</g, '&lt;')}</p>
+                </div>`).join('');
+            lista.scrollTop = lista.scrollHeight;
+        }
+
+        async function enviarComentarioTarea() {
+            const tareaId = document.getElementById('form-tarea-id').value;
+            const input = document.getElementById('input-nuevo-comentario');
+            const texto = input.value.trim();
+            if (!tareaId || !texto) return;
+
+            await supabaseClient.from('comentarios_tarea').insert([{ tarea_id: tareaId, autor: OPERADOR_ACTUAL, texto }]);
+            input.value = '';
+            await cargarComentariosTarea(tareaId);
+
+            // Notifica a los demás responsables de la tarea (no a quien escribió el comentario)
+            const card = document.getElementById(`tarea-${tareaId}`);
+            if (card) {
+                let listaResp = [];
+                if (card.dataset.responsables) { try { listaResp = JSON.parse(card.dataset.responsables); } catch (err) { listaResp = []; } }
+                const destinatarios = listaResp.filter(n => n !== OPERADOR_ACTUAL);
+                for (const nombre of destinatarios) {
+                    const miembro = cacheMiembros.find(m => m.nombre === nombre);
+                    if (miembro && miembro.user_id) {
+                        await supabaseClient.from('notificaciones').insert([{
+                            miembro_user_id: miembro.user_id,
+                            tarea_id: tareaId,
+                            tarea_titulo: card.dataset.titulo,
+                            tipo: 'comentario'
+                        }]);
+                        enviarPushANotificacion(miembro.user_id, 'Nuevo comentario', `${OPERADOR_ACTUAL}: "${texto}" en "${card.dataset.titulo}"`);
+                    }
+                }
+            }
+        }
+
         async function guardarTarea() {
             const tareaId = document.getElementById('form-tarea-id').value;
             const segId = document.getElementById('form-segmento-id').value;
@@ -2239,6 +2366,7 @@
                                 tarea_id: tareaId,
                                 tarea_titulo: titulo
                             }]);
+                            enviarPushANotificacion(miembro.user_id, 'Nueva tarea asignada', titulo);
                         }
                     }
                 } else {
@@ -2253,6 +2381,7 @@
                                     tarea_id: nuevaTarea[0].id,
                                     tarea_titulo: titulo
                                 }]);
+                                enviarPushANotificacion(miembro.user_id, 'Nueva tarea asignada', titulo);
                             }
                         }
                     }
@@ -2321,7 +2450,7 @@
 
             lista.innerHTML = notis.map(n => `
                 <div onclick="marcarNotificacionLeida('${n.id}')" class="p-3 cursor-pointer hover:bg-[#1c1c21] transition ${n.leida ? 'opacity-50' : ''}">
-                    <p class="text-xs text-gray-200">${n.tarea_id ? `Se te asignó: <span class="font-semibold">${n.tarea_titulo}</span>` : `<span class="font-semibold">${n.tarea_titulo}</span>`}</p>
+                    <p class="text-xs text-gray-200">${n.tipo === 'comentario' ? `💬 Nuevo comentario en: <span class="font-semibold">${n.tarea_titulo}</span>` : n.tarea_id ? `Se te asignó: <span class="font-semibold">${n.tarea_titulo}</span>` : `<span class="font-semibold">${n.tarea_titulo}</span>`}</p>
                     <p class="text-[10px] text-gray-500 mt-1">${new Date(n.created_at).toLocaleString('es-HN', { dateStyle: 'short', timeStyle: 'short' })}</p>
                 </div>`).join('');
         }
@@ -2380,6 +2509,108 @@
             if (!userId) return;
             await supabaseClient.from('notificaciones').update({ leida: true }).eq('miembro_user_id', userId).eq('leida', false);
             await cargarNotificaciones();
+        }
+
+        // --- Notificaciones push (funcionan aunque el celular esté bloqueado o la app cerrada) ---
+
+        // Convierte la llave pública VAPID (texto base64url) al formato binario que pide pushManager.subscribe().
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+            return outputArray;
+        }
+
+        // Registra el Service Worker (sw.js) apenas carga la app. No pide permiso todavía;
+        // eso solo ocurre cuando la persona toca "Activar notificaciones push".
+        async function registrarServiceWorker() {
+            if (!('serviceWorker' in navigator)) return null;
+            try {
+                return await navigator.serviceWorker.register('sw.js');
+            } catch (err) {
+                console.warn('No se pudo registrar el service worker:', err);
+                return null;
+            }
+        }
+
+        function actualizarEstadoTextoPush() {
+            const texto = document.getElementById('texto-estado-push');
+            const boton = document.getElementById('boton-activar-push');
+            if (!texto || !boton) return;
+            if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+                texto.innerText = 'Tu navegador no soporta notificaciones push.';
+                boton.disabled = true;
+                boton.classList.add('opacity-50', 'cursor-not-allowed');
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                texto.innerText = '✅ Notificaciones activadas en este dispositivo.';
+                boton.innerText = '🔔 Notificaciones activadas';
+            } else if (Notification.permission === 'denied') {
+                texto.innerText = 'Bloqueaste las notificaciones. Actívalas desde los ajustes del navegador.';
+            } else {
+                texto.innerText = 'Recibe un aviso aunque tengas la app cerrada.';
+                boton.innerText = '🔔 Activar notificaciones push';
+            }
+        }
+
+        // Pide permiso, se suscribe al push del navegador y guarda esa suscripción en Supabase
+        // para que el servidor pueda enviarle avisos a esta persona en este dispositivo.
+        async function activarNotificacionesPush() {
+            if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+                alert('Este navegador no soporta notificaciones push.');
+                return;
+            }
+
+            const permiso = await Notification.requestPermission();
+            if (permiso !== 'granted') {
+                actualizarEstadoTextoPush();
+                return;
+            }
+
+            const registro = await registrarServiceWorker();
+            if (!registro) { alert('No se pudo activar. Intenta de nuevo.'); return; }
+
+            try {
+                let suscripcion = await registro.pushManager.getSubscription();
+                if (!suscripcion) {
+                    suscripcion = await registro.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    });
+                }
+
+                const { data: session } = await supabaseClient.auth.getSession();
+                const userId = session?.session?.user?.id;
+                if (!userId) return;
+
+                const suscJSON = suscripcion.toJSON();
+                await supabaseClient.from('push_subscriptions').upsert({
+                    user_id: userId,
+                    endpoint: suscJSON.endpoint,
+                    p256dh: suscJSON.keys.p256dh,
+                    auth: suscJSON.keys.auth
+                }, { onConflict: 'endpoint' });
+
+                actualizarEstadoTextoPush();
+            } catch (err) {
+                console.error('Error activando push:', err);
+                alert('No se pudo activar la notificación push. Revisa que el sitio esté en HTTPS.');
+            }
+        }
+
+        // Pide al servidor (Supabase Edge Function) que envíe un push a un usuario específico.
+        // Si la función no está desplegada todavía, simplemente no pasa nada (no rompe el flujo normal).
+        async function enviarPushANotificacion(userId, titulo, cuerpo) {
+            try {
+                await supabaseClient.functions.invoke('enviar-push', {
+                    body: { user_id: userId, titulo, cuerpo }
+                });
+            } catch (err) {
+                console.warn('Push no disponible todavía:', err);
+            }
         }
 
         // Cierra el panel de notificaciones al hacer clic afuera
