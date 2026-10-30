@@ -784,6 +784,20 @@
         let cacheSegmentosActuales = [];
         let _resolverConfirmacion = null;
         let accesoRemovido = false;
+
+        // Escapa texto para insertarlo de forma segura en HTML (contenido y atributos).
+        function escaparHTML(v) {
+            return String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        // Solo permite URLs http(s) (evita javascript:, data:, etc. en src/href).
+        function urlSegura(u) {
+            if (!u) return '';
+            try {
+                const x = new URL(u, window.location.href);
+                return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : '';
+            } catch (err) { return ''; }
+        }
         let textoBusquedaActual = '';
 
         // supabase-js NO lanza excepciones: devuelve { error }. Este helper lo convierte en excepción
@@ -1355,10 +1369,10 @@
                     <div class="min-w-0 flex-1 pr-2">
                         <p class="text-sm font-semibold text-gray-200 truncate flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full shrink-0 ${enLinea ? 'bg-emerald-400' : 'bg-gray-600'}" title="${enLinea ? 'En línea' : 'Desconectado'}"></span>
-                            ${m.nombre} ${m.activo === false ? '<span class="text-[10px] text-rose-400">(removido)</span>' : ''}
+                            ${escaparHTML(m.nombre)} ${m.activo === false ? '<span class="text-[10px] text-rose-400">(removido)</span>' : ''}
                         </p>
-                        <p class="text-xs text-gray-400 font-mono truncate">${m.correo || 'Sin correo'}</p>
-                        <p class="text-[11px] ${enLinea ? 'text-emerald-400' : 'text-indigo-400'} mt-0.5">${enLinea ? '🟢 Activo ahora · ' : ''}${m.rol}</p>
+                        <p class="text-xs text-gray-400 font-mono truncate">${escaparHTML(m.correo || 'Sin correo')}</p>
+                        <p class="text-[11px] ${enLinea ? 'text-emerald-400' : 'text-indigo-400'} mt-0.5">${enLinea ? '🟢 Activo ahora · ' : ''}${escaparHTML(m.rol)}</p>
                     </div>
                     <div>
                         ${m.nombre === OPERADOR_ACTUAL ? '<span class="text-[10px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-bold">Tú</span>' :
@@ -1388,7 +1402,7 @@
             }
             contenedor.innerHTML = anuncios.map(a => `
                 <div class="border-b border-[#222226] last:border-0 pb-1.5 last:pb-0 relative group/msg">
-                    <p class="text-xs text-gray-300 leading-relaxed">${a.contenido}</p>
+                    <p class="text-xs text-gray-300 leading-relaxed">${escaparHTML(a.contenido)}</p>
                     ${esLider() ? `<button onclick="eliminarAnuncio('${a.id}')" class="absolute top-0 right-0 text-gray-600 hover:text-rose-400 text-[10px] cursor-pointer transition px-1">✕</button>` : ''}
                 </div>`).join('');
         }
@@ -1518,8 +1532,8 @@
             lista.innerHTML = eliminadas.map(t => `
                 <div class="flex items-center justify-between bg-[#121214] border border-[#222226] rounded-lg p-2">
                     <div class="min-w-0 pr-2">
-                        <p class="text-[11px] text-gray-300 truncate">${t.titulo}</p>
-                        <p class="text-[9px] text-gray-500">Por ${t.eliminada_por || 'desconocido'} · ${new Date(t.eliminada_en).toLocaleString('es-HN', { dateStyle: 'short', timeStyle: 'short' })}</p>
+                        <p class="text-[11px] text-gray-300 truncate">${escaparHTML(t.titulo)}</p>
+                        <p class="text-[9px] text-gray-500">Por ${escaparHTML(t.eliminada_por || 'desconocido')} · ${new Date(t.eliminada_en).toLocaleString('es-HN', { dateStyle: 'short', timeStyle: 'short' })}</p>
                     </div>
                     <div class="flex items-center gap-1 shrink-0">
                         <button onclick="restaurarTareaEliminada('${t.id}')" class="text-[10px] text-emerald-400 hover:text-emerald-300 px-2 py-1 cursor-pointer">Restaurar</button>
@@ -1811,7 +1825,7 @@
 
                 lista.innerHTML += `
                     <button onclick="cambiarTablero('${tab.id}')" class="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-medium transition cursor-pointer ${esActivo ? 'bg-[#222226] text-indigo-400' : 'text-gray-400 hover:bg-[#1a1a1e] hover:text-gray-200'}">
-                        <span>${icono}</span> ${tab.titulo}
+                        <span>${icono}</span> ${escaparHTML(tab.titulo)}
                     </button>`;
             });
 
@@ -1901,7 +1915,7 @@
                          class="min-h-[64px] sm:min-h-[84px] p-1.5 rounded-lg border cursor-pointer transition hover:border-indigo-500/40 ${esHoy ? 'border-indigo-500/50 bg-indigo-500/5' : 'border-[#222226] bg-[#161619]'} ${!esMesActual ? 'opacity-30' : ''}">
                         <p class="text-[10px] sm:text-xs font-semibold ${esHoy ? 'text-indigo-400' : 'text-gray-400'} mb-1">${cursor.getDate()}</p>
                         <div class="space-y-0.5">
-                            ${eventosDelDia.slice(0, 2).map(e => `<div class="text-[8px] sm:text-[9px] bg-indigo-500/10 text-indigo-300 rounded px-1 py-0.5 truncate">${e.titulo}</div>`).join('')}
+                            ${eventosDelDia.slice(0, 2).map(e => `<div class="text-[8px] sm:text-[9px] bg-indigo-500/10 text-indigo-300 rounded px-1 py-0.5 truncate">${escaparHTML(e.titulo)}</div>`).join('')}
                             ${eventosDelDia.length > 2 ? `<div class="text-[8px] text-gray-500">+${eventosDelDia.length - 2} más</div>` : ''}
                         </div>
                     </div>`;
@@ -1918,11 +1932,11 @@
                 ? `<p class="text-xs text-gray-500 text-center py-4">Sin eventos este día.</p>`
                 : eventosDelDia.map(e => `
                     <div onclick="abrirModalEvento('${e.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirModalEvento('${e.id}')}"
-                         tabindex="0" role="button" aria-label="Evento: ${(e.titulo || '').replace(/"/g, '&quot;')}"
+                         tabindex="0" role="button" aria-label="Evento: ${escaparHTML(e.titulo)}"
                          class="bg-[#1c1c21] border border-[#222226] rounded-lg p-3 cursor-pointer hover:border-indigo-500/40 transition">
-                        <p class="text-xs font-semibold text-gray-200">${e.titulo}</p>
-                        <p class="text-[10px] text-gray-400 mt-0.5">${e.hora ? '🕐 ' + e.hora.slice(0,5) : 'Sin hora definida'} ${e.ubicacion ? '· 📍 ' + e.ubicacion : ''}</p>
-                        ${e.descripcion ? `<p class="text-[10px] text-gray-500 mt-1">${e.descripcion}</p>` : ''}
+                        <p class="text-xs font-semibold text-gray-200">${escaparHTML(e.titulo)}</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">${e.hora ? '🕐 ' + e.hora.slice(0,5) : 'Sin hora definida'} ${e.ubicacion ? '· 📍 ' + escaparHTML(e.ubicacion) : ''}</p>
+                        ${e.descripcion ? `<p class="text-[10px] text-gray-500 mt-1">${escaparHTML(e.descripcion)}</p>` : ''}
                     </div>`).join('');
             document.getElementById('modal-dia-boton-agregar').setAttribute('onclick', `abrirModalEvento(null, '${fechaStr}')`);
             abrirModal('modal-dia-eventos');
@@ -2123,12 +2137,12 @@
                          data-columna-id="${col.id}" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${col.id}')">
                         <div class="flex justify-between items-center mb-2.5">
                             <div class="flex items-center gap-2">
-                                <h3 class="font-semibold text-xs tracking-wide text-gray-300">${col.nombre}</h3>
+                                <h3 class="font-semibold text-xs tracking-wide text-gray-300">${escaparHTML(col.nombre)}</h3>
                                 <span class="bg-[#1c1c21] text-[10px] text-gray-400 px-2 py-0.5 rounded-full font-bold">${tasks ? tasks.length : 0}</span>
                             </div>
                             <div class="flex items-center gap-0.5">
                                 ${esFin && tasks.length > 0 ? `<button onclick="vaciarFinalizadasDelArea('${col.id}', ${tasks.length})" class="text-gray-500 hover:text-rose-400 transition text-xs p-1 cursor-pointer" title="Vaciar tareas finalizadas de esta área" aria-label="Vaciar tareas finalizadas de esta área">🗑️</button>` : ''}
-                                <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold cursor-pointer" aria-label="Agregar tarea en ${col.nombre}">＋</button>
+                                <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold cursor-pointer" aria-label="Agregar tarea en ${escaparHTML(col.nombre)}">＋</button>
                             </div>
                         </div>
                         <div class="space-y-2 overflow-y-auto pr-1 flex-1 lista-tareas-contenedor">${htmlTareas}</div>
@@ -2152,7 +2166,7 @@
             if (!nombre) return '?';
             const partes = nombre.trim().split(/\s+/);
             const ini = (partes[0]?.[0] || '') + (partes[1]?.[0] || '');
-            return (ini || nombre[0] || '?').toUpperCase();
+            return escaparHTML((ini || nombre[0] || '?').toUpperCase());
         }
         // Devuelve la lista de nombres responsables de una tarea, con compatibilidad hacia atrás
         // para tareas antiguas que solo tenían el campo de texto "responsable".
@@ -2166,9 +2180,9 @@
             if (!lista || !lista.length) return `<span class="text-[9px] text-gray-600">Sin asignar</span>`;
             const max = 3;
             const visibles = lista.slice(0, max);
-            let html = visibles.map(n => `<div class="w-5 h-5 rounded-full ${colorAvatar(n)} border-2 border-[#161619] flex items-center justify-center text-[8px] font-bold text-white shrink-0" title="${(n || '').replace(/"/g, '&quot;')}">${inicialesDe(n)}</div>`).join('');
+            let html = visibles.map(n => `<div class="w-5 h-5 rounded-full ${colorAvatar(n)} border-2 border-[#161619] flex items-center justify-center text-[8px] font-bold text-white shrink-0" title="${escaparHTML(n)}">${inicialesDe(n)}</div>`).join('');
             if (lista.length > max) {
-                html += `<div class="w-5 h-5 rounded-full bg-[#2a2a30] border-2 border-[#161619] flex items-center justify-center text-[8px] font-bold text-gray-300 shrink-0" title="${lista.slice(max).join(', ').replace(/"/g, '&quot;')}">+${lista.length - max}</div>`;
+                html += `<div class="w-5 h-5 rounded-full bg-[#2a2a30] border-2 border-[#161619] flex items-center justify-center text-[8px] font-bold text-gray-300 shrink-0" title="${escaparHTML(lista.slice(max).join(', '))}">+${lista.length - max}</div>`;
             }
             return `<div class="flex -space-x-1.5">${html}</div>`;
         }
@@ -2201,14 +2215,14 @@
             panel.innerHTML = miembros.map(m => {
                 const seleccionado = responsablesSeleccionados.includes(m.nombre);
                 const esDeEstaArea = m.rol && m.rol.toLowerCase() === tituloActual;
-                const nombreEscapado = (m.nombre || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const nombreEscapado = escaparHTML(JSON.stringify(m.nombre || ''));
                 return `
-                <button type="button" onclick="toggleResponsable('${nombreEscapado}')"
+                <button type="button" onclick="toggleResponsable(${nombreEscapado})"
                     class="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left transition cursor-pointer ${seleccionado ? 'bg-indigo-500/10' : 'hover:bg-[#1c1c21]'}">
                     <div class="w-6 h-6 rounded-full ${colorAvatar(m.nombre)} flex items-center justify-center text-[9px] font-bold text-white shrink-0">${inicialesDe(m.nombre)}</div>
                     <div class="min-w-0 flex-1">
-                        <p class="text-xs text-gray-200 truncate">${m.nombre}</p>
-                        <p class="text-[9px] ${esDeEstaArea ? 'text-indigo-400' : 'text-gray-500'} truncate">${esDeEstaArea ? '⭐ ' : ''}${m.rol || ''}</p>
+                        <p class="text-xs text-gray-200 truncate">${escaparHTML(m.nombre)}</p>
+                        <p class="text-[9px] ${esDeEstaArea ? 'text-indigo-400' : 'text-gray-500'} truncate">${esDeEstaArea ? '⭐ ' : ''}${escaparHTML(m.rol || '')}</p>
                     </div>
                     <span class="text-xs font-bold ${seleccionado ? 'text-indigo-400' : 'text-transparent'} shrink-0">✓</span>
                 </button>`;
@@ -2220,12 +2234,12 @@
             if (!cont) return;
             if (!responsablesSeleccionados.length) { cont.innerHTML = ''; return; }
             cont.innerHTML = responsablesSeleccionados.map(n => {
-                const nombreEscapado = (n || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const nombreEscapado = escaparHTML(JSON.stringify(n || ''));
                 return `
                 <span class="inline-flex items-center gap-1.5 bg-[#1c1c21] border border-[#2a2a33] rounded-full pl-1 pr-2 py-1">
                     <span class="w-5 h-5 rounded-full ${colorAvatar(n)} flex items-center justify-center text-[8px] font-bold text-white shrink-0">${inicialesDe(n)}</span>
-                    <span class="text-xs text-gray-200">${n}</span>
-                    <button type="button" onclick="quitarResponsable('${nombreEscapado}')" class="text-gray-500 hover:text-rose-400 text-[10px] font-bold cursor-pointer">✕</button>
+                    <span class="text-xs text-gray-200">${escaparHTML(n)}</span>
+                    <button type="button" onclick="quitarResponsable(${nombreEscapado})" class="text-gray-500 hover:text-rose-400 text-[10px] font-bold cursor-pointer">✕</button>
                 </span>`;
             }).join('');
         }
@@ -2301,7 +2315,7 @@
 
             const creadorEsLider = t.creado_por && cacheMiembros.some(m => m.nombre === t.creado_por && m.rol === 'Líder');
             const listaResp = listaResponsablesDe(t);
-            const responsablesJSON = JSON.stringify(listaResp).replace(/"/g, '&quot;');
+            const responsablesJSON = escaparHTML(JSON.stringify(listaResp));
 
             // Info de creación: quién la creó y cuándo. Para tareas creadas por la Líder
             // no repetimos el nombre (ya se indica con el ícono 👑), solo la fecha.
@@ -2311,7 +2325,7 @@
                 if (creadorEsLider) {
                     infoCreacion = `<p class="text-[9px] text-gray-600">Creada el ${fechaCreacionCorta}</p>`;
                 } else if (t.creado_por) {
-                    infoCreacion = `<p class="text-[9px] text-gray-600">Creada por ${t.creado_por.replace(/"/g, '&quot;')} · ${fechaCreacionCorta}</p>`;
+                    infoCreacion = `<p class="text-[9px] text-gray-600">Creada por ${escaparHTML(t.creado_por)} · ${fechaCreacionCorta}</p>`;
                 } else {
                     infoCreacion = `<p class="text-[9px] text-gray-600">Creada el ${fechaCreacionCorta}</p>`;
                 }
@@ -2321,23 +2335,23 @@
                 <div id="tarea-${t.id}" tabindex="0" draggable="${esFin ? 'false' : 'true'}" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)"
                      onclick="abrirModalEditarTarea(event, '${t.id}')" onkeydown="if(event.key==='Enter'){abrirModalEditarTarea(event, '${t.id}')}"
                      data-id="${t.id}" data-segmento-id="${col.id}"
-                     data-titulo="${(t.titulo || '').replace(/"/g, '&quot;')}"
-                     data-prioridad="${t.prioridad}" data-responsable="${(t.responsable || listaResp.join(', ')).replace(/"/g, '&quot;')}"
+                     data-titulo="${escaparHTML(t.titulo)}"
+                     data-prioridad="${escaparHTML(t.prioridad)}" data-responsable="${escaparHTML(t.responsable || listaResp.join(', '))}"
                      data-responsables="${responsablesJSON}"
-                     data-fecha="${t.fecha_entrega || ''}" data-miniatura="${(t.miniatura_url || '').replace(/"/g, '&quot;')}"
+                     data-fecha="${escaparHTML(t.fecha_entrega || '')}" data-miniatura="${escaparHTML(urlSegura(t.miniatura_url))}"
                      class="tarea-card bg-[#161619] ${claseFondoEstado} border-l-[3px] ${barraPrioridad} hover:bg-[#1b1b1f] transition group space-y-1.5 px-2.5 py-2 rounded-md ${esFin ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'} select-none relative"
-                     role="button" aria-label="${(t.titulo || 'Tarea').replace(/"/g, '&quot;')}, prioridad ${t.prioridad}, asignado a ${listaResp.join(', ') || 'sin asignar'}">
+                     role="button" aria-label="${escaparHTML((t.titulo || 'Tarea') + ', prioridad ' + t.prioridad + ', asignado a ' + (listaResp.join(', ') || 'sin asignar'))}">
                     <button onclick="event.stopPropagation(); eliminarTarea('${t.id}')" class="absolute top-1.5 right-1.5 text-gray-400 hover:text-rose-500 active:text-rose-600 transition-colors font-bold text-[11px] cursor-pointer z-20 w-6 h-6 flex items-center justify-center rounded-full bg-[#1f1f24] hover:bg-rose-500/10 border border-[#2a2a30]" aria-label="Eliminar tarea">✕</button>
-                    ${t.miniatura_url ? `<img src="${t.miniatura_url}" class="w-full h-14 object-cover rounded-md border border-[#222226]" draggable="false" alt="" />` : ''}
+                    ${urlSegura(t.miniatura_url) ? `<img src="${escaparHTML(urlSegura(t.miniatura_url))}" class="w-full h-14 object-cover rounded-md border border-[#222226]" draggable="false" alt="" />` : ''}
                     <div class="flex items-start gap-1 pr-6">
                         ${creadorEsLider ? `<span class="text-[9px] shrink-0 mt-0.5" title="Asignada por la Líder">👑</span>` : ''}
-                        <h4 class="font-medium text-[12px] text-gray-200 group-hover:text-white leading-snug line-clamp-2">${t.titulo}</h4>
+                        <h4 class="font-medium text-[12px] text-gray-200 group-hover:text-white leading-snug line-clamp-2">${escaparHTML(t.titulo)}</h4>
                     </div>
                     ${infoCreacion}
                     <div class="flex items-center justify-between gap-1.5">
                         <div class="flex items-center min-w-0">${renderizarAvataresResponsables(listaResp)}</div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-[9px] font-semibold ${textoPrioridad}">${t.prioridad}</span>
+                            <span class="text-[9px] font-semibold ${textoPrioridad}">${escaparHTML(t.prioridad)}</span>
                             ${chipFecha}
                             <button type="button" data-boton-mover onclick="event.stopPropagation(); abrirMenuMoverTarea(event, '${t.id}', '${col.id}')" class="text-gray-500 hover:text-indigo-400 transition text-[12px] leading-none cursor-pointer shrink-0 w-4 h-4 flex items-center justify-center" title="Mover a otra columna">⇅</button>
                         </div>
@@ -2428,7 +2442,7 @@
 
             menu.innerHTML = `
                 <p class="text-[10px] uppercase tracking-wide text-gray-500 font-semibold px-3 pt-2 pb-1">Mover a</p>
-                ${otras.map(s => `<button type="button" onclick="event.stopPropagation(); cerrarMenuMoverTarea(); moverTareaAColumna('${tareaId}', '${s.id}')" class="w-full text-left px-3 py-2 text-xs text-gray-200 hover:bg-[#232328] transition cursor-pointer truncate">➜ ${s.nombre}</button>`).join('')}
+                ${otras.map(s => `<button type="button" onclick="event.stopPropagation(); cerrarMenuMoverTarea(); moverTareaAColumna('${tareaId}', '${s.id}')" class="w-full text-left px-3 py-2 text-xs text-gray-200 hover:bg-[#232328] transition cursor-pointer truncate">➜ ${escaparHTML(s.nombre)}</button>`).join('')}
             `;
 
             menu.classList.remove('hidden');
@@ -2544,7 +2558,7 @@
         function llenarSelectorEstado(segIdSeleccionado) {
             const select = document.getElementById('form-segmento-id');
             select.innerHTML = cacheSegmentosActuales.map(s =>
-                `<option value="${s.id}" ${s.id === segIdSeleccionado ? 'selected' : ''}>${s.nombre}</option>`
+                `<option value="${s.id}" ${s.id === segIdSeleccionado ? 'selected' : ''}>${escaparHTML(s.nombre)}</option>`
             ).join('');
         }
 
@@ -2655,10 +2669,10 @@
                 <div class="bg-[#1c1c21] border border-[#26262b] rounded-lg px-2.5 py-1.5">
                     <div class="flex items-center gap-1.5 mb-0.5">
                         <span class="w-4 h-4 rounded-full ${colorAvatar(c.autor)} flex items-center justify-center text-[7px] font-bold text-white shrink-0">${inicialesDe(c.autor)}</span>
-                        <span class="text-[10px] font-semibold text-gray-300">${(c.autor || '').replace(/</g, '&lt;')}</span>
+                        <span class="text-[10px] font-semibold text-gray-300">${escaparHTML(c.autor)}</span>
                         <span class="text-[9px] text-gray-600">${new Date(c.created_at).toLocaleString('es-HN', { dateStyle: 'short', timeStyle: 'short' })}</span>
                     </div>
-                    <p class="text-xs text-gray-300 leading-snug break-words">${(c.texto || '').replace(/</g, '&lt;')}</p>
+                    <p class="text-xs text-gray-300 leading-snug break-words">${escaparHTML(c.texto)}</p>
                 </div>`).join('');
             lista.scrollTop = lista.scrollHeight;
         }
@@ -2822,7 +2836,7 @@
 
             lista.innerHTML = notis.map(n => `
                 <div onclick="marcarNotificacionLeida('${n.id}')" class="p-3 cursor-pointer hover:bg-[#1c1c21] transition ${n.leida ? 'opacity-50' : ''}">
-                    <p class="text-xs text-gray-200">${n.tipo === 'comentario' ? `💬 Nuevo comentario en: <span class="font-semibold">${n.tarea_titulo}</span>` : n.tarea_id ? `Se te asignó: <span class="font-semibold">${n.tarea_titulo}</span>` : `<span class="font-semibold">${n.tarea_titulo}</span>`}</p>
+                    <p class="text-xs text-gray-200">${n.tipo === 'comentario' ? `💬 Nuevo comentario en: <span class="font-semibold">${escaparHTML(n.tarea_titulo)}</span>` : n.tarea_id ? `Se te asignó: <span class="font-semibold">${escaparHTML(n.tarea_titulo)}</span>` : `<span class="font-semibold">${escaparHTML(n.tarea_titulo)}</span>`}</p>
                     <p class="text-[10px] text-gray-500 mt-1">${new Date(n.created_at).toLocaleString('es-HN', { dateStyle: 'short', timeStyle: 'short' })}</p>
                 </div>`).join('');
         }
