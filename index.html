@@ -50,6 +50,17 @@
         html[data-theme="light"] .text-gray-400 { color: #55555f !important; }
         html[data-theme="light"] .text-gray-500 { color: #6b6b76 !important; }
         html[data-theme="light"] .text-gray-600 { color: #85858f !important; }
+        /* Degradados de las tarjetas de métricas y del banner */
+        html[data-theme="light"] [class*="to-[#161619]"], html[data-theme="light"] [class*="to-[#121214]"] { --tw-gradient-to: #ffffff !important; }
+        html[data-theme="light"] [class*="from-[#1c1c21]"] { --tw-gradient-from: #eeeef1 !important; }
+        html[data-theme="light"] [class*="from-[#0f0f11]"] { --tw-gradient-from: #f4f4f6 !important; }
+        html[data-theme="light"] [class*="via-[#0f0f11]"] { --tw-gradient-via: rgba(244,244,246,0.4) !important; }
+        /* Textos de acento: versiones más oscuras para que se lean sobre fondo claro */
+        html[data-theme="light"] .text-indigo-300, html[data-theme="light"] .text-indigo-400 { color: #4f46e5 !important; }
+        html[data-theme="light"] .text-emerald-300, html[data-theme="light"] .text-emerald-400 { color: #047857 !important; }
+        html[data-theme="light"] .text-rose-300, html[data-theme="light"] .text-rose-400 { color: #be123c !important; }
+        html[data-theme="light"] .text-amber-300, html[data-theme="light"] .text-amber-400 { color: #b45309 !important; }
+        html[data-theme="light"] .text-sky-300, html[data-theme="light"] .text-sky-400 { color: #0369a1 !important; }
         html[data-theme="light"] ::-webkit-scrollbar-track { background: #eaeaef; }
         html[data-theme="light"] ::-webkit-scrollbar-thumb { background: #cfcfd7; }
 
@@ -398,7 +409,7 @@
                     </div>
                 </div>
                 <div class="bg-gradient-to-br from-indigo-500/10 to-[#161619] border border-indigo-500/25 p-4 rounded-xl">
-                    <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center justify-between gap-2 flex-wrap mb-1.5">
                         <span class="text-[10px] uppercase font-bold text-indigo-400 tracking-wider">📈 Eficiencia</span>
                         <span id="meta-eficiencia" class="text-lg font-bold text-indigo-300">100%</span>
                     </div>
@@ -2018,7 +2029,10 @@
                                 <h3 class="font-semibold text-xs tracking-wide text-gray-300">${col.nombre}</h3>
                                 <span class="bg-[#1c1c21] text-[10px] text-gray-400 px-2 py-0.5 rounded-full font-bold">${tasks ? tasks.length : 0}</span>
                             </div>
-                            <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold cursor-pointer" aria-label="Agregar tarea en ${col.nombre}">＋</button>
+                            <div class="flex items-center gap-0.5">
+                                ${esFin && tasks.length > 0 ? `<button onclick="vaciarFinalizadasDelArea('${col.id}', ${tasks.length})" class="text-gray-500 hover:text-rose-400 transition text-xs p-1 cursor-pointer" title="Vaciar tareas finalizadas de esta área" aria-label="Vaciar tareas finalizadas de esta área">🗑️</button>` : ''}
+                                <button onclick="abrirModalTarea('${col.id}')" class="text-gray-500 hover:text-white transition text-sm p-1 font-bold cursor-pointer" aria-label="Agregar tarea en ${col.nombre}">＋</button>
+                            </div>
                         </div>
                         <div class="space-y-2 overflow-y-auto pr-1 flex-1 lista-tareas-contenedor">${htmlTareas}</div>
                     </div>`;
@@ -2391,6 +2405,24 @@
             }).eq('id', id);
             tareaIdParaEliminar = null;
             await cargarColumnasYTasks();
+        }
+
+        // Vacía las tareas finalizadas SOLO del área (espacio) que se está viendo.
+        // Usa el mismo borrado suave que el botón ✕ de cada tarjeta: quedan en la auditoría
+        // y el Líder puede restaurarlas desde ahí.
+        async function vaciarFinalizadasDelArea(segmentoId, cantidad) {
+            const area = tableroActualTitulo || 'esta área';
+            if (!await confirmarAccion(`¿Vaciar las ${cantidad} tarea(s) finalizadas de "${area}"? Solo afecta esta área y quedan en la auditoría, donde el Líder puede restaurarlas.`, 'Vaciar finalizadas')) return;
+            await conManejoDeErrores(async () => {
+                const { error } = await supabaseClient.from('tareas').update({
+                    eliminada: true,
+                    eliminada_por: OPERADOR_ACTUAL,
+                    eliminada_en: new Date().toISOString()
+                }).eq('segmento_id', segmentoId).eq('eliminada', false).eq('archivada', false);
+                if (error) throw error;
+                await cargarColumnasYTasks();
+                mostrarToast(`Se vaciaron las tareas finalizadas de "${area}".`, 'exito');
+            }, 'No se pudieron vaciar las tareas finalizadas.');
         }
 
         async function inicializarColumnasEspacio() {
