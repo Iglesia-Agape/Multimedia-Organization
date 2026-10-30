@@ -22,9 +22,8 @@ self.addEventListener('push', (event) => {
         body: datos.cuerpo || '',
         icon: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=200',
         badge: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=100',
-        tag: 'ministerio-media',
-        renotify: true,
-        data: { url: datos.url || './' }
+        tag: datos.tag || ('mm-' + Date.now()),
+                data: { url: datos.url || './' }
     };
 
     event.waitUntil(self.registration.showNotification(datos.titulo || 'Ministerio Media', opciones));
@@ -37,7 +36,10 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(
         self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((listaClientes) => {
             for (const cliente of listaClientes) {
-                if ('focus' in cliente) return cliente.focus();
+                if ('focus' in cliente) {
+                    const enfocado = cliente.focus();
+                    return (urlDestino !== './' && 'navigate' in cliente) ? enfocado.then((c) => c && c.navigate(urlDestino)) : enfocado;
+                }
             }
             if (self.clients.openWindow) return self.clients.openWindow(urlDestino);
         })

@@ -762,6 +762,7 @@
     <script>
         const SUPABASE_URL = "https://cpyueytgzapjguyoigsg.supabase.co";
         const SUPABASE_KEY = "sb_publishable_vXcdkr57ii27XkLuJHIK3A_rP2qYkrL";
+        const HASH_INICIAL = window.location.hash || '';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let tableroActualId = null;
@@ -782,6 +783,29 @@
         let cacheEventos = [];
         let cacheSegmentosActuales = [];
         let _resolverConfirmacion = null;
+        let accesoRemovido = false;
+        let textoBusquedaActual = '';
+
+        // supabase-js NO lanza excepciones: devuelve { error }. Este helper lo convierte en excepción
+        // para que conManejoDeErrores muestre el toast de error y no el de éxito.
+        async function sb(promesa) {
+            const r = await promesa;
+            if (r && r.error) throw r.error;
+            return r;
+        }
+
+        // Al cambiar de nombre, actualiza las tareas donde aparecía el nombre anterior
+        // (los responsables se guardan por nombre).
+        async function renombrarMiembroEnTareas(viejo, nuevo) {
+            try {
+                const { data: tareas } = await supabaseClient.from('tareas').select('id, responsables').contains('responsables', [viejo]);
+                for (const t of (tareas || [])) {
+                    const lista = (t.responsables || []).map(n => n === viejo ? nuevo : n);
+                    await supabaseClient.from('tareas').update({ responsables: lista, responsable: lista.join(', ') }).eq('id', t.id);
+                }
+                await supabaseClient.from('tareas').update({ creado_por: nuevo }).eq('creado_por', viejo);
+            } catch (err) { console.warn('No se pudo actualizar el nombre en tareas:', err); }
+        }
 
         // Fecha YYYY-MM-DD en zona horaria local. toISOString() usa UTC y en Honduras
         // (UTC-6) el calendario y los avisos de vencimiento saltaban al día anterior.
@@ -805,8 +829,9 @@
         function abrirModal(id) {
             const overlay = document.getElementById(id);
             if (!overlay) return;
-            _elementoConFocoPrevio = document.activeElement;
+            overlay._focoPrevio = document.activeElement;
 
+            clearTimeout(overlay._timerCierre);
             overlay.classList.remove('hidden', 'cerrando');
             requestAnimationFrame(() => {
                 overlay.classList.add('modal-visible');
@@ -824,11 +849,12 @@
             const finalizar = () => {
                 overlay.classList.add('hidden');
                 overlay.classList.remove('cerrando');
-                if (_elementoConFocoPrevio && document.body.contains(_elementoConFocoPrevio)) {
-                    _elementoConFocoPrevio.focus();
+                const fp = overlay._focoPrevio;
+                if (fp && document.body.contains(fp) && !document.querySelector('.modal-overlay.modal-visible')) {
+                    fp.focus();
                 }
             };
-            setTimeout(finalizar, 180);
+            overlay._timerCierre = setTimeout(finalizar, 180);
         }
 
         // Cierra el modal visible, o el sidebar mobile si está abierto, con la tecla Escape
@@ -961,7 +987,7 @@
         window.addEventListener('DOMContentLoaded', async () => {
             verificarLiderEnRegistro();
             const { data } = await supabaseClient.auth.getSession();
-            const hash = window.location.hash || '';
+            const hash = HASH_INICIAL || window.location.hash || '';
             const esRecuperacion = /type=(recovery|password_recovery)/.test(hash);
             if (esRecuperacion) {
                 document.getElementById('auth-screen').classList.add('hidden');
@@ -985,6 +1011,8 @@
 
         supabaseClient.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_OUT') {
+                tableroActualId = null; tableroActualTitulo = ''; OPERADOR_ACTUAL = null;
+                cacheMiembros = []; cacheEventos = []; responsablesSeleccionados = []; textoBusquedaActual = '';
                 if (canalRealtime) { supabaseClient.removeChannel(canalRealtime); canalRealtime = null; }
                 if (canalPresencia) { supabaseClient.removeChannel(canalPresencia); canalPresencia = null; }
                 document.getElementById('app-screen').classList.add('hidden');
@@ -1103,6 +1131,7 @@
             document.getElementById('tablero-columnas').innerHTML = '';
             registrarServiceWorker();
             await sincronizarMiembrosYSelects(session);
+            if (accesoRemovido) { accesoRemovido = false; return; }
             await cargarAnunciosDesdeSupabase();
             mostrarVistaTablero();
             await cargarEspaciosDeTrabajo({ seleccionarPrimero: true });
@@ -1270,6 +1299,14 @@
             const sesionActual = session || (await supabaseClient.auth.getSession()).data.session;
             const userId = sesionActual?.user?.id;
             let miPerfil = cacheMiembros.find(m => m.user_id === userId);
+            if (!miPerfil && sesionActual?.user?.email) {
+                const correoSesion = sesionActual.user.email.toLowerCase();
+                const previo = cacheMiembros.find(m => !m.user_id && (m.correo || '').toLowerCase() === correoSesion);
+                if (previo) {
+                    const { data: vinculado, error: errVinculo } = await supabaseClient.from('miembros').update({ user_id: userId }).eq('id', previo.id).select();
+                    if (!errVinculo && vinculado && vinculado[0]) { Object.assign(previo, vinculado[0]); miPerfil = previo; }
+                }
+            }
 
             // Primera vez que esta persona inicia sesión con éxito: aún no tiene fila en "miembros".
             // La creamos ahora, ya autenticada, usando los datos que guardó al registrarse.
@@ -1290,7 +1327,8 @@
             }
 
             if (miPerfil && miPerfil.activo === false) {
-                alert('Tu acceso a esta app fue removido por el Líder. Si crees que es un error, contáctalo.');
+                accesoRemovido = true;
+                mostrarToast('Tu acceso a esta app fue removido por el Líder. Si crees que es un error, contáctalo.', 'error');
                 await supabaseClient.auth.signOut();
                 return;
             }
@@ -1370,7 +1408,8 @@
             if (!contenido) return;
             const restaurarBoton = botonCargando(document.getElementById('boton-publicar-anuncio'), 'Publicando...');
             try {
-                await supabaseClient.from('anuncios').insert([{ contenido }]);
+                const rAnu = await supabaseClient.from('anuncios').insert([{ contenido }]);
+                if (rAnu.error) { mostrarToast('No se pudo publicar el anuncio.', 'error'); return; }
                 cerrarModalAnuncio();
                 await cargarAnunciosDesdeSupabase();
             } finally {
@@ -1414,6 +1453,11 @@
                 return;
             }
 
+            if (cacheMiembros.some(m => m.id !== miPerfil.id && (m.nombre || '').trim().toLowerCase() === nombre.toLowerCase())) {
+                elError.innerText = 'Ya existe un miembro con ese nombre.';
+                elError.classList.remove('hidden');
+                return;
+            }
             const restaurarBoton = botonCargando(document.getElementById('boton-guardar-perfil'), 'Guardando...');
             try {
                 const { error } = await supabaseClient.from('miembros').update({ nombre, rol }).eq('id', miPerfil.id);
@@ -1423,6 +1467,7 @@
                     return;
                 }
 
+                if (nombre !== miPerfil.nombre) await renombrarMiembroEnTareas(miPerfil.nombre, nombre);
                 cerrarModal('modal-mi-perfil');
                 await sincronizarMiembrosYSelects();
             } finally {
@@ -1491,7 +1536,7 @@
             if (!count) return;
             if (!await confirmarAccion(`¿Borrar permanentemente ${count} tarea(s) de la auditoría? Esta acción no se puede deshacer.`, 'Borrar todo')) return;
             await conManejoDeErrores(async () => {
-                await supabaseClient.from('tareas').delete().eq('eliminada', true);
+                await sb(supabaseClient.from('tareas').delete().eq('eliminada', true));
                 await cargarTareasEliminadas();
                 mostrarToast('Auditoría limpiada.', 'exito');
             }, 'No se pudo borrar la auditoría.');
@@ -1501,7 +1546,7 @@
             if (!esLider()) return;
             if (!await confirmarAccion('Esto borra el registro de auditoría para siempre (la tarea ya estaba eliminada, esto solo limpia la lista). ¿Continuar?', 'Borrar')) return;
             await conManejoDeErrores(async () => {
-                await supabaseClient.from('tareas').delete().eq('id', id);
+                await sb(supabaseClient.from('tareas').delete().eq('id', id));
                 await cargarTareasEliminadas();
             }, 'No se pudo borrar el registro.');
         }
@@ -1634,14 +1679,14 @@
                 if (y > 270) { doc.addPage(); y = 20; }
             });
 
-            doc.save(`reporte-multimedia-${new Date().toISOString().split('T')[0]}.pdf`);
+            doc.save(`reporte-multimedia-${fechaLocalISO(new Date())}.pdf`);
         }
 
         async function reiniciarMetricas() {
             if (!esLider()) return;
             if (!await confirmarAccion('Esto archivará TODAS las tareas activas actuales de todos los espacios (no se borran, solo dejan de contar en las métricas). Recomendamos descargar el reporte PDF antes de continuar. ¿Continuar?', 'Reiniciar métricas')) return;
             await conManejoDeErrores(async () => {
-                await supabaseClient.from('tareas').update({ archivada: true }).eq('archivada', false).eq('eliminada', false);
+                await sb(supabaseClient.from('tareas').update({ archivada: true }).eq('archivada', false).eq('eliminada', false));
                 await cargarMetricaGeneralEquipo();
                 if (tableroActualId) await cargarColumnasYTasks();
                 mostrarToast('Métricas reiniciadas. Las tareas anteriores quedaron archivadas, no se perdieron.', 'exito');
@@ -1704,7 +1749,7 @@
 
             if(!nombre || !correo) return mostrarToast('Completa los datos necesarios.', 'error');
             await conManejoDeErrores(async () => {
-                await supabaseClient.from('miembros').insert([{ nombre, correo, rol }]);
+                await sb(supabaseClient.from('miembros').insert([{ nombre, correo, rol }]));
                 document.getElementById('config-nombre-miembro').value = '';
                 document.getElementById('config-correo-miembro').value = '';
                 await sincronizarMiembrosYSelects();
@@ -1716,7 +1761,7 @@
         async function removerMiembroEquipo(id) {
             if(!await confirmarAccion("¿Remover el acceso de este miembro? Podrás reactivarlo después si fue un error.", 'Remover')) return;
             await conManejoDeErrores(async () => {
-                await supabaseClient.from('miembros').update({ activo: false }).eq('id', id);
+                await sb(supabaseClient.from('miembros').update({ activo: false }).eq('id', id));
                 await sincronizarMiembrosYSelects();
                 renderizarListaConfigMiembros();
             }, 'No se pudo remover el acceso.');
@@ -1819,6 +1864,7 @@
         }
 
         function cambiarMesCalendario(delta) {
+            mesCalendarioActual.setDate(1);
             mesCalendarioActual.setMonth(mesCalendarioActual.getMonth() + delta);
             renderizarCalendario();
         }
@@ -1920,9 +1966,11 @@
             if (!titulo || !fecha) return mostrarToast('El título y la fecha son obligatorios.', 'error');
 
             if (id) {
-                await supabaseClient.from('eventos').update({ titulo, fecha, hora, ubicacion, descripcion }).eq('id', id);
+                { const r = await supabaseClient.from('eventos').update({ titulo, fecha, hora, ubicacion, descripcion }).eq('id', id);
+                  if (r.error) return mostrarToast('No se pudo guardar el evento.', 'error'); }
             } else {
-                await supabaseClient.from('eventos').insert([{ titulo, fecha, hora, ubicacion, descripcion, creado_por: OPERADOR_ACTUAL }]);
+                { const r = await supabaseClient.from('eventos').insert([{ titulo, fecha, hora, ubicacion, descripcion, creado_por: OPERADOR_ACTUAL }]);
+                  if (r.error) return mostrarToast('No se pudo guardar el evento.', 'error'); }
                 await notificarEventoATodos(titulo, fecha);
             }
             cerrarModal('modal-evento');
@@ -1952,7 +2000,7 @@
             const id = document.getElementById('evento-id').value;
             if (!id || !await confirmarAccion('¿Eliminar este evento?', 'Eliminar')) return;
             await conManejoDeErrores(async () => {
-                await supabaseClient.from('eventos').delete().eq('id', id);
+                await sb(supabaseClient.from('eventos').delete().eq('id', id));
                 cerrarModal('modal-evento');
                 renderizarCalendario();
             }, 'No se pudo eliminar el evento.');
@@ -2000,8 +2048,9 @@
             // Una sola query para TODAS las tareas activas del tablero (todas las columnas a la vez)
             let queryTareas = supabaseClient.from('tareas').select('*')
                 .in('segmento_id', idsSegmentos).eq('eliminada', false).eq('archivada', false);
-            if (filtroActual === 'asignados') queryTareas = queryTareas.contains('responsables', [OPERADOR_ACTUAL]);
-            const { data: tareasRaw } = await queryTareas.order('posicion', { ascending: true });
+            // El filtro "asignados" se aplica en memoria (soporta tareas antiguas con solo el campo "responsable").
+            const { data: tareasCrudas } = await queryTareas.order('posicion', { ascending: true });
+            const tareasRaw = filtroActual === 'asignados' ? (tareasCrudas || []).filter(t => listaResponsablesDe(t).includes(OPERADOR_ACTUAL)) : tareasCrudas;
             if (token !== cargarColumnasToken || tableroActualId !== tableroId) return;
 
             // Una sola query agregada para el crédito de tareas finalizadas que ya fueron borradas
@@ -2088,6 +2137,7 @@
 
             if (token !== cargarColumnasToken || tableroActualId !== tableroId) return;
             contenedor.innerHTML = htmlColumnas;
+            if (textoBusquedaActual) buscarTareas(textoBusquedaActual);
             actualizarMetricas(totalPorHacer, totalEnProceso, totalFinalizado, totalVencidas, totalProximas, totalGeneral);
         }
 
@@ -2364,7 +2414,8 @@
                 actualizarContadorColumna(colDestinoId);
             }
 
-            await supabaseClient.from('tareas').update({ segmento_id: colDestinoId }).eq('id', tId);
+            const rMv = await supabaseClient.from('tareas').update({ segmento_id: colDestinoId }).eq('id', tId);
+            if (rMv.error) mostrarToast('No se pudo mover la tarea.', 'error');
             await cargarColumnasYTasks();
         }
 
@@ -2463,11 +2514,13 @@
             const area = tableroActualTitulo || 'esta área';
             if (!await confirmarAccion(`¿Vaciar las ${cantidad} tarea(s) finalizadas de "${area}"? Solo afecta esta área y quedan en la auditoría, donde el Líder puede restaurarlas.`, 'Vaciar finalizadas')) return;
             await conManejoDeErrores(async () => {
+                const idsVisibles = Array.from(document.querySelectorAll(`[data-columna-id="${segmentoId}"] [id^="tarea-"]`)).map(el => el.dataset.id);
+                if (!idsVisibles.length) return;
                 const { error } = await supabaseClient.from('tareas').update({
                     eliminada: true,
                     eliminada_por: OPERADOR_ACTUAL,
                     eliminada_en: new Date().toISOString()
-                }).eq('segmento_id', segmentoId).eq('eliminada', false).eq('archivada', false);
+                }).in('id', idsVisibles).eq('segmento_id', segmentoId).eq('eliminada', false).eq('archivada', false);
                 if (error) throw error;
                 await cargarColumnasYTasks();
                 mostrarToast(`Se vaciaron las tareas finalizadas de "${area}".`, 'exito');
@@ -2616,7 +2669,9 @@
             const texto = input.value.trim();
             if (!tareaId || !texto) return;
 
-            await supabaseClient.from('comentarios_tarea').insert([{ tarea_id: tareaId, autor: OPERADOR_ACTUAL, texto }]);
+            input.value = '';
+            const rCom = await supabaseClient.from('comentarios_tarea').insert([{ tarea_id: tareaId, autor: OPERADOR_ACTUAL, texto }]);
+            if (rCom.error) { input.value = texto; mostrarToast('No se pudo enviar el comentario.', 'error'); return; }
             input.value = '';
             await cargarComentariosTarea(tareaId);
 
@@ -2660,7 +2715,7 @@
             if (!tareaId) datosTarea.creado_por = OPERADOR_ACTUAL;
 
             try {
-                let nuevosParaNotificar = listaResp;
+                let nuevosParaNotificar = listaResp.filter(n => n !== OPERADOR_ACTUAL);
 
                 if (tareaId) {
                     // Modo edición: notifica solo a las personas recién agregadas (no a las que ya estaban).
@@ -2669,9 +2724,10 @@
                     if (card && card.dataset.responsables) {
                         try { responsablesAnteriores = JSON.parse(card.dataset.responsables); } catch (err) { responsablesAnteriores = []; }
                     }
-                    nuevosParaNotificar = listaResp.filter(n => !responsablesAnteriores.includes(n));
+                    nuevosParaNotificar = listaResp.filter(n => !responsablesAnteriores.includes(n) && n !== OPERADOR_ACTUAL);
 
-                    await supabaseClient.from('tareas').update(datosTarea).eq('id', tareaId);
+                    const rUp = await supabaseClient.from('tareas').update(datosTarea).eq('id', tareaId);
+                    if (rUp.error) { mostrarToast('No se pudo guardar la tarea.', 'error'); return; }
 
                     for (const nombre of nuevosParaNotificar) {
                         const miembro = cacheMiembros.find(m => m.nombre === nombre);
@@ -2686,7 +2742,8 @@
                     }
                 } else {
                     // Modo creación
-                    const { data: nuevaTarea } = await supabaseClient.from('tareas').insert([datosTarea]).select();
+                    const { data: nuevaTarea, error: errIns } = await supabaseClient.from('tareas').insert([datosTarea]).select();
+                    if (errIns) { mostrarToast('No se pudo crear la tarea.', 'error'); return; }
                     if (nuevaTarea && nuevaTarea[0]) {
                         for (const nombre of nuevosParaNotificar) {
                             const miembro = cacheMiembros.find(m => m.nombre === nombre);
@@ -2722,6 +2779,7 @@
         }
 
         function buscarTareas(texto) {
+            textoBusquedaActual = texto;
             const q = texto.trim().toLowerCase();
             document.querySelectorAll('[id^="tarea-"]').forEach(card => {
                 const titulo = (card.dataset.titulo || '').toLowerCase();
