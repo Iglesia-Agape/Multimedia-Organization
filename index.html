@@ -98,8 +98,9 @@
         .modal-overlay {
             transition: opacity 0.18s ease-out;
             opacity: 0;
+            pointer-events: none;
         }
-        .modal-overlay.modal-visible { opacity: 1; }
+        .modal-overlay.modal-visible { opacity: 1; pointer-events: auto; }
         .modal-overlay .modal-panel {
             transition: opacity 0.18s ease-out, transform 0.18s ease-out;
             opacity: 0;
@@ -154,8 +155,8 @@
     <div id="contenedor-toasts"></div>
 
     <!-- Modal de confirmación reutilizable (reemplaza confirm() nativo) -->
-    <div id="modal-confirmar" class="hidden fixed inset-0 z-[190] bg-black/60 flex items-center justify-center p-4">
-        <div class="w-full max-w-sm bg-[#161619] border border-[#26262b] rounded-2xl p-5 shadow-2xl space-y-4">
+    <div id="modal-confirmar" class="hidden fixed inset-0 z-[190] bg-black/60 flex items-center justify-center p-4 modal-overlay">
+        <div class="modal-panel w-full max-w-sm bg-[#161619] border border-[#26262b] rounded-2xl p-5 shadow-2xl space-y-4">
             <p id="modal-confirmar-mensaje" class="text-sm text-gray-200 leading-relaxed"></p>
             <div class="flex justify-end gap-2">
                 <button id="modal-confirmar-cancelar" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#222226] text-gray-300 hover:bg-[#2a2a33] transition">Cancelar</button>
@@ -780,6 +781,17 @@
         let mesCalendarioActual = new Date();
         let cacheEventos = [];
         let cacheSegmentosActuales = [];
+        let _resolverConfirmacion = null;
+
+        // Fecha YYYY-MM-DD en zona horaria local. toISOString() usa UTC y en Honduras
+        // (UTC-6) el calendario y los avisos de vencimiento saltaban al día anterior.
+        function fechaLocalISO(d) {
+            const fecha = d instanceof Date ? d : new Date(d);
+            const y = fecha.getFullYear();
+            const m = String(fecha.getMonth() + 1).padStart(2, '0');
+            const dia = String(fecha.getDate()).padStart(2, '0');
+            return `${y}-${m}-${dia}`;
+        }
 
         // =========================================================================
         // FASE 2 + FASE 4: Helpers centralizados de modal
@@ -823,7 +835,14 @@
         document.addEventListener('keydown', (e) => {
             if (e.key !== 'Escape') return;
             const visible = document.querySelector('.modal-overlay.modal-visible');
-            if (visible) { cerrarModal(visible.id); return; }
+            if (visible) {
+                if (visible.id === 'modal-confirmar' && typeof _resolverConfirmacion === 'function') {
+                    _resolverConfirmacion(false);
+                    return;
+                }
+                cerrarModal(visible.id);
+                return;
+            }
             const sidebar = document.getElementById('sidebar-app');
             if (sidebar && !sidebar.classList.contains('-translate-x-full')) cerrarSidebarMobile();
         });
@@ -853,7 +872,12 @@
             const icono = tipo === 'exito' ? '✅' : tipo === 'error' ? '⚠️' : 'ℹ️';
             const el = document.createElement('div');
             el.className = `toast-item toast-${tipo || 'info'}`;
-            el.innerHTML = `<span>${icono}</span><span class="flex-1">${mensaje}</span>`;
+            const ico = document.createElement('span');
+            ico.textContent = icono;
+            const txt = document.createElement('span');
+            txt.className = 'flex-1';
+            txt.textContent = String(mensaje || '');
+            el.append(ico, txt);
             cont.appendChild(el);
             setTimeout(() => {
                 el.classList.add('toast-saliendo');
@@ -868,23 +892,35 @@
                 const msj = document.getElementById('modal-confirmar-mensaje');
                 const btnAceptar = document.getElementById('modal-confirmar-aceptar');
                 const btnCancelar = document.getElementById('modal-confirmar-cancelar');
+                if (!overlay || !msj || !btnAceptar || !btnCancelar) {
+                    resolve(false);
+                    return;
+                }
+
+                if (typeof _resolverConfirmacion === 'function') _resolverConfirmacion(false);
+
                 msj.innerText = mensaje;
                 btnAceptar.innerText = textoBoton || 'Confirmar';
-                overlay.classList.remove('hidden');
-                requestAnimationFrame(() => overlay.classList.add('modal-visible'));
 
-                const limpiar = (resultado) => {
-                    overlay.classList.add('cerrando');
-                    overlay.classList.remove('modal-visible');
-                    setTimeout(() => { overlay.classList.add('hidden'); overlay.classList.remove('cerrando'); }, 180);
+                const onAceptar = () => finalizar(true);
+                const onCancelar = () => finalizar(false);
+                const onOverlay = (ev) => { if (ev.target === overlay) finalizar(false); };
+
+                function finalizar(resultado) {
+                    if (_resolverConfirmacion !== finalizar) return;
+                    _resolverConfirmacion = null;
                     btnAceptar.removeEventListener('click', onAceptar);
                     btnCancelar.removeEventListener('click', onCancelar);
+                    overlay.removeEventListener('click', onOverlay);
+                    cerrarModal('modal-confirmar');
                     resolve(resultado);
-                };
-                const onAceptar = () => limpiar(true);
-                const onCancelar = () => limpiar(false);
+                }
+
+                _resolverConfirmacion = finalizar;
                 btnAceptar.addEventListener('click', onAceptar);
                 btnCancelar.addEventListener('click', onCancelar);
+                overlay.addEventListener('click', onOverlay);
+                abrirModal('modal-confirmar');
             });
         }
 
@@ -925,12 +961,18 @@
         window.addEventListener('DOMContentLoaded', async () => {
             verificarLiderEnRegistro();
             const { data } = await supabaseClient.auth.getSession();
-            if (data.session) {
+            const hash = window.location.hash || '';
+            const esRecuperacion = /type=(recovery|password_recovery)/.test(hash);
+            if (esRecuperacion) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
+                document.getElementById('recovery-screen').classList.remove('hidden');
+            } else if (data.session) {
                 await iniciarAppConSesion(data.session);
             } else {
                 document.getElementById('auth-screen').classList.remove('hidden');
             }
-            document.getElementById('cargando-inicial').remove();
+            document.getElementById('cargando-inicial')?.remove();
         });
 
         // Antes de que alguien se registre, revisamos si ya existe un Líder en el equipo.
@@ -1062,11 +1104,12 @@
             registrarServiceWorker();
             await sincronizarMiembrosYSelects(session);
             await cargarAnunciosDesdeSupabase();
-            await cargarEspaciosDeTrabajo();
+            mostrarVistaTablero();
+            await cargarEspaciosDeTrabajo({ seleccionarPrimero: true });
+            if (tableroActualId) await cargarColumnasYTasks();
             await cargarNotificaciones();
             suprimirRealtimeTareasHasta = Date.now() + 1500;
             configurarRealtime(session);
-            mostrarVistaCalendario();
             verificarTareasPorVencer();
         }
 
@@ -1076,14 +1119,13 @@
             if (!OPERADOR_ACTUAL) return;
             try {
                 const hoy = new Date();
-                const fmt = (d) => d.toISOString().split('T')[0];
-                const hoyStr = fmt(hoy);
+                const hoyStr = fechaLocalISO(hoy);
                 const mañana = new Date(hoy); mañana.setDate(mañana.getDate() + 1);
-                const mañanaStr = fmt(mañana);
+                const mañanaStr = fechaLocalISO(mañana);
 
                 const { data: segmentos } = await supabaseClient.from('segmentos').select('id, nombre');
                 const idsNoFinalizados = (segmentos || [])
-                    .filter(s => !s.nombre.toLowerCase().match(/(finalizado|listo|terminado)/))
+                    .filter(s => !(s.nombre || '').toLowerCase().match(/(finalizado|listo|terminado)/))
                     .map(s => s.id);
                 if (!idsNoFinalizados.length) return;
 
@@ -1267,6 +1309,7 @@
             verificarRolLider();
             const yoSoyLider = cacheMiembros.some(m => m.nombre === OPERADOR_ACTUAL && m.rol === 'Líder');
             const container = document.getElementById('lista-config-miembros');
+            if (!container) return;
             container.innerHTML = cacheMiembros.map(m => {
                 const enLinea = m.user_id && usuariosEnLinea.has(m.user_id);
                 return `
@@ -1351,7 +1394,7 @@
             // Si ya existe un Líder distinto a mí, no me dejes elegir ese rol.
             const yaHayOtroLider = cacheMiembros.some(m => m.rol === 'Líder' && m.id !== miPerfil.id);
             const optLider = document.getElementById('opt-lider-mi-perfil');
-            optLider.style.display = (yaHayOtroLider && miPerfil.rol !== 'Líder') ? 'none' : 'block';
+            if (optLider) optLider.style.display = (yaHayOtroLider && miPerfil.rol !== 'Líder') ? 'none' : 'block';
 
             abrirModal('modal-mi-perfil');
             actualizarEstadoTextoPush();
@@ -1484,7 +1527,7 @@
             // Las tareas borradas solo se incluyen en el reporte si ya estaban Finalizadas (conservan su crédito).
             const tareasEliminadasFinalizadas = (tareasEliminadas || []).filter(t => {
                 const seg = mapaSeg[t.segmento_id];
-                return seg && seg.nombre.toLowerCase().match(/(finalizado|listo|terminado)/);
+                return seg && (seg.nombre || '').toLowerCase().match(/(finalizado|listo|terminado)/);
             });
             const tareas = [...(tareasActivas || []), ...tareasEliminadasFinalizadas];
 
@@ -1495,7 +1538,7 @@
             (tareas || []).forEach(t => {
                 const seg = mapaSeg[t.segmento_id];
                 const nombreArea = seg ? (mapaTab[seg.tablero_id] || 'Sin área') : 'Sin área';
-                const esFin = seg && seg.nombre.toLowerCase().match(/(finalizado|listo|terminado)/);
+                const esFin = seg && (seg.nombre || '').toLowerCase().match(/(finalizado|listo|terminado)/);
                 if (esFin) totalFinalizado++;
 
                 if (!porArea[nombreArea]) porArea[nombreArea] = { total: 0, finalizado: 0 };
@@ -1613,7 +1656,7 @@
             if (!todosLosSegmentos || !todasLasTareas) return;
 
             const mapaSegmentos = {};
-            todosLosSegmentos.forEach(s => { mapaSegmentos[s.id] = s.nombre.toLowerCase(); });
+            todosLosSegmentos.forEach(s => { mapaSegmentos[s.id] = (s.nombre || '').toLowerCase(); });
 
             let porHacer = 0, enProceso = 0, finalizado = 0, vencidas = 0;
             const hoy = new Date();
@@ -1685,8 +1728,9 @@
             renderizarListaConfigMiembros();
         }
 
-        async function cargarEspaciosDeTrabajo() {
+        async function cargarEspaciosDeTrabajo(opciones) {
             const lista = document.getElementById('lista-espacios');
+            if (!lista) return;
             let { data: tableros } = await supabaseClient.from('tableros').select('*').order('created_at', { ascending: true });
 
             if (!tableros || tableros.length === 0) {
@@ -1694,9 +1738,13 @@
                 return;
             }
 
+            if (opciones && opciones.seleccionarPrimero && !tableroActualId) {
+                tableroActualId = tableros[0].id;
+            }
+
             lista.innerHTML = '';
-            tableros.forEach((tab, index) => {
-                const t = tab.titulo.toLowerCase();
+            tableros.forEach((tab) => {
+                const t = (tab.titulo || '').toLowerCase();
                 let icono = '🎬';
                 if (t.includes('audio')) icono = '🎛️';
                 else if (t.includes('diseño') || t.includes('grafic')) icono = '🎨';
@@ -1786,18 +1834,17 @@
             const inicioRango = new Date(año, mes, 1 - primerDiaMes.getDay());
             const finRango = new Date(año, mes, ultimoDiaMes.getDate() + (6 - ultimoDiaMes.getDay()));
 
-            const fmt = (d) => d.toISOString().split('T')[0];
             const { data: eventos } = await supabaseClient.from('eventos')
-                .select('*').gte('fecha', fmt(inicioRango)).lte('fecha', fmt(finRango)).order('hora', { ascending: true });
+                .select('*').gte('fecha', fechaLocalISO(inicioRango)).lte('fecha', fechaLocalISO(finRango)).order('hora', { ascending: true });
             cacheEventos = eventos || [];
 
-            const hoyStr = fmt(new Date());
+            const hoyStr = fechaLocalISO(new Date());
             const grid = document.getElementById('calendario-grid');
             let html = '';
             let cursor = new Date(inicioRango);
 
             while (cursor <= finRango) {
-                const fechaStr = fmt(cursor);
+                const fechaStr = fechaLocalISO(cursor);
                 const esMesActual = cursor.getMonth() === mes;
                 const esHoy = fechaStr === hoyStr;
                 const eventosDelDia = cacheEventos.filter(e => e.fecha === fechaStr);
@@ -1924,6 +1971,7 @@
             if (!tableroActualId) return;
             const token = ++cargarColumnasToken;
             const contenedor = document.getElementById('tablero-columnas');
+            if (!contenedor) return;
             const tableroId = tableroActualId;
             let totalPorHacer = 0, totalEnProceso = 0, totalFinalizado = 0, totalVencidas = 0, totalProximas = 0, totalGeneral = 0;
             const hoy = new Date();
@@ -1947,7 +1995,7 @@
             }
 
             const idsSegmentos = segments.map(s => s.id);
-            const idsFinalizado = segments.filter(col => col.nombre.toLowerCase().match(/(finalizado|listo|terminado)/)).map(s => s.id);
+            const idsFinalizado = segments.filter(col => (col.nombre || '').toLowerCase().match(/(finalizado|listo|terminado)/)).map(s => s.id);
 
             // Una sola query para TODAS las tareas activas del tablero (todas las columnas a la vez)
             let queryTareas = supabaseClient.from('tareas').select('*')
@@ -1977,9 +2025,9 @@
             let htmlColumnas = '';
 
             for (const col of segments) {
-                const esFin = col.nombre.toLowerCase().match(/(finalizado|listo|terminado)/);
-                const esPro = col.nombre.toLowerCase().match(/(proceso|haciendo)/);
-                const esHac = col.nombre.toLowerCase().match(/(hacer|pendiente)/);
+                const esFin = (col.nombre || '').toLowerCase().match(/(finalizado|listo|terminado)/);
+                const esPro = (col.nombre || '').toLowerCase().match(/(proceso|haciendo)/);
+                const esHac = (col.nombre || '').toLowerCase().match(/(hacer|pendiente)/);
 
                 const tasksRaw = tareasPorColumna[col.id] || [];
                 let tasks;
@@ -2148,6 +2196,7 @@
         function toggleSelectorResponsables() {
             const panel = document.getElementById('panel-selector-responsables');
             const btnTexto = document.getElementById('texto-btn-selector-responsables');
+            if (!panel) return;
             panel.classList.toggle('hidden');
             if (btnTexto) btnTexto.innerText = panel.classList.contains('hidden') ? '＋ Asignar personas' : '▴ Cerrar lista';
         }
@@ -2260,7 +2309,7 @@
             document.getElementById('meta-eficiencia-barra').style.width = eficienciaPct + '%';
         }
 
-        function handleDragStart(e, id) { e.dataTransfer.setData("text/plain", id); document.getElementById(`tarea-${id}`).classList.add('dragging'); }
+        function handleDragStart(e, id) { e.dataTransfer.setData("text/plain", id); document.getElementById(`tarea-${id}`)?.classList.add('dragging'); }
         function handleDragEnd(e) { e.currentTarget.classList.remove('dragging'); }
         function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
         function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
@@ -2291,7 +2340,7 @@
             if (colOrigenId === colDestinoId) return;
 
             const colDestino = cacheSegmentosActuales.find(s => s.id === colDestinoId);
-            const esFinDestino = colDestino && colDestino.nombre.toLowerCase().match(/(finalizado|listo|terminado)/);
+            const esFinDestino = colDestino && (colDestino.nombre || '').toLowerCase().match(/(finalizado|listo|terminado)/);
             const contenedorDestino = document.querySelector(`[data-columna-id="${colDestinoId}"] .lista-tareas-contenedor`);
 
             if (contenedorDestino) {
@@ -2665,7 +2714,6 @@
         
         async function guardarEspacio() {
             const titulo = document.getElementById('espacio-titulo').value.trim();
-            const icono = document.getElementById('espacio-icono').value.trim();
             if(!titulo) return mostrarToast("Escribe el nombre del espacio", "error");
             const { data } = await supabaseClient.from('tableros').insert([{ titulo, descripcion: `Mesa para ${titulo}` }]).select();
             cerrarModalEspacio();
